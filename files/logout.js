@@ -1,17 +1,19 @@
 
-module.exports = async function(req, res){
-    
-    if (req.session.access_token) {
+module.exports = async function (req, res, cfg, existSession) {
 
-        const discord_api = require('../libs/discord_api');
-        await discord_api.revokeToken(req.session.access_token);
+    // Exist Session
+    if (existSession) {
+
+        // Get API HTTP and Revoke the Token
+        const discord_api = require('./api');
+        await discord_api.revokeToken(cfg.access_token);
 
         req.session = null;
 
         // Redirect
-        if(req.query.redirect){
+        if (req.query.redirect) {
 
-            if(req.query.redirect.startsWith('/')){
+            if (req.query.redirect.startsWith('/')) {
                 req.query.redirect = req.query.redirect.substring(1);
             }
 
