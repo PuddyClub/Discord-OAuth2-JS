@@ -31,6 +31,23 @@ module.exports = async function (req, res, cfg, existSession) {
         // Exist Cfg
         if (objType(tinyCfg, 'object') && objType(tinyQuery, 'object')) {
 
+            // Redirect
+            let returnRedirect = '/';
+            if(typeof tinyCfg.redirect === "string") {returnRedirect = tinyCfg.redirect;}
+            if (objType(req.query, 'object') && typeof req.query[tinyQuery.redirect] === "string") {
+
+                if (req.query[tinyQuery.redirect].startsWith('/')) {
+                    req.query[tinyQuery.redirect] = req.query[tinyQuery.redirect].substring(1);
+                }
+
+                tinyState.redirect = req.query[tinyQuery.redirect];
+                returnRedirect = req.query[tinyQuery.redirect];
+
+            }
+
+            // Prepare State
+            tinyState = encodeURIComponent(JSON.stringify(tinyState));
+
             // Don't exist session
             if (!existSession) {
 
@@ -43,7 +60,6 @@ module.exports = async function (req, res, cfg, existSession) {
 
                 // Scopes
                 tinyCfg.scopeURI = '';
-
                 if (Array.isArray(tinyCfg.scope)) {
                     for (const item in tinyCfg.scope) {
                         if (tinyCfg.scopeURI) {
@@ -53,26 +69,13 @@ module.exports = async function (req, res, cfg, existSession) {
                     }
                 }
 
-                // Redirect
-                if (objType(req.query, 'object') && typeof req.query[tinyQuery.redirect] === "string") {
-
-                    if (req.query[tinyQuery.redirect].startsWith('/')) {
-                        req.query[tinyQuery.redirect] = req.query[tinyQuery.redirect].substring(1);
-                    }
-
-                    tinyState.redirect = req.query[tinyQuery.redirect];
-
-                }
-
-                tinyState = encodeURIComponent(JSON.stringify(tinyState));
-
                 // Redirect URL
                 return res.redirect(`https://discord.com/api/oauth2/authorize?client_id=${tinyCfg.discordID}&scope=${tinyCfg.scopeURI}&response_type=code&redirect_uri=${tinyCfg.redirect}&state=${tinyState}`);
 
             }
 
             // Yes
-            else { return res.redirect('/'); }
+            else { return res.redirect(returnRedirect); }
 
         }
 
