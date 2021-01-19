@@ -1,52 +1,68 @@
 
-module.exports = async function (isDebug, req, res, tinyCfg, data) {
+module.exports = async function (req, res, cfg, data) {
+
+    // Modules
+    const _ = require('lodash');
+    const objType = require('@tinypudding/puddy-lib/get/objType');
 
     if (!req.session.access_token) {
 
-        // Redirect
-        let redirect
-        if (isDebug) {
-            redirect = encodeURIComponent('http://localhost:' + tinyCfg.port + '/redirect');
-        } else {
-            redirect = encodeURIComponent('https://' + tinyCfg.hostname + "/redirect");
-        }
+        // Create Settings
+        const tinyQuery = _.defaultsDeep({}, cfg.query, {
+            csrfToken: 'csrfToken',
+            redirect: 'redirect'
+        });
 
-        // Scopes
-        let tinyscopes = '';
+        // Create Settings
+        const tinyCfg = _.defaultsDeep({}, cfg.auth, {
+            redirect: 'http://localhost/redirect',
+            scope: []
+        });
 
-        if (Array.isArray(tinyCfg.discord.scope)) {
-            for (const item in tinyCfg.discord.scope) {
-                if (tinyscopes) {
-                    tinyscopes += '%20';
+        // Default Values State
+        let tinyState = _.defaultsDeep({}, cfg.state, {
+            csrfToken: '',
+            redirect: ''
+        });
+
+        if (objType(tinyQuery, 'object') && objType(tinyCfg, 'object') && objType(tinyState, 'object')) {
+
+            // Redirect Fixed
+            if (typeof tinyCfg.redirect === "string") {
+                tinyCfg.redirect = encodeURIComponent(tinyCfg.redirect);
+            } else {
+                tinyCfg.redirect = '';
+            }
+
+            // Scopes
+            tinyCfg.scopeURI = '';
+
+            if (Array.isArray(tinyCfg.scope)) {
+                for (const item in tinyCfg.scope) {
+                    if (tinyCfg.scopeURI) {
+                        tinyCfg.scopeURI += '%20';
+                    }
+                    tinyCfg.scopeURI += encodeURIComponent(tinyCfg.scope[item]);
                 }
-                tinyscopes += tinyCfg.discord.scope[item];
-            }
-        }
-
-        // Extra Data
-        if (data) {
-            data.csrfToken = req.session.csrfToken;
-        } else {
-            data = {
-                csrfToken: req.session.csrfToken
-            }
-        }
-
-        // Redirect
-        if(req.query.redirect){
-
-            if(req.query.redirect.startsWith('/')){
-                req.query.redirect = req.query.redirect.substring(1);
             }
 
-            data.redirect = req.query.redirect;
+            // Redirect
+            if (objType(req.query, 'object') && typeof req.query[tinyQuery.redirect] === "string") {
+
+                if (req.query[tinyQuery.redirect].startsWith('/')) {
+                    req.query[tinyQuery.redirect] = req.query[tinyQuery.redirect].substring(1);
+                }
+
+                tinyState.redirect = req.query[tinyQuery.redirect];
+
+            }
+
+            tinyState = encodeURIComponent(JSON.stringify(tinyState));
+
+            // Redirect URL
+            return res.redirect(`https://discord.com/api/oauth2/authorize?client_id=${tinyCfg.discord.id}&scope=${tinyscopes}&response_type=code&redirect_uri=${redirect}&state=${data}`);
 
         }
-
-        data = encodeURIComponent(JSON.stringify(data));
-
-        // Redirect URL
-        return res.redirect(`https://discord.com/api/oauth2/authorize?client_id=${tinyCfg.discord.id}&scope=${tinyscopes}&response_type=code&redirect_uri=${redirect}&state=${data}`);
 
     } else {
         return res.redirect('/');
