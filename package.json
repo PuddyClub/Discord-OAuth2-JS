@@ -1,0 +1,28 @@
+{
+  "name": "@tinypudding/discord-oauth2",
+  "version": "1.0.0",
+  "description": "Login authenticator with Discord account compatible with cookies or Firebase Auth.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TinyPudding/Discord-OAuth2.git"
+  },
+  "keywords": [
+    "discord-oauth2"
+  ],
+  "author": "Yasmin Seidel (JasminDreasond)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/TinyPudding/Discord-OAuth2/issues"
+  },
+  "homepage": "https://github.com/TinyPudding/Discord-OAuth2#readme",
+  "dependencies": {
+    "node-fetch": "^2.6.1"
+  },
+  "devDependencies": {
+    "express": "^4.17.1"
+  }
+}
