@@ -1,5 +1,10 @@
 // Module Base
-const discordAuth = {};
+const discordAuth = {
+
+    // Login
+    login: require('./files/login')
+
+};
 
 // Export Module
 module.exports = discordAuth;

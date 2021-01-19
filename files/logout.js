@@ -1,8 +1,22 @@
 
 module.exports = async function (req, res, cfg, existSession) {
 
+    // Redirect
+    if (req.query.redirect) {
+
+        if (req.query.redirect.startsWith('/')) {
+            req.query.redirect = req.query.redirect.substring(1);
+        }
+
+    } else {
+        req.query.redirect = '';
+    }
+
     // Exist Session
     if (existSession) {
+
+        // Prepare Modules
+        const objType = require('@tinypudding/puddy-lib/get/objType');
 
         // Get API HTTP and Revoke the Token
         const discord_api = require('./api');
@@ -10,21 +24,9 @@ module.exports = async function (req, res, cfg, existSession) {
 
         req.session = null;
 
-        // Redirect
-        if (req.query.redirect) {
-
-            if (req.query.redirect.startsWith('/')) {
-                req.query.redirect = req.query.redirect.substring(1);
-            }
-
-        } else {
-            req.query.redirect = '';
-        }
-
-        return res.redirect('/' + req.query.redirect);
-
-    } else {
-        res.status(404); return res.render('error', { code: 404, text: 'Not Found' });
     }
+
+    // Action Complete
+    return res.redirect('/' + req.query.redirect);
 
 }

@@ -1,5 +1,5 @@
 
-module.exports = async function (req, res, cfg, existSession) {
+module.exports = function (req, res, cfg, existSession) {
 
     // Modules
     const _ = require('lodash');
