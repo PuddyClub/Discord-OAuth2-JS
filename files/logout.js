@@ -1,6 +1,12 @@
 
 module.exports = async function (req, res, cfg, existSession) {
 
+    // Prepare Modules
+    const objType = require('@tinypudding/puddy-lib/get/objType');
+
+    // Prepare Final Redirect
+    let finalRedirect = '/';
+
     // Redirect
     if (req.query.redirect) {
 
@@ -15,9 +21,6 @@ module.exports = async function (req, res, cfg, existSession) {
     // Exist Session
     if (existSession) {
 
-        // Prepare Modules
-        const objType = require('@tinypudding/puddy-lib/get/objType');
-
         // Get API HTTP and Revoke the Token
         const discord_api = require('./api');
         await discord_api.revokeToken(cfg.access_token);
@@ -27,6 +30,6 @@ module.exports = async function (req, res, cfg, existSession) {
     }
 
     // Action Complete
-    return res.redirect('/' + req.query.redirect);
+    return res.redirect(finalRedirect);
 
 }
