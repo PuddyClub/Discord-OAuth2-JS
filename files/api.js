@@ -1,165 +1,97 @@
 module.exports = {
 
     // Get Token
-    getToken: async function (dsData) {
+    getToken: function (dsData) {
+        return new Promise(function (resolve, reject) {
 
-        // Response
-        const fetch = require('node-fetch');
-        const response = await fetch(`https://discord.com/api/oauth2/token`,
-            {
-                method: 'POST',
-                body: new URLSearchParams({
-                    "client_id": dsData.client_id,
-                    "client_secret": dsData.client_secret,
-                    "grant_type": 'authorization_code',
-                    "code": dsData.code,
-                    "redirect_uri": dsData.redirect_uri,
-                    "scope": dsData.scope
-                }),
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                }
-            });
+            // Response
+            require('@tinypudding/puddy-lib/http/fetchJSON')(`https://discord.com/api/oauth2/token`,
+                {
+                    method: 'POST',
+                    body: new URLSearchParams({
+                        "client_id": dsData.client_id,
+                        "client_secret": dsData.client_secret,
+                        "grant_type": 'authorization_code',
+                        "code": dsData.code,
+                        "redirect_uri": dsData.redirect_uri,
+                        "scope": dsData.scope
+                    }),
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    }
+                }).then(data => { resolve(data); }).catch(err => { reject(err); });
 
-        // Get Data
-        let data = {
-            data: null,
-            error: null
-        };
+            // Complete
+            return;
 
-        // Try
-        try {
-            data.data = await response.json();
-        } catch (err) {
-            data.data = null;
-            data.error = err;
-        }
-
-        // Return
-        return data;
-
+        });
     },
 
     // Get User
-    getUser: async function (access_token) {
+    getUser: function (access_token) {
+        return new Promise(function (resolve, reject) {
 
-        // Response
-        const fetch = require('node-fetch');
-        const response = await fetch(`https://discord.com/api/users/@me`, {
-            method: 'GET',
-            headers: {
-                Authorization: `Bearer ${access_token}`,
-            }
+            // Response
+            require('@tinypudding/puddy-lib/http/fetchJSON')(`https://discord.com/api/users/@me`, {
+                method: 'GET',
+                headers: {
+                    Authorization: `Bearer ${access_token}`,
+                }
+            }).then(data => { resolve(data); }).catch(err => { reject(err); });
+
+            // Complete
+            return;
+
         });
-
-        // Get Data
-        let data = {
-            data: null,
-            error: null
-        };
-
-        // Try
-        try {
-            data.data = await response.json();
-        } catch (err) {
-            data.data = null;
-            data.error = err;
-        }
-
-        // Return
-        return data;
-
     },
 
     // Revoke Token
-    revokeToken: async function (access_token) {
+    revokeToken: function (access_token) {
+        return new Promise(function (resolve, reject) {
 
-        // Response
-        const fetch = require('node-fetch');
-        const response = await fetch(`https://discord.com/api/oauth2/token/revoke?token=${access_token}`,
-            {
-                method: 'POST'
-            }
-        );
+            // Response
+            require('@tinypudding/puddy-lib/http/fetchJSON')(`https://discord.com/api/oauth2/token/revoke?token=${access_token}`, { method: 'POST' })
+                .then(data => { resolve(data); }).catch(err => { reject(err); });
 
-        // Get Data
-        let data = {
-            data: null,
-            error: null
-        };
+            // Complete
+            return;
 
-        // Try
-        try {
-            data.data = await response.json();
-        } catch (err) {
-            data.data = null;
-            data.error = err;
-        }
-
-        // Return
-        return data;
-
+        });
     },
 
     // User Guilds
-    getUserGuilds: async function (access_token) {
+    getUserGuilds: function (access_token) {
+        return new Promise(function (resolve, reject) {
 
-        // Response
-        const fetch = require('node-fetch');
-        const response = await fetch(`https://discord.com/api/users/@me/guilds`, {
-            method: 'GET',
-            headers: {
-                Authorization: `Bearer ${access_token}`,
-            }
+            // Response
+            require('@tinypudding/puddy-lib/http/fetchJSON')(`https://discord.com/api/users/@me/guilds`, {
+                method: 'GET',
+                headers: {
+                    Authorization: `Bearer ${access_token}`,
+                }
+            }).then(data => { resolve(data); }).catch(err => { reject(err); });
+
+            // Complete
+            return;
+
         });
-
-        // Get Data
-        let data = {
-            data: null,
-            error: null
-        };
-
-        // Try
-        try {
-            data.data = await response.json();
-        } catch (err) {
-            data.data = null;
-            data.error = err;
-        }
-
-        // Return
-        return data;
-
     },
 
     // Guild Widget
-    getGuildWidget: async function (guildID) {
+    getGuildWidget: function (guildID) {
+        return new Promise(function (resolve, reject) {
 
-        // Response
-        const fetch = require('node-fetch');
-        const response = await fetch(`https://discord.com/api/guilds/${guildID}/widget.json`,
-            {
-                method: 'GET'
-            }
-        );
+            // Response
+            require('@tinypudding/puddy-lib/http/fetchJSON')(`https://discord.com/api/guilds/${guildID}/widget.json`,
+                {
+                    method: 'GET'
+                }
+            ).then(data => { resolve(data); }).catch(err => { reject(err); });
 
-        // Get Data
-        let data = {
-            data: null,
-            error: null
-        };
+            // Complete
+            return;
 
-        // Try
-        try {
-            data.data = await response.json();
-        } catch (err) {
-            data.data = null;
-            data.error = err;
-        }
-
-        // Return
-        return data;
-
+        });
     },
 
 };
