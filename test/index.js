@@ -125,6 +125,7 @@ app.get('/redirect', bodyParseN, (req, res) => {
     ).then(result => {
 
         // Complete
+        req.session[sessionVar] = result.token.access_token;
         res.json(result);
         return;
 
