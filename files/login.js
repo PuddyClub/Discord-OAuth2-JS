@@ -17,7 +17,6 @@ module.exports = function (req, res, cfg, existSession) {
 
         // Create Settings
         const tinyQuery = _.defaultsDeep({}, cfg.query, {
-            csrfToken: 'csrfToken',
             redirect: 'redirect'
         });
 
