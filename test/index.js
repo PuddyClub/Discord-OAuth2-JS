@@ -132,7 +132,7 @@ app.get('/redirect', bodyParseN, (req, res) => {
 
         // Complete
         console.error(err);
-        return http_status.send(res, err.response.status);
+        return http_status.send(res, err.code);
 
     });
 
