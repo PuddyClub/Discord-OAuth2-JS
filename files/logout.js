@@ -24,7 +24,7 @@ module.exports = async function (req, res, cfg, existSession) {
             if (objType(tinyQuery, 'object')) {
 
                 // Exist Query
-                if (typeof tinyCfg.csrfToken !== "string" || (
+                if ((typeof tinyCfg.csrfToken !== "string" || tinyCfg.csrfToken.length < 1) || (
                     objType(req.query, 'object') &&
                     typeof req.query[tinyQuery.csrfToken] === "string" && tinyCfg.csrfToken === req.query[tinyQuery.csrfToken]
                 )) {

@@ -85,7 +85,7 @@ app.get('/logout', (req, res) => {
     ).then(result => {
 
         // Complete
-        console.log(result);
+        result();
         return;
 
     }).catch(err => {
@@ -138,6 +138,16 @@ app.post('/redirect', bodyParseN, (req, res) => {
     // Complete
     return;
 
+});
+
+// Test Page
+app.post('/test', bodyParseN, (req, res) => {
+    res.send('Test Success!');
+});
+
+// Test Page
+app.post('/', bodyParseN, (req, res) => {
+    res.send('Test Homepage!');
 });
 
 // Listen the Server
