@@ -62,7 +62,7 @@ app.get('/login', (req, res) => {
 app.get('/logout', (req, res) => {
 
     // Result
-    const result = discordAuth.logout(req, res,
+    discordAuth.logout(req, res,
         {
 
             // Auth
@@ -80,10 +80,21 @@ app.get('/logout', (req, res) => {
             access_token: req.session[sessionVar]
 
         }, (require('../files/getToken/cookie-session')(req, sessionVar)),
-    );
+    ).then(result => {
+
+        // Complete
+        console.log(result);
+        return;
+
+    }).catch(err => {
+
+        // Complete
+        console.error(err);
+        return;
+
+    });
 
     // Complete
-    console.log(result);
     return;
 
 });
