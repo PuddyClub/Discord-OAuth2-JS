@@ -25,18 +25,17 @@ app.use(tinySession);
 // Port
 const port = 3000;
 
+// Test Config
+const tinyCfg = require('./config.json');
+
 // Discord Login
 app.get('/', (req, res) => {
-
-    return discordAuth.login(req, res, cfg, existSession);
-
+    return discordAuth.login(req, res, tinyCfg, (req.session && req.session.access_token));
 });
 
 // Others
 app.post('*', bodyParseN, (req, res) => {
-    return startPage(botOwner, bot, tinyCfg, res, req, db, isDebug, (defaultPage, page, ip, moment) => {
-        return domainSelector(req, res, defaultPage, page, ip, moment);
-    });
+    
 });
 
 // Listen the Server
