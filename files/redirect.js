@@ -1,5 +1,5 @@
 
-module.exports = async function (req, res, cfg, callback) {
+module.exports = async function (req, res, cfg, existSession) {
     return new Promise(function (resolve, reject) {
 
         // Modules
@@ -18,16 +18,23 @@ module.exports = async function (req, res, cfg, callback) {
         // Detect Query
         if (objType(req.query, 'object')) {
 
-            try {
-
-                // Get State
-                if (typeof req.query.state === "string") {
+            // Get State
+            if (typeof req.query.state === "string") {
+                try {
                     req.query.state = JSON.parse(req.query.state);
+                } catch (err) {
+                    req.query.state = {};
                 }
+            } else {
+                req.query.state = {};
+            }
+
+            // Detect State
+            if (objType(req.query.state, 'object')) {
 
                 // Check Session
-                if (req.query.state.csrfToken && req.query.state.csrfToken === req.session.csrfToken) {
-                    if (!req.session.access_token) {
+                if (typeof tinyCfg.csrfToken !== "string" || tinyCfg.csrfToken.length < 1 || (typeof req.query.state.csrfToken === "string" && req.query.state.csrfToken === tinyCfg.csrfToken)) {
+                    if (!existSession) {
 
                         if (!req.query.code) throw new Error('NoCodeProvided');
 
@@ -41,78 +48,90 @@ module.exports = async function (req, res, cfg, callback) {
                             code: code,
                             redirect_uri: tinyCfg.redirect,
                             scope: tinyCfg.discordScope.join(' ')
-                        });
+                        })
 
-                        // Check Token
-                        if (json.data && ((typeof json.data.access_token === "string") || (typeof json.data.access_token === "number"))) {
+                            // Success
+                            .then(json => {
 
-                            // Get JSON
-                            json = json.data;
+                                // Check Token
+                                if (json.data && ((typeof json.data.access_token === "string") || (typeof json.data.access_token === "number"))) {
 
-                            // Get User
-                            dsUser = await discord_api.getUser(json.access_token);
+                                    // Get JSON
+                                    json = json.data;
 
-                            // User Verified
-                            if (dsUser.data && dsUser.data.verified) {
+                                    // Get User
+                                    dsUser = await discord_api.getUser(json.access_token);
 
-                                // Get Data
-                                dsUser = dsUser.data;
+                                    // User Verified
+                                    if (dsUser.data && dsUser.data.verified) {
 
-                                // Redirect
-                                if (typeof callback !== "function") {
+                                        // Get Data
+                                        dsUser = dsUser.data;
 
-                                    req.session.access_token = json.access_token;
-                                    if (typeof req.query.state.redirect !== "string") {
-                                        return res.redirect('/');
-                                    } else {
-                                        return res.redirect('/' + req.query.state.redirect);
+                                        // Redirect
+                                        if (typeof callback !== "function") {
+
+                                            req.session.access_token = json.access_token;
+                                            if (typeof req.query.state.redirect !== "string") {
+                                                return res.redirect('/');
+                                            } else {
+                                                return res.redirect('/' + req.query.state.redirect);
+                                            }
+
+                                        }
+
+                                        // Custom Redirect
+                                        else {
+                                            return callback(json, dsUser, json.access_token);
+                                        }
+
                                     }
 
+                                    // Ops!
+                                    else {
+
+                                        // Redirect
+                                        if (typeof callback !== "function") {
+                                            res.status(401); return res.render('error', { code: 401, text: 'Discord account need to be verified.' });
+                                        }
+
+                                        // Custom Redirect
+                                        else {
+                                            return callback(json, dsUser, json.access_token);
+                                        }
+
+                                    }
+
+                                } else {
+                                    res.status(401); return res.render('error', { code: 401, text: 'Incorrect Code 2' });
                                 }
 
-                                // Custom Redirect
-                                else {
-                                    return callback(json, dsUser, json.access_token);
-                                }
+                            })
 
-                            }
-
-                            // Ops!
-                            else {
-
-                                // Redirect
-                                if (typeof callback !== "function") {
-                                    res.status(401); return res.render('error', { code: 401, text: 'Discord account need to be verified.' });
-                                }
-
-                                // Custom Redirect
-                                else {
-                                    return callback(json, dsUser, json.access_token);
-                                }
-
-                            }
-
-                        } else {
-                            res.status(401); return res.render('error', { code: 401, text: 'Incorrect Code 2' });
-                        }
+                            // Fail
+                            .catch(err => {
+                                reject({ code: err.response.status, message: err.message });
+                            });
 
                     } else {
-                        res.status(401); return res.render('error', { code: 401, text: 'Incorrect Code 1' });
+                        resolve({ newSession: false });
                     }
                 } else {
-                    res.status(401); return res.render('error', { code: 401, text: 'Incorrect csrfToken' });
+                    reject({ code: 401, message: 'Incorrect csrfToken' });
                 }
 
-            } catch (e) {
-                console.error(e);
-                res.status(500); return res.render('error', { code: 500, text: 'Error Redirect' });
+            }
+
+            // Nope
+            else {
+                reject({ code: 401, message: 'Invalid State Query!' });
             }
 
         }
 
         // Nope
         else {
-            reject(new Error('Invalid Query URL!'));
+            reject({ code: 401, message: 'Invalid Query URL!' });
         }
 
         // Complete
