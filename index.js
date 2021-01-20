@@ -8,7 +8,10 @@ const discordAuth = {
     login: require('./files/login'),
 
     // Logout
-    logout: require('./files/logout')
+    logout: require('./files/logout'),
+
+    // Redirect
+    redirect: require('./files/redirect')
 
 };
 
