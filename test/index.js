@@ -128,8 +128,12 @@ app.get('/redirect', bodyParseN, (req, res) => {
     ).then(result => {
 
         // Complete
-        req.session[sessionVar] = result.token.access_token;
-        res.json(result);
+        if (result.newSession) {
+            req.session[sessionVar] = result.token.access_token;
+            res.json(result);
+        } else {
+            res.redirect('/');
+        }
         return;
 
     }).catch(err => {
