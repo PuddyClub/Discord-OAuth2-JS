@@ -26,16 +26,16 @@ app.use(tinySession);
 const port = 3000;
 
 // Test Config
-const tinyCfg = require('./auth.json');
+const tinyAuth = require('./auth.json');
 
 // Discord Login
 app.get('/', (req, res) => {
-    return discordAuth.login(req, res, tinyCfg, (req.session && req.session.access_token));
+    return discordAuth.login(req, res, { auth: tinyAuth }, (req.session && req.session.access_token));
 });
 
 // Others
 app.post('*', bodyParseN, (req, res) => {
-    
+
 });
 
 // Listen the Server
