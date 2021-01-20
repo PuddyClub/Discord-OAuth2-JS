@@ -27,21 +27,18 @@ const port = 3000;
 
 // Test Config
 const tinyAuth = require('./auth.json');
+const sessionVar = 'access_token';
 
 // Discord Login
 app.get('/', (req, res) => {
-
-
-
     return discordAuth.login(req, res,
         {
             auth: tinyAuth, query: { redirect: 'redirect' }, state: {
                 csrfToken: '',
                 redirect: ''
             }
-        } (theAccessToken), 
+        } (require('../files/getToken/cookie-session')(req, sessionVar)), 
     );
-
 });
 
 // Others
