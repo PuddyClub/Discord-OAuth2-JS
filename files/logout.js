@@ -48,7 +48,7 @@ module.exports = async function (req, res, cfg, existSession) {
                         resolve(function () { res.redirect(finalRedirect); });
                         return;
                     }).catch(err => {
-                        reject(err);
+                        reject({ code: err.response.status, message: err.message });
                     });
 
                 }
@@ -62,14 +62,14 @@ module.exports = async function (req, res, cfg, existSession) {
 
             // Nope
             else {
-                reject(new Error('Invalid csrfToken!'));
+                reject({ code: 401, message: 'Invalid csrfToken!' });
             }
 
         }
 
         // Nope
         else {
-            reject(new Error('Invalid query setting!'));
+            reject({ code: 401, message: 'Invalid query setting!' });
         }
 
         // Action Complete

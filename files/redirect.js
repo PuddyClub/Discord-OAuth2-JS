@@ -1,5 +1,5 @@
 
-module.exports = async function (isDebug, req, res, tinyCfg, callback) {
+module.exports = async function (req, res, cfg, callback) {
     return new Promise(function (resolve, reject) {
 
         // Modules
@@ -108,6 +108,11 @@ module.exports = async function (isDebug, req, res, tinyCfg, callback) {
                 res.status(500); return res.render('error', { code: 500, text: 'Error Redirect' });
             }
 
+        }
+
+        // Nope
+        else {
+            reject(new Error('Invalid Query URL!'));
         }
 
         // Complete
