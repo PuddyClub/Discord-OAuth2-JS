@@ -4,72 +4,93 @@ module.exports = async function (req, res, cfg, existSession) {
 
         // Prepare Modules
         const objType = require('@tinypudding/puddy-lib/get/objType');
-        const _ = require('lodash');
 
-        // Create Settings
-        const tinyQuery = _.defaultsDeep({}, cfg.query, {
-            csrfToken: 'csrfToken',
-            redirect: 'redirect'
-        });
+        // Detect Config
+        if (objType(cfg, 'object')) {
 
-        const tinyCfg = _.defaultsDeep({}, cfg.auth, {
-            csrfToken: ''
-        });
+            const _ = require('lodash');
 
-        // Exist Query Setting
-        if (objType(tinyQuery, 'object')) {
+            // Create Settings
+            const tinyQuery = _.defaultsDeep({}, cfg.query, {
+                csrfToken: 'csrfToken',
+                redirect: 'redirect'
+            });
 
-            // Exist Query
-            if (typeof tinyCfg.csrfToken !== "string" || (
-                objType(req.query, 'object') &&
-                typeof req.query[tinyQuery.csrfToken] === "string" && tinyCfg.csrfToken === req.query[tinyQuery.csrfToken]
-            )) {
+            const tinyCfg = _.defaultsDeep({}, cfg.auth, {
+                csrfToken: ''
+            });
 
-                // Prepare Final Redirect
-                let finalRedirect = '/';
+            // Exist Query Setting
+            if (objType(tinyQuery, 'object')) {
 
-                // Redirect
-                if (typeof req.query[tinyQuery.redirect] === "string") {
+                // Exist Query
+                if (typeof tinyCfg.csrfToken !== "string" || (
+                    objType(req.query, 'object') &&
+                    typeof req.query[tinyQuery.csrfToken] === "string" && tinyCfg.csrfToken === req.query[tinyQuery.csrfToken]
+                )) {
 
-                    if (req.query[tinyQuery.redirect].startsWith('/')) {
-                        finalRedirect = req.query[tinyQuery.redirect].substring(1);
-                    } else {
-                        finalRedirect = req.query[tinyQuery.redirect];
+                    // Prepare Final Redirect
+                    let finalRedirect = '/';
+
+                    // Redirect
+                    if (typeof req.query[tinyQuery.redirect] === "string") {
+
+                        if (req.query[tinyQuery.redirect].startsWith('/')) {
+                            finalRedirect = req.query[tinyQuery.redirect].substring(1);
+                        } else {
+                            finalRedirect = req.query[tinyQuery.redirect];
+                        }
+
                     }
 
-                }
+                    // Exist Session
+                    if (existSession) {
 
-                // Exist Session
-                if (existSession) {
+                        // Exist Token
+                        if (typeof cfg.access_token === "string" && cfg.access_token.length > 0) {
 
-                    // Get API HTTP and Revoke the Token
-                    const revokeToken = require('./api/revokeToken');
-                    revokeToken(cfg.access_token).then(() => {
+                            // Get API HTTP and Revoke the Token
+                            const revokeToken = require('./api/revokeToken');
+                            revokeToken(cfg.access_token).then(() => {
+                                resolve(function () { res.redirect(finalRedirect); });
+                                return;
+                            }).catch(err => {
+                                reject({ code: err.response.status, message: err.message });
+                            });
+
+                        }
+
+                        // Nope
+                        else {
+                            reject({ code: 401, message: 'Invalid Token!' });
+                        }
+
+                    }
+
+                    // Nope
+                    else {
                         resolve(function () { res.redirect(finalRedirect); });
-                        return;
-                    }).catch(err => {
-                        reject({ code: err.response.status, message: err.message });
-                    });
+                    }
 
                 }
 
                 // Nope
                 else {
-                    resolve(function () { res.redirect(finalRedirect); });
+                    reject({ code: 401, message: 'Invalid csrfToken!' });
                 }
 
             }
 
             // Nope
             else {
-                reject({ code: 401, message: 'Invalid csrfToken!' });
+                reject({ code: 401, message: 'Invalid query setting!' });
             }
 
         }
 
         // Nope
         else {
-            reject({ code: 401, message: 'Invalid query setting!' });
+            reject({ code: 500, message: 'Invalid Config Values!' });
         }
 
         // Action Complete
