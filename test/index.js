@@ -30,7 +30,18 @@ const tinyAuth = require('./auth.json');
 
 // Discord Login
 app.get('/', (req, res) => {
-    return discordAuth.login(req, res, { auth: tinyAuth }, (req.session && req.session.access_token));
+
+
+
+    return discordAuth.login(req, res,
+        {
+            auth: tinyAuth, query: { redirect: 'redirect' }, state: {
+                csrfToken: '',
+                redirect: ''
+            }
+        } (theAccessToken), 
+    );
+
 });
 
 // Others
