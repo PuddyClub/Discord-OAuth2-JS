@@ -37,8 +37,13 @@ const sessionVar = 'access_token';
 app.get('/login', (req, res) => {
 
     // Result
-    const result = discordAuth.login(req, res,
+    discordAuth.login(req, res,
         {
+
+            // Error
+            errorCallback: function (err) {
+                return res.json(err);
+            },
 
             // Auth
             auth: tinyAuth,
@@ -55,8 +60,6 @@ app.get('/login', (req, res) => {
         }, (require('../files/getToken/cookie-session')(req, sessionVar)),
     );
 
-    // Complete
-    console.log(result);
     return;
 
 });
@@ -93,7 +96,7 @@ app.get('/logout', (req, res) => {
 
         // Complete
         console.error(err);
-        return;
+        return http_status.send(res, err.code);
 
     });
 
