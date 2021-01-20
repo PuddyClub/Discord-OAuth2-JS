@@ -1,6 +1,7 @@
 // Test Modules Prepare
 const discordAuth = require('../index');
 const express = require('express');
+const http_status = require('@tinypudding/puddy-lib/http/HTTP-1.0');
 const app = express();
 
 // Prepare Body Parser
@@ -124,14 +125,14 @@ app.post('/redirect', bodyParseN, (req, res) => {
     ).then(result => {
 
         // Complete
-        console.log(result);
+        res.json(result);
         return;
 
     }).catch(err => {
 
         // Complete
         console.error(err);
-        return;
+        return http_status.send(res, err.response.status);
 
     });
 
@@ -147,7 +148,29 @@ app.post('/test', bodyParseN, (req, res) => {
 
 // Test Page
 app.post('/', bodyParseN, (req, res) => {
-    res.send('Test Homepage!');
+
+    // Result
+    if (typeof req.session[sessionVar] === "string") {
+        discordAuth.api.getUser(req.session[sessionVar]).then(result => {
+
+            // Complete
+            res.json(result);
+            return;
+
+        }).catch(err => {
+
+            // Complete
+            console.error(err);
+            return http_status.send(res, err.response.status);
+
+        });
+    }
+
+    // Nope
+    else {
+        res.send('No Account Detect');
+    }
+
 });
 
 // Listen the Server
@@ -165,6 +188,6 @@ app.listen(port, () => {
     console.group('Account URLs with Redirect');
     console.log(`Login: http://localhost:${port}/login?redirect=test`);
     console.log(`Logout: http://localhost:${port}/logout?redirect=test`);
-    console.group('Account URLs');
+    console.groupEnd();
 
 })
