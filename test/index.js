@@ -90,7 +90,7 @@ app.get('/logout', (req, res) => {
     ).then(result => {
 
         // Complete
-        console.log(result.data);
+        console.log(result);
         result.fn();
         return;
 
