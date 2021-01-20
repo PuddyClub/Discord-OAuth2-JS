@@ -2,6 +2,9 @@
 const discordAuth = {
 
     // Login
+    api: require('./files/api'),
+
+    // Login
     login: require('./files/login'),
 
     // Logout
