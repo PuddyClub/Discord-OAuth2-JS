@@ -5,7 +5,6 @@ module.exports = async function (req, res, cfg, existSession) {
         // Modules
         const _ = require('lodash');
         const objType = require('@tinypudding/puddy-lib/get/objType');
-        const http_status = require('@tinypudding/puddy-lib/http/HTTP-1.0');
 
         // Create Settings
         const tinyCfg = _.defaultsDeep({}, cfg.auth, {
