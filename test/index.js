@@ -86,7 +86,7 @@ app.get('/logout', (req, res) => {
             // Auth
             auth: {
                 access_token: req.session[sessionVar],
-                client_id: tinyAuth.client_id
+                client_id: tinyAuth.discordID
             }
 
         }, (getSessionFromCookie(req, sessionVar)),
