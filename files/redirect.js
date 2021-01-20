@@ -39,10 +39,10 @@ module.exports = async function (req, res, cfg, existSession) {
                         if (!req.query.code) throw new Error('NoCodeProvided');
 
                         // Discord API
-                        const discord_api = require('./api');
+                        const getToken = require('./api/getToken');
 
                         const code = req.query.code;
-                        let json = await discord_api.getToken({
+                        let json = await getToken({
                             client_id: tinyCfg.discordID,
                             client_secret: tinyCfg.discordSecret,
                             code: code,

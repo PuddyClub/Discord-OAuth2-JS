@@ -43,8 +43,8 @@ module.exports = async function (req, res, cfg, existSession) {
                 if (existSession) {
 
                     // Get API HTTP and Revoke the Token
-                    const discord_api = require('./api');
-                    discord_api.revokeToken(cfg.access_token).then(() => {
+                    const revokeToken = require('./api/revokeToken');
+                    revokeToken(cfg.access_token).then(() => {
                         resolve(function () { res.redirect(finalRedirect); });
                         return;
                     }).catch(err => {
