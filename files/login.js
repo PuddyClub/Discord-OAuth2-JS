@@ -33,7 +33,7 @@ module.exports = function (req, res, cfg, existSession) {
             // Redirect
             let returnRedirect = '/';
             req.query[tinyQuery.redirect] = req.query[tinyQuery.redirect].trim();
-            if (objType(req.query, 'object') && typeof req.query[tinyQuery.redirect] === "string" && !req.query[tinyQuery.redirect].startsWith('https')) {
+            if (objType(req.query, 'object') && typeof req.query[tinyQuery.redirect] === "string" && !req.query[tinyQuery.redirect].startsWith('http')) {
 
 
                 if (req.query[tinyQuery.redirect].startsWith('/')) {
