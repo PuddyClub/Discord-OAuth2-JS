@@ -48,16 +48,18 @@ module.exports = async function (req, res, cfg, existSession) {
                             // Check New Session
                             resolveData.newSession = true;
 
-                            if (typeof req.query.code === "string" && req.query.code.length > 0) {
+                            if (
+                                (typeof req.query.code === "string" && req.query.code.length > 0) ||
+                                (typeof req.query.code === "number" && !isNaN(req.query.code))
+                            ) {
 
                                 // Discord Token
                                 const getToken = require('./api/getToken');
 
-                                const code = req.query.code;
                                 getToken({
                                     client_id: tinyCfg.discordID,
                                     client_secret: tinyCfg.discordSecret,
-                                    code: code,
+                                    code: req.query.code,
                                     redirect_uri: tinyCfg.redirect,
                                     scope: tinyCfg.discordScope.join(' ')
                                 })
@@ -66,7 +68,7 @@ module.exports = async function (req, res, cfg, existSession) {
                                     .then(json => {
 
                                         // Check Token
-                                        if (objType(json, 'object') && objType(json.data, 'object') && (typeof json.data.access_token === "string" || typeof json.data.access_token === "number")) {
+                                        if (objType(json, 'object') && (typeof json.access_token === "string" || typeof json.access_token === "number")) {
 
                                             // Token
                                             resolveData.token = json;
@@ -78,13 +80,13 @@ module.exports = async function (req, res, cfg, existSession) {
                                                 const getUser = require('./api/getUser');
 
                                                 // Get User
-                                                getUser(json.data.access_token)
+                                                getUser(json.access_token)
 
                                                     // Get User
                                                     .then(dsUser => {
 
                                                         // User Verified
-                                                        if ((objType(dsUser.data, 'object') && dsUser.data.verified) || !tinyCfg.needVerification) {
+                                                        if ((objType(dsUser, 'object') && dsUser.verified) || !tinyCfg.needVerification) {
 
                                                             // User Data
                                                             resolveData.user = dsUser;
