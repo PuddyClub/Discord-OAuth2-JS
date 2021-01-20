@@ -13,10 +13,10 @@ module.exports = async function (req, res, cfg, existSession) {
             const tinyCfg = _.defaultsDeep({}, cfg.auth, {
                 redirect: 'http://localhost/redirect',
                 discordScope: [],
-                discordID: '',
-                discordSecret: '',
-                needVerification: false,
-                getUser: true
+                client_id: '',
+                client_secret: '',
+                need_verification: false,
+                get_user: true
             });
 
             // Detect Query
@@ -57,8 +57,8 @@ module.exports = async function (req, res, cfg, existSession) {
                                 const getToken = require('../api/getToken');
 
                                 getToken({
-                                    client_id: tinyCfg.discordID,
-                                    client_secret: tinyCfg.discordSecret,
+                                    client_id: tinyCfg.client_id,
+                                    client_secret: tinyCfg.client_secret,
                                     code: req.query.code,
                                     redirect_uri: tinyCfg.redirect,
                                     scope: tinyCfg.discordScope.join(' ')
@@ -77,7 +77,7 @@ module.exports = async function (req, res, cfg, existSession) {
                                                 resolveData.token = json;
 
                                                 // Get User Data
-                                                if (tinyCfg.getUser) {
+                                                if (tinyCfg.get_user) {
 
                                                     // Discord Token
                                                     const getUser = require('../api/getUser');

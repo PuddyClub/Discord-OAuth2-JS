@@ -1,10 +1,15 @@
 module.exports = function (dsData) {
     return new Promise(function (resolve, reject) {
 
+        console.log(dsData);
+
         // Response
-        require('@tinypudding/puddy-lib/http/fetch/json')(`https://discord.com/api/oauth2/token/revoke?token=${dsData.access_token}`, {
+        require('@tinypudding/puddy-lib/http/fetch/text')(`https://discord.com/api/oauth2/token/revoke`, {
             method: 'POST',
-            body: new URLSearchParams({ "client_id": dsData.client_id }),
+            body: new URLSearchParams({ 
+                client_id: dsData.client_id, 
+                access_token: dsData.access_token 
+            }),
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded'
             }

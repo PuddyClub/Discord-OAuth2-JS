@@ -13,7 +13,7 @@ module.exports = function (req, res, cfg, existSession) {
         const tinyCfg = _.defaultsDeep({}, cfg.auth, {
             redirect: 'http://localhost/redirect',
             discordScope: [],
-            discordID: ''
+            client_id: ''
         });
 
         // Validate Config
@@ -86,7 +86,7 @@ module.exports = function (req, res, cfg, existSession) {
                         }
 
                         // Redirect URL
-                        return res.redirect(`https://discord.com/api/oauth2/authorize?client_id=${tinyCfg.discordID}&scope=${tinyCfg.scopeURI}&response_type=code&redirect_uri=${tinyCfg.redirect}&state=${tinyState}`);
+                        return res.redirect(`https://discord.com/api/oauth2/authorize?client_id=${encodeURIComponent(tinyCfg.client_id)}&scope=${tinyCfg.scopeURI}&response_type=code&redirect_uri=${tinyCfg.redirect}&state=${tinyState}`);
 
                     }
 
