@@ -54,7 +54,7 @@ module.exports = async function (req, res, cfg, existSession) {
                             ) {
 
                                 // Discord Token
-                                const getToken = require('./api/getToken');
+                                const getToken = require('../api/getToken');
 
                                 getToken({
                                     client_id: tinyCfg.discordID,
@@ -80,7 +80,7 @@ module.exports = async function (req, res, cfg, existSession) {
                                                 if (tinyCfg.getUser) {
 
                                                     // Discord Token
-                                                    const getUser = require('./api/getUser');
+                                                    const getUser = require('../api/getUser');
 
                                                     // Get User
                                                     getUser(json.access_token)

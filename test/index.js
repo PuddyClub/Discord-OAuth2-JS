@@ -2,6 +2,7 @@
 const discordAuth = require('../index');
 const express = require('express');
 const http_status = require('@tinypudding/puddy-lib/http/HTTP-1.0');
+const getSessionFromCookie = require('../get/cookie-session');
 const app = express();
 
 // Prepare Body Parser
@@ -57,7 +58,7 @@ app.get('/login', (req, res) => {
                 redirect: ''
             }
 
-        }, (require('../files/getToken/cookie-session')(req, sessionVar)),
+        }, (getSessionFromCookie(req, sessionVar)),
     );
 
     return;
@@ -85,7 +86,7 @@ app.get('/logout', (req, res) => {
             // State
             access_token: req.session[sessionVar]
 
-        }, (require('../files/getToken/cookie-session')(req, sessionVar)),
+        }, (getSessionFromCookie(req, sessionVar)),
     ).then(result => {
 
         // Complete
@@ -124,7 +125,7 @@ app.get('/redirect', bodyParseN, (req, res) => {
                 redirect: ''
             }
 
-        }, (require('../files/getToken/cookie-session')(req, sessionVar)),
+        }, (getSessionFromCookie(req, sessionVar)),
     ).then(result => {
 
         // Complete

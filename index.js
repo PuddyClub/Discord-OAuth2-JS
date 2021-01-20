@@ -2,16 +2,16 @@
 const discordAuth = {
 
     // Login
-    api: require('./files/api'),
+    api: require('./api'),
 
     // Login
-    login: require('./files/login'),
+    login: require('./http/login'),
 
     // Logout
-    logout: require('./files/logout'),
+    logout: require('./http/logout'),
 
     // Redirect
-    redirect: require('./files/redirect')
+    redirect: require('./http/redirect')
 
 };
 

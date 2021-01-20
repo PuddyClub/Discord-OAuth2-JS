@@ -50,7 +50,7 @@ module.exports = async function (req, res, cfg, existSession) {
                         if (typeof cfg.access_token === "string" && cfg.access_token.length > 0) {
 
                             // Get API HTTP and Revoke the Token
-                            const revokeToken = require('./api/revokeToken');
+                            const revokeToken = require('../api/revokeToken');
                             revokeToken(cfg.access_token).then(() => {
                                 resolve(function () { res.redirect(finalRedirect); });
                                 return;
