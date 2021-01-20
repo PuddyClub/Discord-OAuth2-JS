@@ -103,7 +103,7 @@ app.get('/logout', (req, res) => {
 });
 
 // Redirect
-app.post('/redirect', bodyParseN, (req, res) => {
+app.get('/redirect', bodyParseN, (req, res) => {
 
     // Result
     discordAuth.redirect(req, res,
