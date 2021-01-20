@@ -38,21 +38,27 @@ module.exports = function (req, res, cfg, existSession) {
 
                     // Redirect
                     let returnRedirect = '/';
-                    req.query[tinyQuery.redirect] = req.query[tinyQuery.redirect].trim();
-                    if (objType(req.query, 'object') && typeof req.query[tinyQuery.redirect] === "string" && !req.query[tinyQuery.redirect].startsWith('http')) {
+                    if (objType(req.query, 'object')) {
+                        if (typeof req.query[tinyQuery.redirect] === "string") {
+                            req.query[tinyQuery.redirect] = req.query[tinyQuery.redirect].trim();
+                            if (!req.query[tinyQuery.redirect].startsWith('http')) {
 
 
-                        if (req.query[tinyQuery.redirect].startsWith('/')) {
-                            req.query[tinyQuery.redirect] = req.query[tinyQuery.redirect].substring(1);
+                                if (req.query[tinyQuery.redirect].startsWith('/')) {
+                                    req.query[tinyQuery.redirect] = req.query[tinyQuery.redirect].substring(1);
+                                }
+
+                                // Return Redirect
+                                tinyState.redirect = req.query[tinyQuery.redirect];
+                                returnRedirect = req.query[tinyQuery.redirect];
+
+                                // Fix Redirect
+                                returnRedirect = '/' + returnRedirect;
+
+                            }
+                        } else {
+                            delete req.query[tinyQuery.redirect];
                         }
-
-                        // Return Redirect
-                        tinyState.redirect = req.query[tinyQuery.redirect];
-                        returnRedirect = req.query[tinyQuery.redirect];
-
-                        // Fix Redirect
-                        returnRedirect = '/' + returnRedirect;
-
                     }
 
                     // Prepare State
