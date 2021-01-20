@@ -1,6 +1,19 @@
 
 module.exports = async function (isDebug, req, res, tinyCfg, callback) {
 
+    // Modules
+    const _ = require('lodash');
+    const objType = require('@tinypudding/puddy-lib/get/objType');
+    const http_status = require('@tinypudding/puddy-lib/http/HTTP-1.0');
+
+    // Create Settings
+    const tinyCfg = _.defaultsDeep({}, cfg.auth, {
+        redirect: 'http://localhost/redirect',
+        discordScope: [],
+        discordID: '',
+        discordSecret: ''
+    });
+
     try {
 
         // Get State
@@ -8,49 +21,22 @@ module.exports = async function (isDebug, req, res, tinyCfg, callback) {
             req.query.state = JSON.parse(req.query.state);
         }
 
-        // Check Status
-        if (req.query.state.checkStatus) {
-
-            // Create Crypto
-            const crypto = require('crypto');
-            const decipher = crypto.createDecipher(tinyCfg.crypto.algorithm, tinyCfg.discord.secret);
-
-            // Decrypt
-            req.query.code = decipher.update(req.query.code, tinyCfg.crypto.type2, tinyCfg.crypto.type);
-            req.query.code += decipher.final(tinyCfg.crypto.type);
-
-            req.query.state.checkStatus = decipher.update(req.query.state, tinyCfg.crypto.type2, tinyCfg.crypto.type);
-            req.query.state.checkStatus += decipher.final(tinyCfg.crypto.type);
-
-        }
-
         // Check Session
-        if (
-            (req.query.state.csrfToken && req.query.state.csrfToken === req.session.csrfToken) ||
-            req.query.state.checkStatus === tinyCfg.crypto.code
-        ) {
+        if (req.query.state.csrfToken && req.query.state.csrfToken === req.session.csrfToken) {
             if (!req.session.access_token) {
-
-                let redirect;
-
-                if (isDebug) {
-                    redirect = 'http://localhost:' + tinyCfg.port + '/redirect';
-                } else {
-                    redirect = 'https://' + tinyCfg.hostname + "/redirect";
-                }
 
                 if (!req.query.code) throw new Error('NoCodeProvided');
 
                 // Discord API
-                const discord_api = require('../libs/discord_api');
+                const discord_api = require('./api');
 
                 const code = req.query.code;
                 let json = await discord_api.getToken({
-                    client_id: tinyCfg.discord.id,
-                    client_secret: tinyCfg.discord.secret,
+                    client_id: tinyCfg.discordID,
+                    client_secret: tinyCfg.discordSecret,
                     code: code,
-                    redirect_uri: redirect,
-                    scope: tinyCfg.discord.scope.join(' ')
+                    redirect_uri: tinyCfg.redirect,
+                    scope: tinyCfg.discordScope.join(' ')
                 });
 
                 // Check Token

@@ -9,7 +9,7 @@ module.exports = function (req, res, cfg, existSession) {
     // Create Settings
     const tinyCfg = _.defaultsDeep({}, cfg.auth, {
         redirect: 'http://localhost/redirect',
-        scope: [],
+        discordScope: [],
         discordID: ''
     });
 
@@ -67,12 +67,12 @@ module.exports = function (req, res, cfg, existSession) {
 
                     // Scopes
                     tinyCfg.scopeURI = '';
-                    if (Array.isArray(tinyCfg.scope)) {
-                        for (const item in tinyCfg.scope) {
+                    if (Array.isArray(tinyCfg.discordScope)) {
+                        for (const item in tinyCfg.discordScope) {
                             if (tinyCfg.scopeURI) {
                                 tinyCfg.scopeURI += '%20';
                             }
-                            tinyCfg.scopeURI += encodeURIComponent(tinyCfg.scope[item]);
+                            tinyCfg.scopeURI += encodeURIComponent(tinyCfg.discordScope[item]);
                         }
                     }
 
