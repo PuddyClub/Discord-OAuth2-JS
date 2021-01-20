@@ -37,7 +37,7 @@ module.exports = async function (req, res, cfg, existSession) {
                 if (typeof tinyCfg.csrfToken !== "string" || tinyCfg.csrfToken.length < 1 || (typeof req.query.state.csrfToken === "string" && req.query.state.csrfToken === tinyCfg.csrfToken)) {
 
                     // Prepare Resolve Data
-                    const resolveData = { newSession: false };
+                    const resolveData = { newSession: false, state: req.query.state };
 
                     // Exist Session
                     if (!existSession) {
