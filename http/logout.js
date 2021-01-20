@@ -20,6 +20,11 @@ module.exports = async function (req, res, cfg, existSession) {
                 csrfToken: ''
             });
 
+            const tinyOptions = _.defaultsDeep({}, cfg.auth, {
+                access_token: '',
+                client_id: ''
+            });
+
             // Exist Query Setting
             if (objType(tinyQuery, 'object')) {
 
@@ -51,13 +56,19 @@ module.exports = async function (req, res, cfg, existSession) {
 
                         // Exist Token
                         if (
-                            (typeof cfg.access_token === "string" && cfg.access_token.length > 0) ||
-                            (typeof cfg.access_token === "number" && !isNaN(access_token))
+                            (
+                                (typeof tinyOptions.access_token === "string" && tinyOptions.access_token.length > 0) ||
+                                (typeof tinyOptions.access_token === "number" && !isNaN(tinyOptions.access_token))
+                            ) &&
+                            (
+                                (typeof tinyOptions.client_id === "string" && tinyOptions.client_id.length > 0) ||
+                                (typeof tinyOptions.client_id === "number" && !isNaN(tinyOptions.client_id))
+                            )
                         ) {
 
                             // Get API HTTP and Revoke the Token
                             const revokeToken = require('../api/revokeToken');
-                            revokeToken(cfg.access_token).then((data) => {
+                            revokeToken(tinyOptions).then((data) => {
                                 result.data = data;
                                 resolve(result);
                                 return;
@@ -70,7 +81,7 @@ module.exports = async function (req, res, cfg, existSession) {
 
                         // Nope
                         else {
-                            reject({ code: 401, message: 'Invalid Token!' });
+                            reject({ code: 401, message: 'Invalid Token Data!' });
                         }
 
                     }
