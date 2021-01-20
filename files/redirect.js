@@ -86,7 +86,7 @@ module.exports = async function (req, res, cfg, existSession) {
 
                                                         // User Data
                                                         resolveData.user = dsUser;
-                                                        resolve({});
+                                                        resolve(resolveData);
 
                                                     }
 
@@ -95,11 +95,15 @@ module.exports = async function (req, res, cfg, existSession) {
                                                         reject({ code: 401, message: 'Discord account need to be verified.' });
                                                     }
 
+                                                    // Complete
+                                                    return;
+
                                                 })
 
                                                 // Fail
                                                 .catch(err => {
                                                     reject({ code: err.response.status, message: err.message });
+                                                    return;
                                                 });
 
                                         }
@@ -107,13 +111,17 @@ module.exports = async function (req, res, cfg, existSession) {
                                         // Nope
                                         else {
 
-
+                                            // Return Result
+                                            resolve(resolveData);
 
                                         }
 
                                     } else {
                                         reject({ code: 500, message: 'Incorrect User Data!' });
                                     }
+
+                                    // Complete
+                                    return;
 
                                 })
 
