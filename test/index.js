@@ -83,8 +83,11 @@ app.get('/logout', (req, res) => {
                 redirect: 'redirect'
             },
 
-            // State
-            access_token: req.session[sessionVar]
+            // Auth
+            auth: {
+                access_token: req.session[sessionVar],
+                client_id: tinyAuth.client_id
+            }
 
         }, (getSessionFromCookie(req, sessionVar)),
     ).then(result => {
