@@ -161,7 +161,7 @@ module.exports = async function (req, res, cfg, existSession) {
 
         // Nope
         else {
-            reject(({ code: 500, message: 'Invalid Config Values!' });
+            reject({ code: 500, message: 'Invalid Config Values!' });
         }
 
         // Complete
