@@ -67,61 +67,71 @@ module.exports = async function (req, res, cfg, existSession) {
                                     // Success
                                     .then(json => {
 
-                                        // Check Token
-                                        if (objType(json, 'object') && (typeof json.access_token === "string" || typeof json.access_token === "number")) {
+                                        // Valid Json Data
+                                        if (objType(json, 'object')) {
 
-                                            // Token
-                                            resolveData.token = json;
+                                            // Check Token
+                                            if (typeof json.access_token === "string" || typeof json.access_token === "number") {
 
-                                            // Get User Data
-                                            if (tinyCfg.getUser) {
+                                                // Token
+                                                resolveData.token = json;
 
-                                                // Discord Token
-                                                const getUser = require('./api/getUser');
+                                                // Get User Data
+                                                if (tinyCfg.getUser) {
 
-                                                // Get User
-                                                getUser(json.access_token)
+                                                    // Discord Token
+                                                    const getUser = require('./api/getUser');
 
                                                     // Get User
-                                                    .then(dsUser => {
+                                                    getUser(json.access_token)
 
-                                                        // User Verified
-                                                        if ((objType(dsUser, 'object') && dsUser.verified) || !tinyCfg.needVerification) {
+                                                        // Get User
+                                                        .then(dsUser => {
 
-                                                            // User Data
-                                                            resolveData.user = dsUser;
-                                                            resolve(resolveData);
+                                                            // Validate Data
+                                                            if (objType(dsUser, 'object')) {
+                                                                resolveData.user = dsUser;
+                                                                resolve(resolveData);
+                                                            }
 
-                                                        }
+                                                            // Nope
+                                                            else {
+                                                                reject({ code: 500, message: 'Invalid JSON User Data!' });
+                                                            }
 
-                                                        // Ops!
-                                                        else {
-                                                            reject({ code: 401, message: 'Discord account need to be verified.' });
-                                                        }
+                                                            // Complete
+                                                            return;
 
-                                                        // Complete
-                                                        return;
+                                                        })
 
-                                                    })
+                                                        // Fail
+                                                        .catch(err => {
+                                                            reject({ code: err.response.status, message: err.message });
+                                                            return;
+                                                        });
 
-                                                    // Fail
-                                                    .catch(err => {
-                                                        reject({ code: err.response.status, message: err.message });
-                                                        return;
-                                                    });
+                                                }
+
+                                                // Nope
+                                                else {
+
+                                                    // Return Result
+                                                    resolve(resolveData);
+
+                                                }
 
                                             }
 
                                             // Nope
                                             else {
-
-                                                // Return Result
-                                                resolve(resolveData);
-
+                                                reject({ code: 500, message: 'Invalid User Token Data!' });
                                             }
 
-                                        } else {
-                                            reject({ code: 500, message: 'Incorrect User Data!' });
+                                        }
+
+                                        // Nope
+                                        else {
+                                            reject({ code: 500, message: 'Invalid JSON Token Data!' });
                                         }
 
                                         // Complete
@@ -135,7 +145,7 @@ module.exports = async function (req, res, cfg, existSession) {
                                     });
 
                             } else {
-                                reject({ code: 401, message: 'Incorrect Discord Code!' });
+                                reject({ code: 401, message: 'Invalid Discord Code!' });
                             }
 
                         } else {
