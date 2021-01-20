@@ -142,12 +142,12 @@ app.post('/redirect', bodyParseN, (req, res) => {
 });
 
 // Test Page
-app.post('/test', bodyParseN, (req, res) => {
+app.get('/test', (req, res) => {
     res.send('Test Success!');
 });
 
 // Test Page
-app.post('/', bodyParseN, (req, res) => {
+app.get('/', (req, res) => {
 
     // Result
     if (typeof req.session[sessionVar] === "string") {
