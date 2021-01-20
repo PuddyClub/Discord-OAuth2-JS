@@ -12,7 +12,9 @@ module.exports = async function (req, res, cfg, existSession) {
             redirect: 'http://localhost/redirect',
             discordScope: [],
             discordID: '',
-            discordSecret: ''
+            discordSecret: '',
+            needVerification: false,
+            getUser: true
         });
 
         // Detect Query
@@ -38,11 +40,11 @@ module.exports = async function (req, res, cfg, existSession) {
 
                         if (!req.query.code) throw new Error('NoCodeProvided');
 
-                        // Discord API
+                        // Discord Token
                         const getToken = require('./api/getToken');
 
                         const code = req.query.code;
-                        let json = await getToken({
+                        getToken({
                             client_id: tinyCfg.discordID,
                             client_secret: tinyCfg.discordSecret,
                             code: code,
@@ -54,56 +56,65 @@ module.exports = async function (req, res, cfg, existSession) {
                             .then(json => {
 
                                 // Check Token
-                                if (json.data && ((typeof json.data.access_token === "string") || (typeof json.data.access_token === "number"))) {
+                                if (json.data && (typeof json.data.access_token === "string" || typeof json.data.access_token === "number")) {
 
                                     // Get JSON
                                     json = json.data;
 
-                                    // Get User
-                                    dsUser = await discord_api.getUser(json.access_token);
 
-                                    // User Verified
-                                    if (dsUser.data && dsUser.data.verified) {
 
-                                        // Get Data
-                                        dsUser = dsUser.data;
+                                    // Discord Token
+                                    const getUser = require('./api/getUser');
 
-                                        // Redirect
-                                        if (typeof callback !== "function") {
+                                    if (tinyCfg.getUser) {
 
-                                            req.session.access_token = json.access_token;
-                                            if (typeof req.query.state.redirect !== "string") {
-                                                return res.redirect('/');
-                                            } else {
-                                                return res.redirect('/' + req.query.state.redirect);
-                                            }
+                                        // Get User
+                                        getUser(json.access_token)
 
-                                        }
+                                            // Get User
+                                            .then(dsUser => {
 
-                                        // Custom Redirect
-                                        else {
-                                            return callback(json, dsUser, json.access_token);
-                                        }
+                                                // User Verified
+                                                if ((objType(dsUser.data, 'object') && dsUser.data.verified) || !tinyCfg.needVerification) {
 
-                                    }
+                                                    // Get Data
+                                                    dsUser = dsUser.data;
 
-                                    // Ops!
-                                    else {
+                                                    // Redirect
+                                                    if (typeof callback !== "function") {
 
-                                        // Redirect
-                                        if (typeof callback !== "function") {
-                                            res.status(401); return res.render('error', { code: 401, text: 'Discord account need to be verified.' });
-                                        }
+                                                        req.session.access_token = json.access_token;
+                                                        if (typeof req.query.state.redirect !== "string") {
+                                                            return res.redirect('/');
+                                                        } else {
+                                                            return res.redirect('/' + req.query.state.redirect);
+                                                        }
 
-                                        // Custom Redirect
-                                        else {
-                                            return callback(json, dsUser, json.access_token);
-                                        }
+                                                    }
+
+                                                    // Custom Redirect
+                                                    else {
+                                                        return callback(json, dsUser, json.access_token);
+                                                    }
+
+                                                }
+
+                                                // Ops!
+                                                else {
+                                                    reject({ code: 401, message: 'Discord account need to be verified.' });
+                                                }
+
+                                            })
+
+                                            // Fail
+                                            .catch(err => {
+                                                reject({ code: err.response.status, message: err.message });
+                                            });
 
                                     }
 
                                 } else {
-                                    res.status(401); return res.render('error', { code: 401, text: 'Incorrect Code 2' });
+                                    reject({ code: 500, message: 'Incorrect User Data!' });
                                 }
 
                             })
@@ -117,7 +128,7 @@ module.exports = async function (req, res, cfg, existSession) {
                         resolve({ newSession: false });
                     }
                 } else {
-                    reject({ code: 401, message: 'Incorrect csrfToken' });
+                    reject({ code: 401, message: 'Incorrect csrfToken!' });
                 }
 
             }
