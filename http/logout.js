@@ -55,7 +55,7 @@ module.exports = async function (req, res, cfg, existSession) {
                             // Get API HTTP and Revoke the Token
                             const revokeToken = require('../api/revokeToken');
                             revokeToken(cfg.access_token).then((data) => {
-                                resolve({ fn: function () { res.redirect(finalRedirect); }, data: data });
+                                resolve({ fn: function () { res.redirect(finalRedirect); }, data: data, existSession: existSession });
                                 return;
                             }).catch(err => {
                                 reject({ code: err.response.status, message: err.message });
@@ -72,7 +72,7 @@ module.exports = async function (req, res, cfg, existSession) {
 
                     // Nope
                     else {
-                        resolve(function () { res.redirect(finalRedirect); });
+                        resolve({ fn: function () { res.redirect(finalRedirect); }, data: null, existSession: existSession });
                     }
 
                 }
