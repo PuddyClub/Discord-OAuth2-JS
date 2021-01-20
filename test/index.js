@@ -37,7 +37,7 @@ app.get('/', (req, res) => {
                 csrfToken: '',
                 redirect: ''
             }
-        } (require('../files/getToken/cookie-session')(req, sessionVar)), 
+        }, (require('../files/getToken/cookie-session')(req, sessionVar)), 
     );
 });
 
