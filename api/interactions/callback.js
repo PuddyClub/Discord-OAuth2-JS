@@ -2,7 +2,7 @@ module.exports = function (id, access_token) {
     return new Promise(function (resolve, reject) {
 
         // Response
-        require('@tinypudding/puddy-lib/http/fetchJSON')(`https://discord.com/api/v8/interactions/${id}/${access_token}/callback`, {
+        require('@tinypudding/puddy-lib/http/fetch/json')(`https://discord.com/api/v8/interactions/${id}/${access_token}/callback`, {
             method: 'POST',
             body: new URLSearchParams({
                 

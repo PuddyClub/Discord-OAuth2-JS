@@ -2,7 +2,7 @@ module.exports = function (dsData) {
     return new Promise(function (resolve, reject) {
 
         // Response
-        require('@tinypudding/puddy-lib/http/fetchJSON')(`https://discord.com/api/oauth2/token`,
+        require('@tinypudding/puddy-lib/http/fetch/json')(`https://discord.com/api/oauth2/token`,
             {
                 method: 'POST',
                 body: new URLSearchParams({

@@ -2,7 +2,7 @@ module.exports = function (guildID) {
     return new Promise(function (resolve, reject) {
 
         // Response
-        require('@tinypudding/puddy-lib/http/fetchJSON')(`https://discord.com/api/guilds/${guildID}/widget.json`,
+        require('@tinypudding/puddy-lib/http/fetch/json')(`https://discord.com/api/guilds/${guildID}/widget.json`,
             {
                 method: 'GET'
             }

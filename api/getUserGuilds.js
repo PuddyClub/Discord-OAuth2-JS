@@ -2,7 +2,7 @@ module.exports = function (access_token) {
     return new Promise(function (resolve, reject) {
 
         // Response
-        require('@tinypudding/puddy-lib/http/fetchJSON')(`https://discord.com/api/users/@me/guilds`, {
+        require('@tinypudding/puddy-lib/http/fetch/json')(`https://discord.com/api/users/@me/guilds`, {
             method: 'GET',
             headers: {
                 Authorization: `Bearer ${access_token}`,
