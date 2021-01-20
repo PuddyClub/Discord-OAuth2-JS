@@ -26,7 +26,7 @@ app.use(tinySession);
 const port = 3000;
 
 // Test Config
-const tinyCfg = require('./config.json');
+const tinyCfg = require('./auth.json');
 
 // Discord Login
 app.get('/', (req, res) => {
