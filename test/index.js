@@ -30,29 +30,100 @@ const tinyAuth = require('./auth.json');
 tinyAuth.discordScope = ["identify", "email", "applications.commands"];
 const sessionVar = 'access_token';
 
-// Discord Login
+// Login
 app.get('/', (req, res) => {
-    return discordAuth.login(req, res,
+
+    // Result
+    const result = discordAuth.login(req, res,
         {
 
             // Auth
-            auth: tinyAuth, 
-            
+            auth: tinyAuth,
+
             // Query
-            query: { redirect: 'redirect' }, 
-            
+            query: { redirect: 'redirect' },
+
             // State
             state: {
                 csrfToken: '',
                 redirect: ''
             }
-            
-        }, (require('../files/getToken/cookie-session')(req, sessionVar)), 
+
+        }, (require('../files/getToken/cookie-session')(req, sessionVar)),
     );
+
+    // Complete
+    console.log(result);
+    return;
+
 });
 
-// Others
-app.post('*', bodyParseN, (req, res) => {
+// Logout
+app.get('/logout', (req, res) => {
+
+    // Result
+    const result = discordAuth.logout(req, res,
+        {
+
+            // Auth
+            auth: {
+                csrfToken: ''
+            },
+
+            // Query
+            query: {
+                csrfToken: 'csrfToken',
+                redirect: 'redirect'
+            },
+
+            // State
+            access_token: req.session[sessionVar]
+
+        }, (require('../files/getToken/cookie-session')(req, sessionVar)),
+    );
+
+    // Complete
+    console.log(result);
+    return;
+
+});
+
+// Redirect
+app.post('/redirect', bodyParseN, (req, res) => {
+
+    // Result
+    discordAuth.redirect(req, res,
+        {
+
+            // Auth
+            auth: tinyAuth,
+
+            // Query
+            query: { redirect: 'redirect' },
+
+            // State
+            state: {
+                csrfToken: '',
+                redirect: ''
+            }
+
+        }, (require('../files/getToken/cookie-session')(req, sessionVar)),
+    ).then(result => {
+
+        // Complete
+        console.log(result);
+        return;
+
+    }).catch(err => {
+
+        // Complete
+        console.error(err);
+        return;
+
+    });
+
+    // Complete
+    return;
 
 });
 
