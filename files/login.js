@@ -85,14 +85,19 @@ module.exports = function (req, res, cfg, existSession) {
 
         // Nope
         else {
-            http_status.send(res, 400);
+            if (typeof cfg.errorCallback !== "function") { return http_status.send(res, 400); } else {
+                return cfg.errorCallback({ code: 400, message: 'Invalide Request!' });
+            }
+
         }
 
     }
 
     // Error
     else {
-        http_status.send(res, 400);
+        if (typeof cfg.errorCallback !== "function") { return http_status.send(res, 400); } else {
+            return cfg.errorCallback({ code: 400, message: 'Invalide System Config!' });
+        }
     }
 
 }
