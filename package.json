@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/TinyPudding/Discord-OAuth2.git"
+    "url": "git+https://github.com/TinyPudding/Discord-OAuth2-JS.git"
   },
   "keywords": [
     "discord-oauth2"
@@ -16,9 +16,9 @@
   "author": "Yasmin Seidel (JasminDreasond)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/TinyPudding/Discord-OAuth2/issues"
+    "url": "https://github.com/TinyPudding/Discord-OAuth2-JS/issues"
   },
-  "homepage": "https://github.com/TinyPudding/Discord-OAuth2#readme",
+  "homepage": "https://github.com/TinyPudding/Discord-OAuth2-JS#readme",
   "dependencies": {
     "@tinypudding/puddy-lib": "^1.0.10",
     "lodash": "^4.17.20",

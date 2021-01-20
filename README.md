@@ -10,7 +10,7 @@
 </p>
 </div>
 
-# Discord-OAuth2
+# Discord-OAuth2-JS
 Login authenticator with Discord account compatible with cookies or Firebase Auth.
 
 # Information
