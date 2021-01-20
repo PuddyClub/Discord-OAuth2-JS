@@ -27,7 +27,9 @@ const port = 3000;
 
 // Test Config
 const tinyAuth = require('./auth.json');
-tinyAuth.discordScope = ["identify", "email", "applications.commands"];
+tinyAuth.discordScope = ["identify", "email"];
+/* "applications.commands" */
+
 const sessionVar = 'access_token';
 
 // Login
