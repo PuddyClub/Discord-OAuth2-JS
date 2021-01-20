@@ -20,7 +20,7 @@
   },
   "homepage": "https://github.com/TinyPudding/Discord-OAuth2-JS#readme",
   "dependencies": {
-    "@tinypudding/puddy-lib": "^1.0.10",
+    "@tinypudding/puddy-lib": "^1.0.14",
     "lodash": "^4.17.20",
     "node-fetch": "^2.6.1"
   },
