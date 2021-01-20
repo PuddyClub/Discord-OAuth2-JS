@@ -43,6 +43,9 @@ module.exports = async function (req, res, cfg, existSession) {
 
                     }
 
+                    // Result
+                    const result = { fn: function () { res.redirect(finalRedirect); }, data: null, existSession: (existSession) };
+
                     // Exist Session
                     if (existSession) {
 
@@ -55,10 +58,12 @@ module.exports = async function (req, res, cfg, existSession) {
                             // Get API HTTP and Revoke the Token
                             const revokeToken = require('../api/revokeToken');
                             revokeToken(cfg.access_token).then((data) => {
-                                resolve({ fn: function () { res.redirect(finalRedirect); }, data: data, existSession: existSession });
+                                result.data = data;
+                                resolve(result);
                                 return;
                             }).catch(err => {
                                 reject({ code: err.response.status, message: err.message });
+                                return;
                             });
 
                         }
@@ -72,7 +77,7 @@ module.exports = async function (req, res, cfg, existSession) {
 
                     // Nope
                     else {
-                        resolve({ fn: function () { res.redirect(finalRedirect); }, data: null, existSession: existSession });
+                        resolve(result);
                     }
 
                 }
