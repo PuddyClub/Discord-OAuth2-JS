@@ -33,10 +33,19 @@ const sessionVar = 'access_token';
 app.get('/', (req, res) => {
     return discordAuth.login(req, res,
         {
-            auth: tinyAuth, query: { redirect: 'redirect' }, state: {
+
+            // Auth
+            auth: tinyAuth, 
+            
+            // Query
+            query: { redirect: 'redirect' }, 
+            
+            // State
+            state: {
                 csrfToken: '',
                 redirect: ''
             }
+            
         }, (require('../files/getToken/cookie-session')(req, sessionVar)), 
     );
 });
