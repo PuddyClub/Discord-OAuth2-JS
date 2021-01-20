@@ -130,13 +130,18 @@ app.post('/redirect', bodyParseN, (req, res) => {
 // Listen the Server
 app.listen(port, () => {
 
-    console.log(`Discord Code Test is being executed.`);
+    console.group(`Discord Code Test is being executed.`);
+    console.log(`Redirect URL to insert in the Discord Bot: ${tinyAuth.redirect}`);
+    console.groupEnd();
 
+    console.group('Account URLs');
     console.log(`Login: http://localhost:${port}/login`);
     console.log(`Logout: http://localhost:${port}/logout`);
-    console.log(`Redirect URL to insert in the Discord Bot: ${tinyAuth.redirect}`);
+    console.groupEnd();
 
-    console.log(`Login with redirect: http://localhost:${port}/login?redirect=test`);
-    console.log(`Logout with redirect: http://localhost:${port}/logout?redirect=test`);
+    console.group('Account URLs with Redirect');
+    console.log(`Login: http://localhost:${port}/login?redirect=test`);
+    console.log(`Logout: http://localhost:${port}/logout?redirect=test`);
+    console.group('Account URLs');
 
 })
