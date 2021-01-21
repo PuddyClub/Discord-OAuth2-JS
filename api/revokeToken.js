@@ -9,6 +9,7 @@ module.exports = function (access_token, tinyAuth) {
         require('@tinypudding/puddy-lib/http/fetch/text')(`${apiURL}oauth2/token/revoke?token=${encodeURIComponent(access_token)}`, {
             method: 'POST',
             headers: {
+                'Authorization': `Basic ${credentials}`,
                 'Content-Type': 'application/x-www-form-urlencoded'
             }
         })
