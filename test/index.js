@@ -29,7 +29,7 @@ const port = 3000;
 
 // Test Config
 const tinyAuth = require('./auth.json');
-tinyAuth.discordScope = ["identify", "email", "guilds", "guilds.join", "connections", "gdm.join", "relationships.read"];
+tinyAuth.discordScope = ["identify", "email", "guilds", "guilds.join", "connections", "gdm.join"];
 /* "applications.commands" */
 
 const sessionVar = 'access_token';
@@ -134,7 +134,7 @@ app.get('/redirect', bodyParseN, (req, res) => {
 
         // Complete
         if (result.newSession) {
-            req.session[sessionVar] = result.token.access_token;
+            req.session[sessionVar] = result.tokenRequest.access_token;
             res.json(result);
         } else {
             res.redirect('/');
