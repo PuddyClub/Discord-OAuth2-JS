@@ -34,6 +34,7 @@ module.exports = async function (req, cfg, existSession) {
                     if (typeof req.query.state === "string") {
 
                         // Crypto
+                        const crypto = require('crypto');
                         const decipher = crypto.createDecipher(tinyCrypto.algorithm, tinyCrypto.password);
                         req.query.state = decipher.update(req.query.state, 'hex', 'utf8');
                         req.query.state += decipher.final('utf8');
