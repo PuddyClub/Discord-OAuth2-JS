@@ -1,3 +1,2 @@
-TESTAR O RESTANTE DOS VALORES
 FAZER A ADAPTAÇÃO COM O FIREBASE
 Fazer contador de tempo restante da sessão
