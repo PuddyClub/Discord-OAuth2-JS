@@ -21,8 +21,7 @@ module.exports = async function (req, res, cfg, existSession) {
             });
 
             const tinyOptions = _.defaultsDeep({}, cfg.auth, {
-                access_token: '',
-                client_id: ''
+                access_token: ''
             });
 
             // Exist Query Setting
@@ -56,14 +55,8 @@ module.exports = async function (req, res, cfg, existSession) {
 
                         // Exist Token
                         if (
-                            (
-                                (typeof tinyOptions.access_token === "string" && tinyOptions.access_token.length > 0) ||
-                                (typeof tinyOptions.access_token === "number" && !isNaN(tinyOptions.access_token))
-                            ) &&
-                            (
-                                (typeof tinyOptions.client_id === "string" && tinyOptions.client_id.length > 0) ||
-                                (typeof tinyOptions.client_id === "number" && !isNaN(tinyOptions.client_id))
-                            )
+                            (typeof tinyOptions.access_token === "string" && tinyOptions.access_token.length > 0) ||
+                            (typeof tinyOptions.access_token === "number" && !isNaN(tinyOptions.access_token))
                         ) {
 
                             // Get API HTTP and Revoke the Token
