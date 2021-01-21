@@ -186,7 +186,7 @@ app.get('/refresh', bodyParseN, (req, res) => {
         req.session[sessionVars.refresh_token] = result.tokenRequest.refresh_token;
         req.session[sessionVars.token_type] = result.tokenRequest.token_type;
         req.session[sessionVars.scope] = result.tokenRequest.scope;
-        res.json(result);
+        res.json(result.tokenRequest);
 
         return;
 

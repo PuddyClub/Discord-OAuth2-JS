@@ -63,7 +63,7 @@ module.exports = async function (req, res, type, cfg, existSession) {
                                         if (typeof json.access_token === "string" || typeof json.access_token === "number") {
 
                                             // Token
-                                            result.data = json;
+                                            result.tokenRequest = json;
                                             result.fn = function () { res.redirect(redirect_value); };
 
                                             // Return Result
