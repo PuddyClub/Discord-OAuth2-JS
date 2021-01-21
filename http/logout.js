@@ -20,8 +20,10 @@ module.exports = async function (req, res, cfg, existSession) {
                 csrfToken: ''
             });
 
-            const tinyOptions = _.defaultsDeep({}, cfg.auth, {
-                access_token: ''
+            // Prepare Auth
+            const tinyAuth = _.defaultsDeep({}, cfg.auth, {
+                client_id: '',
+                client_secret: ''
             });
 
             // Exist Query Setting
@@ -55,13 +57,15 @@ module.exports = async function (req, res, cfg, existSession) {
 
                         // Exist Token
                         if (
-                            (typeof tinyOptions.access_token === "string" && tinyOptions.access_token.length > 0) ||
-                            (typeof tinyOptions.access_token === "number" && !isNaN(tinyOptions.access_token))
+                            (typeof cfg.access_token === "string" && cfg.access_token.length > 0) ||
+                            (typeof cfg.access_token === "number" && !isNaN(cfg.access_token))
                         ) {
 
                             // Get API HTTP and Revoke the Token
                             const revokeToken = require('../api/revokeToken');
-                            revokeToken(tinyOptions).then((data) => {
+                            revokeToken({
+                                access_token: cfg.access_token, credentials: require('../get/credentials')(tinyAuth)
+                            }).then((data) => {
                                 result.data = data;
                                 resolve(result);
                                 return;

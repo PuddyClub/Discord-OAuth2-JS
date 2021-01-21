@@ -5,7 +5,7 @@ module.exports = function (dsData) {
         const apiURL = require('../config.json').url;
 
         // Response
-        require('@tinypudding/puddy-lib/http/fetch/text')(`${apiURL}oauth2/token/revoke?access_token=${encodeURIComponent(dsData.access_token)}`, {
+        require('@tinypudding/puddy-lib/http/fetch/text')(`${apiURL}oauth2/token/revoke?token=${encodeURIComponent(dsData.access_token)}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded'

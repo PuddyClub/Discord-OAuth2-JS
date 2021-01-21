@@ -84,9 +84,10 @@ app.get('/logout', (req, res) => {
             },
 
             // Auth
-            auth: {
-                access_token: req.session[sessionVar]
-            }
+            auth: tinyAuth,
+
+            // Access Token
+            access_token: req.session[sessionVar]
 
         }, (getSessionFromCookie(req, sessionVar)),
     ).then(result => {
