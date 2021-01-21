@@ -305,10 +305,10 @@ app.listen(port, () => {
     console.group('Account URLs');
     console.log(`Login: http://localhost:${port}/login`);
     console.log(`Logout: http://localhost:${port}/logout`);
-    console.log(`Logout: http://localhost:${port}/refresh`);
-    console.log(`Logout: http://localhost:${port}/user`);
-    console.log(`Logout: http://localhost:${port}/user/guilds`);
-    console.log(`Logout: http://localhost:${port}/user/connections`);
+    console.log(`Refresh: http://localhost:${port}/refresh`);
+    console.log(`User: http://localhost:${port}/user`);
+    console.log(`User Guilds: http://localhost:${port}/user/guilds`);
+    console.log(`User Connections: http://localhost:${port}/user/connections`);
     console.groupEnd();
 
     console.group('Account URLs with Redirect');
