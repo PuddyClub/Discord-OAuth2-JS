@@ -1,5 +1,5 @@
 
-module.exports = async function (req, cfg, existSession) {
+module.exports = async function (req, res, type, cfg, existSession) {
     return new Promise(function (resolve, reject) {
 
         // Modules
@@ -7,130 +7,118 @@ module.exports = async function (req, cfg, existSession) {
         const objType = require('@tinypudding/puddy-lib/get/objType');
 
         // Detect Config
-        if (objType(cfg, 'object')) {
+        if (objType(req[type], 'object')) {
 
-            // Create Settings
-            const tinyCfg = _.defaultsDeep({}, cfg.auth, {
-                redirect: 'http://localhost/redirect',
-                discordScope: [],
-                client_id: '',
-                client_secret: ''
-            });
+            // Detect Config
+            if (objType(cfg, 'object')) {
 
-            // Detect Query
-            if (objType(req.query, 'object')) {
+                // Create Settings
+                const tinyCfg = _.defaultsDeep({}, cfg.auth, {
+                    redirect: 'http://localhost/redirect',
+                    discordScope: [],
+                    client_id: '',
+                    client_secret: ''
+                });
 
-                // Get State
-                if (typeof req.query.state === "string") {
-                    try {
-                        req.query.state = JSON.parse(req.query.state);
-                    } catch (err) {
-                        req.query.state = {};
-                    }
+                // Prepare Redirect
+                let redirect_value = '/';
+                if (req.query[type].startsWith('/')) {
+                    redirect_value = req.query[type].substring(1);
                 } else {
-                    req.query.state = {};
+                    redirect_value = req.query[type];
                 }
 
-                // Detect State
-                if (objType(req.query.state, 'object')) {
+                // Check Session
+                if (typeof tinyCfg.csrfToken !== "string" || tinyCfg.csrfToken.length < 1 || (typeof req[type].csrfToken === "string" && req[type].csrfToken === tinyCfg.csrfToken)) {
 
-                    // Check Session
-                    if (typeof tinyCfg.csrfToken !== "string" || tinyCfg.csrfToken.length < 1 || (typeof req.query.state.csrfToken === "string" && req.query.state.csrfToken === tinyCfg.csrfToken)) {
+                    // Result
+                    const result = { refreshed: false };
 
-                        // Result
-                        const result = { refreshed: false };
+                    // Exist Session
+                    if (existSession) {
 
-                        // Exist Session
-                        if (existSession) {
+                        if (
+                            (typeof cfg.refresh_token === "string" && cfg.refresh_token.length > 0) ||
+                            (typeof cfg.refresh_token === "number" && !isNaN(cfg.refresh_token))
+                        ) {
 
-                            if (
-                                (typeof cfg.refresh_token === "string" && cfg.refresh_token.length > 0) ||
-                                (typeof cfg.refresh_token === "number" && !isNaN(cfg.refresh_token))
-                            ) {
+                            // Discord Token
+                            const refreshToken = require('../api/refreshToken');
 
-                                // Discord Token
-                                const refreshToken = require('../api/refreshToken');
+                            refreshToken({
+                                client_id: tinyCfg.client_id,
+                                client_secret: tinyCfg.client_secret,
+                                refresh_token: cfg.refresh_token,
+                                redirect_uri: tinyCfg.redirect,
+                                scope: tinyCfg.discordScope.join(' ')
+                            })
 
-                                refreshToken({
-                                    client_id: tinyCfg.client_id,
-                                    client_secret: tinyCfg.client_secret,
-                                    refresh_token: cfg.refresh_token,
-                                    redirect_uri: tinyCfg.redirect,
-                                    scope: tinyCfg.discordScope.join(' ')
-                                })
+                                // Success
+                                .then(json => {
 
-                                    // Success
-                                    .then(json => {
+                                    // Valid Json Data
+                                    if (objType(json, 'object')) {
 
-                                        // Valid Json Data
-                                        if (objType(json, 'object')) {
+                                        // Check Token
+                                        if (typeof json.access_token === "string" || typeof json.access_token === "number") {
 
-                                            // Check Token
-                                            if (typeof json.access_token === "string" || typeof json.access_token === "number") {
+                                            // Token
+                                            result.data = json;
+                                            result.fn = function () { res.redirect(redirect_value); };
 
-                                                // Token
-                                                result.data = json;
-
-                                                // Return Result
-                                                resolve(result);
-
-                                            }
-
-                                            // Nope
-                                            else {
-                                                reject({ code: 500, message: 'Invalid User Token Data!' });
-                                            }
+                                            // Return Result
+                                            resolve(result);
 
                                         }
 
                                         // Nope
                                         else {
-                                            reject({ code: 500, message: 'Invalid JSON Token Data!' });
+                                            reject({ code: 500, message: 'Invalid User Token Data!' });
                                         }
 
-                                        // Complete
-                                        return;
+                                    }
 
-                                    })
+                                    // Nope
+                                    else {
+                                        reject({ code: 500, message: 'Invalid JSON Token Data!' });
+                                    }
 
-                                    // Fail
-                                    .catch(err => {
-                                        reject({ code: err.response.status, message: err.message });
-                                    });
+                                    // Complete
+                                    return;
 
-                            }
+                                })
 
-                            // Nope
-                            else {
-                                reject({ code: 401, message: 'Invalid Refresh Token Data!' });
-                            }
+                                // Fail
+                                .catch(err => {
+                                    reject({ code: err.response.status, message: err.message });
+                                });
 
-                        } else {
-                            resolve(result);
                         }
+
+                        // Nope
+                        else {
+                            reject({ code: 401, message: 'Invalid Refresh Token Data!' });
+                        }
+
                     } else {
-                        reject({ code: 401, message: 'Incorrect csrfToken!' });
+                        resolve(result);
                     }
-
-                }
-
-                // Nope
-                else {
-                    reject({ code: 401, message: 'Invalid State Query!' });
+                } else {
+                    reject({ code: 401, message: 'Incorrect csrfToken!' });
                 }
 
             }
 
             // Nope
             else {
-                reject({ code: 401, message: 'Invalid Query URL!' });
+                reject({ code: 500, message: 'Invalid Config Values!' });
             }
 
         }
 
         // Nope
         else {
-            reject({ code: 500, message: 'Invalid Config Values!' });
+            reject({ code: 500, message: 'Invalid ' + type + ' Values!' });
         }
 
         // Complete

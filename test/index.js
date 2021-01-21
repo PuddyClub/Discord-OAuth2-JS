@@ -120,7 +120,7 @@ app.get('/logout', (req, res) => {
 app.get('/redirect', bodyParseN, (req, res) => {
 
     // Result
-    discordAuth.redirect(req, res,
+    discordAuth.redirect(req,
         {
 
             // Auth
@@ -168,7 +168,7 @@ app.get('/redirect', bodyParseN, (req, res) => {
 app.get('/refresh', bodyParseN, (req, res) => {
 
     // Result
-    discordAuth.refreshToken(req, res,
+    discordAuth.refreshToken(req, res, 'query',
         {
 
             // Auth
@@ -241,6 +241,33 @@ app.get('/user', (req, res) => {
 });
 
 // User Page
+app.get('/user/guilds', (req, res) => {
+
+    // Result
+    if (typeof req.session[sessionVars.access_token] === "string") {
+        discordAuth.api.getUserGuilds(req.session[sessionVars.access_token]).then(result => {
+
+            // Complete
+            res.json(result);
+            return;
+
+        }).catch(err => {
+
+            // Complete
+            console.error(err);
+            return http_status.send(res, err.response.status);
+
+        });
+    }
+
+    // Nope
+    else {
+        res.send('No Account Detect');
+    }
+
+});
+
+// User Page
 app.get('/user/connections', (req, res) => {
 
     // Result
@@ -278,11 +305,16 @@ app.listen(port, () => {
     console.group('Account URLs');
     console.log(`Login: http://localhost:${port}/login`);
     console.log(`Logout: http://localhost:${port}/logout`);
+    console.log(`Logout: http://localhost:${port}/refresh`);
+    console.log(`Logout: http://localhost:${port}/user`);
+    console.log(`Logout: http://localhost:${port}/user/guilds`);
+    console.log(`Logout: http://localhost:${port}/user/connections`);
     console.groupEnd();
 
     console.group('Account URLs with Redirect');
     console.log(`Login: http://localhost:${port}/login?redirect=test`);
     console.log(`Logout: http://localhost:${port}/logout?redirect=test`);
+    console.log(`Logout: http://localhost:${port}/refresh?redirect=test`);
     console.groupEnd();
 
 })

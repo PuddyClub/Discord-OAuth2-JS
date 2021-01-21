@@ -1,5 +1,5 @@
 
-module.exports = async function (req, res, cfg, existSession) {
+module.exports = async function (req, cfg, existSession) {
     return new Promise(function (resolve, reject) {
 
         // Modules
