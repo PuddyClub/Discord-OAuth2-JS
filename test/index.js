@@ -1,3 +1,12 @@
+/* 
+
+    This is a test file. You need rename the file "auth_example.json" to "auth.json".
+    For faster results testing, we recommend using the "JSON Viewer Pro" extension in your browser.
+    https://github.com/rbrahul/Awesome-JSON-Viewer
+    https://chrome.google.com/webstore/detail/json-viewer-pro/eifflpmocdbdmepbjaopkkhbfmdgijcc 
+
+*/
+
 // Test Modules Prepare
 const discordAuth = require('../index');
 const express = require('express');
