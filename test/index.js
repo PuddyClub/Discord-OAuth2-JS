@@ -8,6 +8,7 @@
 */
 
 // Test Modules Prepare
+const objType = require('@tinypudding/puddy-lib/get/objType');
 const discordAuth = require('../index');
 const express = require('express');
 const http_status = require('@tinypudding/puddy-lib/http/HTTP-1.0');
@@ -184,7 +185,7 @@ app.get('/redirect', bodyParseN, (req, res) => {
 
 });
 
-// Redirect
+// Refresh Token
 app.get('/refresh', bodyParseN, (req, res) => {
 
     // Result
@@ -263,7 +264,7 @@ app.get('/user', (req, res) => {
 
 });
 
-// User Page
+// User Guilds
 app.get('/user/guilds', (req, res) => {
 
     // Result
@@ -290,7 +291,7 @@ app.get('/user/guilds', (req, res) => {
 
 });
 
-// User Page
+// User Connections
 app.get('/user/connections', (req, res) => {
 
     // Result
@@ -317,6 +318,37 @@ app.get('/user/connections', (req, res) => {
 
 });
 
+// Guild
+app.get('/guild', (req, res) => {
+
+    // Result
+    if (objType(req.query) && typeof req.query.id === "string") {
+        discordAuth.api.getGuildWidget(req.query.id).then(result => {
+
+            // Complete
+            res.json(result);
+            return;
+
+        }).catch(err => {
+
+            // Complete
+            console.error(err);
+            return http_status.send(res, err.code);
+
+        });
+    }
+
+    // Nope
+    else {
+        res.send('No Account Detect');
+    }
+
+});
+
+// Error Pages
+app.post('*', (req, res) => { res.status(404); return res.json({ code: 404, message: 'Page Not Found! (POST)' }); });
+app.get('*', (req, res) => { res.status(404); return res.json({ code: 404, message: 'Page Not Found! (GET)' }); });
+
 // Listen the Server
 app.listen(port, () => {
 
@@ -326,10 +358,11 @@ app.listen(port, () => {
     console.groupEnd();
 
     console.group('Account URLs');
+    console.log(`Guild: http://localhost:${port}/guild?id=`);
     console.log(`Login: http://localhost:${port}/login`);
     console.log(`Logout: http://localhost:${port}/logout`);
-    console.log(`Refresh: http://localhost:${port}/refresh`);
-    console.log(`User: http://localhost:${port}/user`);
+    console.log(`Refresh Token: http://localhost:${port}/refresh`);
+    console.log(`User Page: http://localhost:${port}/user`);
     console.log(`User Guilds: http://localhost:${port}/user/guilds`);
     console.log(`User Connections: http://localhost:${port}/user/connections`);
     console.groupEnd();
@@ -337,7 +370,7 @@ app.listen(port, () => {
     console.group('Account URLs with Redirect');
     console.log(`Login: http://localhost:${port}/login?redirect=test`);
     console.log(`Logout: http://localhost:${port}/logout?redirect=test`);
-    console.log(`Logout: http://localhost:${port}/refresh?redirect=test`);
+    console.log(`Refresh Token: http://localhost:${port}/refresh?redirect=test`);
     console.groupEnd();
 
 })
