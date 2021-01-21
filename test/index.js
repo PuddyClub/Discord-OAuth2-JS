@@ -32,7 +32,13 @@ const tinyAuth = require('./auth.json');
 tinyAuth.discordScope = ["identify", "email", "guilds", "guilds.join", "connections", "gdm.join"];
 /* "applications.commands" */
 
-const sessionVar = 'access_token';
+const sessionVars = {
+    access_token: 'access_token',
+    expires_in: 'expires_in',
+    refresh_token: 'refresh_token',
+    token_type: 'token_type',
+    scope: 'scope'
+};
 
 // Login
 app.get('/login', (req, res) => {
@@ -58,7 +64,7 @@ app.get('/login', (req, res) => {
                 redirect: ''
             }
 
-        }, (getSessionFromCookie(req, sessionVar)),
+        }, (getSessionFromCookie(req, sessionVars.access_token)),
     );
 
     return;
@@ -87,9 +93,9 @@ app.get('/logout', (req, res) => {
             auth: tinyAuth,
 
             // Access Token
-            access_token: req.session[sessionVar]
+            access_token: req.session[sessionVars.access_token]
 
-        }, (getSessionFromCookie(req, sessionVar)),
+        }, (getSessionFromCookie(req, sessionVars.access_token)),
     ).then(result => {
 
         // Complete
@@ -129,12 +135,17 @@ app.get('/redirect', bodyParseN, (req, res) => {
                 redirect: ''
             }
 
-        }, (getSessionFromCookie(req, sessionVar)),
+        }, (getSessionFromCookie(req, sessionVars.access_token)),
     ).then(result => {
 
         // Complete
         if (result.newSession) {
-            req.session[sessionVar] = result.tokenRequest.access_token;
+            req.session[sessionVars.access_token] = result.tokenRequest.access_token;
+            req.session[sessionVars.expires_in] = result.tokenRequest.expires_in;
+            req.session[sessionVars.refresh_token] = result.tokenRequest.refresh_token;
+            req.session[sessionVars.refresh_token] = result.tokenRequest.access_token;
+            req.session[sessionVars.token_type] = result.tokenRequest.token_type;
+            req.session[sessionVars.scope] = result.tokenRequest.scope;
             res.json(result);
         } else {
             res.redirect('/');
@@ -163,8 +174,8 @@ app.get('/test', (req, res) => {
 app.get('/', (req, res) => {
 
     // Result
-    if (typeof req.session[sessionVar] === "string") {
-        discordAuth.api.getUser(req.session[sessionVar]).then(result => {
+    if (typeof req.session[sessionVars.access_token] === "string") {
+        discordAuth.api.getUser(req.session[sessionVars.access_token]).then(result => {
 
             // Complete
             res.json(result);
