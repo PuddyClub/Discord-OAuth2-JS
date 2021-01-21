@@ -16,6 +16,12 @@ const discord_api = {
     // Guild Widget
     getGuildWidget: require('./getGuildWidget'),
 
+    // Get User Connections
+    getUserConnections: require('./getUserConnections'),
+
+    // Add Member to Guild
+    addGuildMember: require('./addGuildMember'),
+
 };
 
 // Send Module

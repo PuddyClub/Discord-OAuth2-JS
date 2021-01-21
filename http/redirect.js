@@ -15,7 +15,6 @@ module.exports = async function (req, res, cfg, existSession) {
                 discordScope: [],
                 client_id: '',
                 client_secret: '',
-                need_verification: false,
                 get_user: true
             });
 

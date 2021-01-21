@@ -5,7 +5,7 @@ module.exports = function (guildID) {
         const apiURL = require('../config.json').url;
 
         // Response
-        require('@tinypudding/puddy-lib/http/fetch/json')(`${apiURL}guilds/${guildID}/widget.json`,
+        require('@tinypudding/puddy-lib/http/fetch/json')(`${apiURL}guilds/${encodeURIComponent(guildID)}/widget.json`,
             {
                 method: 'GET',
                 headers: {

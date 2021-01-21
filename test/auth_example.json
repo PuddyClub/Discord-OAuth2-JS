@@ -2,6 +2,6 @@
     "redirect": "",
     "client_id": "",
     "client_secret": "",
-    "need_verification": true,
+    "bot_token": "",
     "get_user": true
 }
