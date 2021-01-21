@@ -19,7 +19,16 @@ module.exports = function (dsData) {
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded'
                 }
-            }).then(data => { resolve(data); return; }).catch(err => { reject({ code: err.response.status, message: err.message }); return; });
+            }).then(data => {
+
+                // Error Validator
+                const result = require('./errorValidator')(data);
+                if (!result.error) { resolve(result.data); } else { reject(result.error); }
+
+                // Complete
+                return;
+
+            }).catch(err => { reject({ code: err.response.status, message: err.message }); return; });
 
         // Complete
         return;
