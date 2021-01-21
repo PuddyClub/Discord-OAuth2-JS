@@ -89,7 +89,8 @@ module.exports = async function (req, res, cfg, existSession) {
 
                             // Fail
                             .catch(err => {
-                                reject({ code: err.response.status, message: err.message });
+                                reject(err);
+                                return;
                             });
 
                     }

@@ -122,7 +122,7 @@ module.exports = async function (req, cfg, existSession) {
 
                                                             // Fail
                                                             .catch(err => {
-                                                                reject({ code: err.response.status, message: err.message });
+                                                                reject(err);
                                                                 return;
                                                             });
 
@@ -157,7 +157,7 @@ module.exports = async function (req, cfg, existSession) {
 
                                         // Fail
                                         .catch(err => {
-                                            reject({ code: err.response.status, message: err.message });
+                                            reject(err);
                                         });
 
                                 } else {
