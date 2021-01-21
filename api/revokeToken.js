@@ -6,14 +6,10 @@ module.exports = function (tinySession, tinyAuth) {
         const credentials = require('../get/credentials')(tinyAuth);
 
         // Response
-        require('@tinypudding/puddy-lib/http/fetch/json')(`${apiURL}oauth2/token/revoke?token=${encodeURIComponent(tinySession.access_token)}`, {
+        require('@tinypudding/puddy-lib/http/fetch/json')(`${apiURL}oauth2/token/revoke`, {
             method: 'POST',
             body: new URLSearchParams({
-                "grant_type": "authorization_code",
-                "code": tinySession.access_token,
-                "redirect_uri": tinyAuth.redirect,
-                "client_id": tinyAuth.client_id,
-                "client_secret": tinyAuth.client_secret
+                "token": tinySession.access_token
             }),
             headers: {
                 'Authorization': `Basic ${credentials}`,
