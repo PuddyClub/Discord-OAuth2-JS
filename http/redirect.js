@@ -10,165 +10,181 @@ module.exports = async function (req, cfg, existSession) {
         if (objType(cfg, 'object')) {
 
             // Create Settings
-            const tinyCfg = _.defaultsDeep({}, cfg.auth, {
-                redirect: 'http://localhost/redirect',
-                discordScope: [],
-                client_id: '',
-                client_secret: '',
-                get_user: true
+            const tinyCrypto = _.defaultsDeep({}, cfg.crypto, {
+                algorithm: 'aes-256-ctr',
+                password: 'tinypudding'
             });
 
-            // Detect Query
-            if (objType(req.query, 'object')) {
+            // Detect Config
+            if (objType(tinyCrypto, 'object')) {
 
-                // Get State
-                if (typeof req.query.state === "string") {
+                // Create Settings
+                const tinyCfg = _.defaultsDeep({}, cfg.auth, {
+                    redirect: 'http://localhost/redirect',
+                    discordScope: [],
+                    client_id: '',
+                    client_secret: '',
+                    get_user: true
+                });
 
-                    // Convert
-                    try {
-                        req.query.state = JSON.parse(Buffer.from(req.query.state, 'base64').toString());
-                    } catch (err) {
+                // Detect Query
+                if (objType(req.query, 'object')) {
+
+                    // Get State
+                    if (typeof req.query.state === "string") {
+
+                        // Convert
+                        try {
+                            req.query.state = JSON.parse(Buffer.from(req.query.state, 'base64').toString());
+                        } catch (err) {
+                            req.query.state = {};
+                        }
+
+                    } else {
                         req.query.state = {};
                     }
 
-                } else {
-                    req.query.state = {};
-                }
+                    // Detect State
+                    if (objType(req.query.state, 'object')) {
 
-                // Detect State
-                if (objType(req.query.state, 'object')) {
+                        // Check Session
+                        if (typeof tinyCfg.csrfToken !== "string" || tinyCfg.csrfToken.length < 1 || (typeof req.query.state.csrfToken === "string" && req.query.state.csrfToken === tinyCfg.csrfToken)) {
 
-                    // Check Session
-                    if (typeof tinyCfg.csrfToken !== "string" || tinyCfg.csrfToken.length < 1 || (typeof req.query.state.csrfToken === "string" && req.query.state.csrfToken === tinyCfg.csrfToken)) {
+                            // Prepare Resolve Data
+                            const resolveData = { newSession: false, state: req.query.state };
 
-                        // Prepare Resolve Data
-                        const resolveData = { newSession: false, state: req.query.state };
+                            // Exist Session
+                            if (!existSession) {
 
-                        // Exist Session
-                        if (!existSession) {
+                                // Check New Session
+                                resolveData.newSession = true;
 
-                            // Check New Session
-                            resolveData.newSession = true;
+                                if (
+                                    (typeof req.query.code === "string" && req.query.code.length > 0) ||
+                                    (typeof req.query.code === "number" && !isNaN(req.query.code))
+                                ) {
 
-                            if (
-                                (typeof req.query.code === "string" && req.query.code.length > 0) ||
-                                (typeof req.query.code === "number" && !isNaN(req.query.code))
-                            ) {
+                                    // Discord Token
+                                    const getToken = require('../api/getToken');
 
-                                // Discord Token
-                                const getToken = require('../api/getToken');
+                                    getToken({
+                                        client_id: tinyCfg.client_id,
+                                        client_secret: tinyCfg.client_secret,
+                                        code: req.query.code,
+                                        redirect_uri: tinyCfg.redirect,
+                                        scope: tinyCfg.discordScope.join(' ')
+                                    })
 
-                                getToken({
-                                    client_id: tinyCfg.client_id,
-                                    client_secret: tinyCfg.client_secret,
-                                    code: req.query.code,
-                                    redirect_uri: tinyCfg.redirect,
-                                    scope: tinyCfg.discordScope.join(' ')
-                                })
+                                        // Success
+                                        .then(json => {
 
-                                    // Success
-                                    .then(json => {
+                                            // Valid Json Data
+                                            if (objType(json, 'object')) {
 
-                                        // Valid Json Data
-                                        if (objType(json, 'object')) {
+                                                // Check Token
+                                                if (typeof json.access_token === "string" || typeof json.access_token === "number") {
 
-                                            // Check Token
-                                            if (typeof json.access_token === "string" || typeof json.access_token === "number") {
+                                                    // Token
+                                                    resolveData.tokenRequest = json;
 
-                                                // Token
-                                                resolveData.tokenRequest = json;
+                                                    // Get User Data
+                                                    if (tinyCfg.get_user) {
 
-                                                // Get User Data
-                                                if (tinyCfg.get_user) {
-
-                                                    // Discord Token
-                                                    const getUser = require('../api/getUser');
-
-                                                    // Get User
-                                                    getUser(json.access_token)
+                                                        // Discord Token
+                                                        const getUser = require('../api/getUser');
 
                                                         // Get User
-                                                        .then(dsUser => {
+                                                        getUser(json.access_token)
 
-                                                            // Validate Data
-                                                            if (objType(dsUser, 'object')) {
-                                                                resolveData.user = dsUser;
-                                                                resolve(resolveData);
-                                                            }
+                                                            // Get User
+                                                            .then(dsUser => {
 
-                                                            // Nope
-                                                            else {
-                                                                reject({ code: 500, message: 'Invalid JSON User Data!' });
-                                                            }
+                                                                // Validate Data
+                                                                if (objType(dsUser, 'object')) {
+                                                                    resolveData.user = dsUser;
+                                                                    resolve(resolveData);
+                                                                }
 
-                                                            // Complete
-                                                            return;
+                                                                // Nope
+                                                                else {
+                                                                    reject({ code: 500, message: 'Invalid JSON User Data!' });
+                                                                }
 
-                                                        })
+                                                                // Complete
+                                                                return;
 
-                                                        // Fail
-                                                        .catch(err => {
-                                                            reject({ code: err.response.status, message: err.message });
-                                                            return;
-                                                        });
+                                                            })
+
+                                                            // Fail
+                                                            .catch(err => {
+                                                                reject({ code: err.response.status, message: err.message });
+                                                                return;
+                                                            });
+
+                                                    }
+
+                                                    // Nope
+                                                    else {
+
+                                                        // Return Result
+                                                        resolve(resolveData);
+
+                                                    }
 
                                                 }
 
                                                 // Nope
                                                 else {
-
-                                                    // Return Result
-                                                    resolve(resolveData);
-
+                                                    reject({ code: 500, message: 'Invalid User Token Data!' });
                                                 }
 
                                             }
 
                                             // Nope
                                             else {
-                                                reject({ code: 500, message: 'Invalid User Token Data!' });
+                                                reject({ code: 500, message: 'Invalid JSON Token Data!' });
                                             }
 
-                                        }
+                                            // Complete
+                                            return;
 
-                                        // Nope
-                                        else {
-                                            reject({ code: 500, message: 'Invalid JSON Token Data!' });
-                                        }
+                                        })
 
-                                        // Complete
-                                        return;
+                                        // Fail
+                                        .catch(err => {
+                                            reject({ code: err.response.status, message: err.message });
+                                        });
 
-                                    })
-
-                                    // Fail
-                                    .catch(err => {
-                                        reject({ code: err.response.status, message: err.message });
-                                    });
+                                } else {
+                                    reject({ code: 401, message: 'Invalid Discord Code!' });
+                                }
 
                             } else {
-                                reject({ code: 401, message: 'Invalid Discord Code!' });
+                                resolve({ newSession: false });
                             }
-
                         } else {
-                            resolve({ newSession: false });
+                            reject({ code: 401, message: 'Incorrect csrfToken!' });
                         }
-                    } else {
-                        reject({ code: 401, message: 'Incorrect csrfToken!' });
+
+                    }
+
+                    // Nope
+                    else {
+                        reject({ code: 401, message: 'Invalid State Query!' });
                     }
 
                 }
 
                 // Nope
                 else {
-                    reject({ code: 401, message: 'Invalid State Query!' });
+                    reject({ code: 401, message: 'Invalid Query URL!' });
                 }
 
             }
 
             // Nope
             else {
-                reject({ code: 401, message: 'Invalid Query URL!' });
+                reject({ code: 500, message: 'Invalid Crypto Values!' });
             }
 
         }

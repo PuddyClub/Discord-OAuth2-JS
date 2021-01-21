@@ -10,114 +10,134 @@ module.exports = function (req, res, cfg, existSession) {
     if (objType(cfg, 'object')) {
 
         // Create Settings
-        const tinyCfg = _.defaultsDeep({}, cfg.auth, {
-            redirect: 'http://localhost/redirect',
-            discordScope: [],
-            client_id: ''
+        const tinyCrypto = _.defaultsDeep({}, cfg.crypto, {
+            algorithm: 'aes-256-ctr',
+            password: 'tinypudding'
         });
+        
+        // Detect Config
+        if (objType(tinyCrypto, 'object')) {
 
-        // Validate Config
-        if (objType(tinyCfg, 'object')) {
-
-            // Default Values State
-            let tinyState = _.defaultsDeep({}, cfg.state, {
-                csrfToken: '',
-                redirect: ''
+            // Create Settings
+            const tinyCfg = _.defaultsDeep({}, cfg.auth, {
+                redirect: 'http://localhost/redirect',
+                discordScope: [],
+                client_id: ''
             });
 
-            // Validate State
-            if (objType(tinyState, 'object')) {
+            // Validate Config
+            if (objType(tinyCfg, 'object')) {
 
-                // Create Settings
-                const tinyQuery = _.defaultsDeep({}, cfg.query, {
-                    redirect: 'redirect'
+                // Default Values State
+                let tinyState = _.defaultsDeep({}, cfg.state, {
+                    csrfToken: '',
+                    redirect: ''
                 });
 
-                // Exist Cfg
-                if (objType(tinyQuery, 'object')) {
+                // Validate State
+                if (objType(tinyState, 'object')) {
 
-                    // Redirect
-                    let returnRedirect = '/';
-                    if (objType(req.query, 'object')) {
-                        if (typeof req.query[tinyQuery.redirect] === "string") {
-                            req.query[tinyQuery.redirect] = req.query[tinyQuery.redirect].trim();
-                            if (!req.query[tinyQuery.redirect].startsWith('http')) {
+                    // Create Settings
+                    const tinyQuery = _.defaultsDeep({}, cfg.query, {
+                        redirect: 'redirect'
+                    });
+
+                    // Exist Cfg
+                    if (objType(tinyQuery, 'object')) {
+
+                        // Redirect
+                        let returnRedirect = '/';
+                        if (objType(req.query, 'object')) {
+                            if (typeof req.query[tinyQuery.redirect] === "string") {
+                                req.query[tinyQuery.redirect] = req.query[tinyQuery.redirect].trim();
+                                if (!req.query[tinyQuery.redirect].startsWith('http')) {
 
 
-                                if (req.query[tinyQuery.redirect].startsWith('/')) {
-                                    req.query[tinyQuery.redirect] = req.query[tinyQuery.redirect].substring(1);
+                                    if (req.query[tinyQuery.redirect].startsWith('/')) {
+                                        req.query[tinyQuery.redirect] = req.query[tinyQuery.redirect].substring(1);
+                                    }
+
+                                    // Return Redirect
+                                    tinyState.redirect = req.query[tinyQuery.redirect];
+                                    returnRedirect = req.query[tinyQuery.redirect];
+
+                                    // Fix Redirect
+                                    returnRedirect = '/' + returnRedirect;
+
                                 }
-
-                                // Return Redirect
-                                tinyState.redirect = req.query[tinyQuery.redirect];
-                                returnRedirect = req.query[tinyQuery.redirect];
-
-                                // Fix Redirect
-                                returnRedirect = '/' + returnRedirect;
-
-                            }
-                        } else {
-                            delete req.query[tinyQuery.redirect];
-                        }
-                    }
-
-                    // Prepare State
-                    tinyState = Buffer.from(JSON.stringify(tinyState)).toString("base64");
-
-                    // Don't exist session
-                    if (!existSession) {
-
-                        // Redirect Fixed
-                        if (typeof tinyCfg.redirect === "string") {
-                            tinyCfg.redirect = encodeURIComponent(tinyCfg.redirect);
-                        } else {
-                            tinyCfg.redirect = '';
-                        }
-
-                        // Scopes
-                        tinyCfg.scopeURI = '';
-                        if (Array.isArray(tinyCfg.discordScope)) {
-                            for (const item in tinyCfg.discordScope) {
-                                if (tinyCfg.scopeURI) {
-                                    tinyCfg.scopeURI += '%20';
-                                }
-                                tinyCfg.scopeURI += encodeURIComponent(tinyCfg.discordScope[item]);
+                            } else {
+                                delete req.query[tinyQuery.redirect];
                             }
                         }
 
-                        // Redirect URL
-                        return res.redirect(`https://discord.com/api/oauth2/authorize?client_id=${encodeURIComponent(tinyCfg.client_id)}&scope=${tinyCfg.scopeURI}&response_type=code&redirect_uri=${tinyCfg.redirect}&state=${tinyState}`);
+                        // Prepare State
+                        const crypto = require('crypto');
+                        const mykey = crypto.createCipher('aes-128-cbc', 'mypassword');
+                        tinyState = Buffer.from(JSON.stringify(tinyState)).toString("base64");
+
+                        // Don't exist session
+                        if (!existSession) {
+
+                            // Redirect Fixed
+                            if (typeof tinyCfg.redirect === "string") {
+                                tinyCfg.redirect = encodeURIComponent(tinyCfg.redirect);
+                            } else {
+                                tinyCfg.redirect = '';
+                            }
+
+                            // Scopes
+                            tinyCfg.scopeURI = '';
+                            if (Array.isArray(tinyCfg.discordScope)) {
+                                for (const item in tinyCfg.discordScope) {
+                                    if (tinyCfg.scopeURI) {
+                                        tinyCfg.scopeURI += '%20';
+                                    }
+                                    tinyCfg.scopeURI += encodeURIComponent(tinyCfg.discordScope[item]);
+                                }
+                            }
+
+                            // Redirect URL
+                            return res.redirect(`https://discord.com/api/oauth2/authorize?client_id=${encodeURIComponent(tinyCfg.client_id)}&scope=${tinyCfg.scopeURI}&response_type=code&redirect_uri=${tinyCfg.redirect}&state=${tinyState}`);
+
+                        }
+
+                        // Yes
+                        else { return res.redirect(returnRedirect); }
 
                     }
 
-                    // Yes
-                    else { return res.redirect(returnRedirect); }
+                    // Nope
+                    else {
+                        if (typeof cfg.errorCallback !== "function") { return http_status.send(res, 400); } else {
+                            return cfg.errorCallback({ code: 400, message: 'Invalide Request!' });
+                        }
+
+                    }
 
                 }
 
-                // Nope
+                // Error
                 else {
                     if (typeof cfg.errorCallback !== "function") { return http_status.send(res, 400); } else {
-                        return cfg.errorCallback({ code: 400, message: 'Invalide Request!' });
+                        return cfg.errorCallback({ code: 400, message: 'Invalide State Config!' });
                     }
-
                 }
 
             }
 
             // Error
             else {
-                if (typeof cfg.errorCallback !== "function") { return http_status.send(res, 400); } else {
-                    return cfg.errorCallback({ code: 400, message: 'Invalide State Config!' });
+                if (typeof cfg.errorCallback !== "function") { return http_status.send(res, 500); } else {
+                    return cfg.errorCallback({ code: 500, message: 'Invalide System Config!' });
                 }
             }
 
         }
 
-        // Error
+        // Nope
         else {
             if (typeof cfg.errorCallback !== "function") { return http_status.send(res, 500); } else {
-                return cfg.errorCallback({ code: 500, message: 'Invalide System Config!' });
+                return cfg.errorCallback({ code: 500, message: 'Invalid Crypto Values!' });
             }
         }
 
