@@ -21,6 +21,11 @@ module.exports = function (data) {
 
     }
 
+    // Exist Array
+    else if(Array.isArray(data)) {
+        result.data = data;
+    }
+
     // Nope
     else {
         result.error = { code: 500, message: 'Invalid HTTP Result!' };
