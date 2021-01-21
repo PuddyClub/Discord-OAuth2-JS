@@ -168,8 +168,11 @@ app.get('/redirect', bodyParseN, (req, res) => {
 app.get('/refresh', bodyParseN, (req, res) => {
 
     // Result
-    discordAuth.refreshToken(req, res, 'query',
+    discordAuth.refreshToken(req, res,
         {
+
+            // Redirect
+            redirect: '',
 
             // Auth
             auth: tinyAuth,

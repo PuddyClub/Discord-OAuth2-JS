@@ -1,5 +1,5 @@
 
-module.exports = async function (req, res, type, cfg, existSession) {
+module.exports = async function (req, res, cfg, existSession) {
     return new Promise(function (resolve, reject) {
 
         // Modules
@@ -22,10 +22,12 @@ module.exports = async function (req, res, type, cfg, existSession) {
 
                 // Prepare Redirect
                 let redirect_value = '/';
-                if (req.query[type].startsWith('/')) {
-                    redirect_value = req.query[type].substring(1);
-                } else {
-                    redirect_value = req.query[type];
+                if (typeof cfg.redirect === "string") {
+                    if (cfg.redirect.startsWith('/')) {
+                        redirect_value = cfg.redirect.substring(1);
+                    } else {
+                        redirect_value = cfg.redirect;
+                    }
                 }
 
                 // Check Session
