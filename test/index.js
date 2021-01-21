@@ -170,12 +170,44 @@ app.get('/test', (req, res) => {
     res.send('Test Success!');
 });
 
-// Test Page
-app.get('/', (req, res) => {
+// User Page
+app.get('/user', (req, res) => {
+    res.send('Tiny Homepage :3');
+});
+
+// User Page
+app.get('/user', (req, res) => {
 
     // Result
     if (typeof req.session[sessionVars.access_token] === "string") {
         discordAuth.api.getUser(req.session[sessionVars.access_token]).then(result => {
+
+            // Complete
+            res.json(result);
+            return;
+
+        }).catch(err => {
+
+            // Complete
+            console.error(err);
+            return http_status.send(res, err.response.status);
+
+        });
+    }
+
+    // Nope
+    else {
+        res.send('No Account Detect');
+    }
+
+});
+
+// User Page
+app.get('/user/connections', (req, res) => {
+
+    // Result
+    if (typeof req.session[sessionVars.access_token] === "string") {
+        discordAuth.api.getUserConnections(req.session[sessionVars.access_token]).then(result => {
 
             // Complete
             res.json(result);
