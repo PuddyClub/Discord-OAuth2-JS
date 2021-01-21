@@ -18,7 +18,15 @@ module.exports = function (bot_token, data) {
                 'Authorization': `Bot ${bot_token}`,
                 'Content-Type': 'application/json'
             }
-        }).then(data => { resolve(data); }).catch(err => { reject(err); });
+        }).then(data => { 
+
+            
+            resolve(data); return; 
+
+            // Complete
+            return;
+        
+        }).catch(err => { reject({ code: err.response.status, message: err.message }); return; });
 
         // Complete
         return;

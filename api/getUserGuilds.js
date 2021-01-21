@@ -11,7 +11,20 @@ module.exports = function (access_token) {
                 Authorization: `Bearer ${access_token}`,
                 'Content-Type': 'application/json'
             }
-        }).then(data => { resolve(data); }).catch(err => { reject(err); });
+        }).then(data => {
+
+            // OBJ Type
+            const objType = require('@tinypudding/puddy-lib/get/objType');
+
+            // Success
+            if (data(data, 'object') && (typeof data.message !== "string" || data.message !== "401: Unauthorized")) {
+                resolve(data);
+            }
+
+            // Complete
+            return;
+
+        }).catch(err => { reject({ code: err.response.status, message: err.message }); return });
 
         // Complete
         return;

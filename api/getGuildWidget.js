@@ -12,7 +12,14 @@ module.exports = function (guildID) {
                     'Content-Type': 'application/json'
                 }
             }
-        ).then(data => { resolve(data); }).catch(err => { reject(err); });
+        ).then(data => { 
+            
+            resolve(data); 
+            
+            // Complete
+            return; 
+        
+        }).catch(err => { reject({ code: err.response.status, message: err.message }); return; });
 
         // Complete
         return;

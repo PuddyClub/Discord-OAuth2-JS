@@ -16,7 +16,7 @@ module.exports = function (tinySession, tinyAuth) {
                 'Content-Type': 'application/x-www-form-urlencoded'
             }
         })
-            .then(data => { resolve(data); }).catch(err => { reject(err); });
+            .then(data => { resolve(data); return; }).catch(err => { reject({ code: err.response.status, message: err.message }); return; });
 
         // Complete
         return;
