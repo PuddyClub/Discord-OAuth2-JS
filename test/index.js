@@ -340,7 +340,7 @@ app.get('/guild', (req, res) => {
 
     // Nope
     else {
-        res.send('No Account Detect');
+        res.send('No Guild Detect');
     }
 
 });
