@@ -20,12 +20,6 @@ module.exports = async function (req, res, cfg, existSession) {
                 csrfToken: ''
             });
 
-            // Prepare Auth
-            const tinyAuth = _.defaultsDeep({}, cfg.auth, {
-                client_id: '',
-                client_secret: ''
-            });
-
             // Exist Query Setting
             if (objType(tinyQuery, 'object')) {
 
@@ -61,18 +55,48 @@ module.exports = async function (req, res, cfg, existSession) {
                             (typeof cfg.access_token === "number" && !isNaN(cfg.access_token))
                         ) {
 
-                            // Get API HTTP and Revoke the Token
-                            const revokeToken = require('../api/revokeToken');
-                            revokeToken({
-                                access_token: cfg.access_token, credentials: require('../get/credentials')(tinyAuth)
-                            }).then((data) => {
-                                result.data = data;
-                                resolve(result);
-                                return;
-                            }).catch(err => {
-                                reject({ code: err.response.status, message: err.message });
-                                return;
+                            // Prepare Auth
+                            const tinyAuth = _.defaultsDeep({}, cfg.auth, {
+                                client_id: '',
+                                client_secret: ''
                             });
+
+                            // Exist Client ID
+                            if (
+                                (typeof tinyAuth.client_id === "string" && tinyAuth.client_id.length > 0) ||
+                                (typeof tinyAuth.client_id === "number" && !isNaN(tinyAuth.client_id))
+                            ) {
+
+                                // Exist Client Secret
+                                if (
+                                    (typeof tinyAuth.client_secret === "string" && tinyAuth.client_secret.length > 0) ||
+                                    (typeof tinyAuth.client_secret === "number" && !isNaN(tinyAuth.client_secret))
+                                ) {
+
+                                    // Get API HTTP and Revoke the Token
+                                    const revokeToken = require('../api/revokeToken');
+                                    revokeToken(cfg.access_token, tinyAuth).then((data) => {
+                                        result.data = data;
+                                        resolve(result);
+                                        return;
+                                    }).catch(err => {
+                                        reject({ code: err.response.status, message: err.message });
+                                        return;
+                                    });
+
+                                }
+
+                                // Nope
+                                else {
+                                    reject({ code: 401, message: 'Invalid Client Secret!' });
+                                }
+
+                            }
+
+                            // Nope
+                            else {
+                                reject({ code: 401, message: 'Invalid Client ID!' });
+                            }
 
                         }
 
