@@ -29,7 +29,7 @@ const port = 3000;
 
 // Test Config
 const tinyAuth = require('./auth.json');
-tinyAuth.discordScope = ["identify", "email"];
+tinyAuth.discordScope = ["identify", "email", "guilds", "guilds.join", "connections", "gdm.join", "applications.builds.read", "applications.store.update", "applications.entitlements", "relationships.read"];
 /* "applications.commands" */
 
 const sessionVar = 'access_token';
@@ -190,6 +190,7 @@ app.get('/', (req, res) => {
 app.listen(port, () => {
 
     console.group(`Discord Code Test is being executed.`);
+    console.log(`Main URL: http://localhost:${port}`);
     console.log(`Redirect URL to insert in the Discord Bot: ${tinyAuth.redirect}`);
     console.groupEnd();
 
