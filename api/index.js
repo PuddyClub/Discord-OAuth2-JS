@@ -22,6 +22,9 @@ const discord_api = {
     // Add Member to Guild
     addGuildMember: require('./addGuildMember'),
 
+    // Refresh Token
+    refreshToken: require('./refreshToken'),
+
 };
 
 // Send Module
