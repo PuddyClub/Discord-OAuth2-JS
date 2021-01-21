@@ -6,7 +6,7 @@ module.exports = function (tinySession, tinyAuth) {
         const credentials = require('../get/credentials')(tinyAuth);
 
         // Response
-        require('@tinypudding/puddy-lib/http/fetch/text')(`${apiURL}oauth2/token/revoke?token=${encodeURIComponent(tinySession.access_token)}`, {
+        require('@tinypudding/puddy-lib/http/fetch/json')(`${apiURL}oauth2/token/revoke?token=${encodeURIComponent(tinySession.access_token)}`, {
             method: 'POST',
             headers: {
                 'Authorization': `Basic ${credentials}`,
