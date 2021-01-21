@@ -11,7 +11,10 @@ const discordAuth = {
     logout: require('./http/logout'),
 
     // Redirect
-    redirect: require('./http/redirect')
+    redirect: require('./http/redirect'),
+
+    // Refresh Token
+    refreshToken: require('./http/refreshToken')
 
 };
 
