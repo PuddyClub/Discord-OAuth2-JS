@@ -58,7 +58,8 @@ module.exports = async function (req, res, session, cfg, existSession) {
                             // Prepare Auth
                             const tinyAuth = _.defaultsDeep({}, cfg.auth, {
                                 client_id: '',
-                                client_secret: ''
+                                client_secret: '',
+                                redirect_uri: ''
                             });
 
                             // Exist Client ID
