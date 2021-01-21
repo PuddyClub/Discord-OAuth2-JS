@@ -1,11 +1,14 @@
 module.exports = function (id, access_token) {
     return new Promise(function (resolve, reject) {
 
+        // API URL
+        const apiURL = require('../../config.json').url;
+
         // Response
-        require('@tinypudding/puddy-lib/http/fetch/json')(`https://discord.com/api/v8/interactions/${id}/${access_token}/callback`, {
+        require('@tinypudding/puddy-lib/http/fetch/json')(`${apiURL}v8/interactions/${id}/${access_token}/callback`, {
             method: 'POST',
             body: new URLSearchParams({
-                
+
             }),
         })
             .then(data => { resolve(data); }).catch(err => { reject(err); });
