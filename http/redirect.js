@@ -33,6 +33,11 @@ module.exports = async function (req, cfg, existSession) {
                     // Get State
                     if (typeof req.query.state === "string") {
 
+                        // Crypto
+                        const decipher = crypto.createDecipher(tinyCrypto.algorithm, tinyCrypto.password);
+                        req.query.state = decipher.update(req.query.state, 'hex', 'utf8');
+                        req.query.state += decipher.final('utf8');
+
                         // Convert
                         try {
                             req.query.state = JSON.parse(Buffer.from(req.query.state, 'base64').toString());

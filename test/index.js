@@ -32,12 +32,19 @@ const tinyAuth = require('./auth.json');
 tinyAuth.discordScope = ["identify", "email", "guilds", "guilds.join", "connections", "gdm.join"];
 /* "applications.commands" */
 
+// Session Vars
 const sessionVars = {
     access_token: 'access_token',
     expires_in: 'expires_in',
     refresh_token: 'refresh_token',
     token_type: 'token_type',
     scope: 'scope'
+};
+
+// Crypto Values
+const tinyCrypto = {
+    algorithm: 'aes-256-ctr',
+    password: 'tinypudding'
 };
 
 // Login
@@ -51,6 +58,9 @@ app.get('/login', (req, res) => {
             errorCallback: function (err) {
                 return res.json(err);
             },
+
+            // Crypto
+            crypto: tinyCrypto,
 
             // Auth
             auth: tinyAuth,
@@ -120,6 +130,9 @@ app.get('/redirect', bodyParseN, (req, res) => {
 
             // Auth
             auth: tinyAuth,
+
+            // Crypto
+            crypto: tinyCrypto,
 
             // Query
             query: { redirect: 'redirect' },

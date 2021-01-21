@@ -14,7 +14,7 @@ module.exports = function (req, res, cfg, existSession) {
             algorithm: 'aes-256-ctr',
             password: 'tinypudding'
         });
-        
+
         // Detect Config
         if (objType(tinyCrypto, 'object')) {
 
@@ -72,8 +72,9 @@ module.exports = function (req, res, cfg, existSession) {
 
                         // Prepare State
                         const crypto = require('crypto');
-                        const mykey = crypto.createCipher('aes-128-cbc', 'mypassword');
-                        tinyState = Buffer.from(JSON.stringify(tinyState)).toString("base64");
+                        const cipher = crypto.createCipher(tinyCrypto.algorithm, tinyCrypto.password);
+                        tinyState = cipher.update(Buffer.from(JSON.stringify(tinyState)).toString("base64"),'utf8','hex');
+                        tinyState += cipher.final('hex');
 
                         // Don't exist session
                         if (!existSession) {
@@ -97,7 +98,7 @@ module.exports = function (req, res, cfg, existSession) {
                             }
 
                             // Redirect URL
-                            return res.redirect(`https://discord.com/api/oauth2/authorize?client_id=${encodeURIComponent(tinyCfg.client_id)}&scope=${tinyCfg.scopeURI}&response_type=code&redirect_uri=${tinyCfg.redirect}&state=${tinyState}`);
+                            return res.redirect(`https://discord.com/api/oauth2/authorize?client_id=${encodeURIComponent(tinyCfg.client_id)}&scope=${tinyCfg.scopeURI}&response_type=code&redirect_uri=${tinyCfg.redirect}&state=${encodeURIComponent(tinyState)}`);
 
                         }
 
