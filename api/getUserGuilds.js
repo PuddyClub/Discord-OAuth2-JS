@@ -9,6 +9,7 @@ module.exports = function (access_token) {
             method: 'GET',
             headers: {
                 Authorization: `Bearer ${access_token}`,
+                'Content-Type': 'application/json'
             }
         }).then(data => { resolve(data); }).catch(err => { reject(err); });
 

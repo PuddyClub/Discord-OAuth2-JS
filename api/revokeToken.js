@@ -3,7 +3,7 @@ module.exports = function (access_token, tinyAuth) {
 
         // API URL
         const apiURL = require('../config.json').url;
-        const credentials = require('../get/credentials')(tinyAuth)
+        const credentials = require('../get/credentials')(tinyAuth);
 
         // Response
         require('@tinypudding/puddy-lib/http/fetch/text')(`${apiURL}oauth2/token/revoke?token=${encodeURIComponent(access_token)}`, {

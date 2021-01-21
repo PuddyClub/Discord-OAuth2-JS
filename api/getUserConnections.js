@@ -5,10 +5,10 @@ module.exports = function (access_token) {
         const apiURL = require('../config.json').url;
 
         // Response
-        require('@tinypudding/puddy-lib/http/fetch/json')(`${apiURL}users/@me`, {
+        require('@tinypudding/puddy-lib/http/fetch/json')(`${apiURL}users/@me/connections`, {
             method: 'GET',
             headers: {
-                Authorization: `Bearer ${access_token}`,
+                'Authorization': `Bearer ${access_token}`,
                 'Content-Type': 'application/json'
             }
         }).then(data => { resolve(data); }).catch(err => { reject(err); });

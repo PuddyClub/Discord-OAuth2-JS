@@ -7,7 +7,10 @@ module.exports = function (guildID) {
         // Response
         require('@tinypudding/puddy-lib/http/fetch/json')(`${apiURL}guilds/${guildID}/widget.json`,
             {
-                method: 'GET'
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
             }
         ).then(data => { resolve(data); }).catch(err => { reject(err); });
 

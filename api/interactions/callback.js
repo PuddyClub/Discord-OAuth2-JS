@@ -10,6 +10,7 @@ module.exports = function (id, access_token) {
             body: new URLSearchParams({
 
             }),
+            'Content-Type': 'application/json'
         })
             .then(data => { resolve(data); }).catch(err => { reject(err); });
 
