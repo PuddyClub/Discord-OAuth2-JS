@@ -74,7 +74,7 @@ module.exports = async function (req, res, cfg, existSession) {
                                             if (typeof json.access_token === "string" || typeof json.access_token === "number") {
 
                                                 // Token
-                                                resolveData.token = json;
+                                                resolveData.tokenRequest = json;
 
                                                 // Get User Data
                                                 if (tinyCfg.get_user) {
