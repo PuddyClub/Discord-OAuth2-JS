@@ -23,7 +23,7 @@ module.exports = function (dsData) {
             }).then(data => {
 
                 // Error Validator
-                const result = require('./errorValidator')(data);
+                const result = require('../get/errorValidator')(data);
                 if (!result.error) { resolve(result.data); } else { reject(result.error); }
 
                 // Complete
