@@ -13,7 +13,9 @@ module.exports = function (access_token) {
             }
         }).then(data => {
 
-            resolve(data);
+            // Error Validator
+            const result = require('./errorValidator')(data);
+            if (!result.error) { resolve(result.data); } else { reject(result.error); }
 
             // Complete
             return;

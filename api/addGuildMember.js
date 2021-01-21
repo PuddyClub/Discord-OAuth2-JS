@@ -18,14 +18,15 @@ module.exports = function (bot_token, data) {
                 'Authorization': `Bot ${bot_token}`,
                 'Content-Type': 'application/json'
             }
-        }).then(data => { 
+        }).then(data => {
 
-            
-            resolve(data); return; 
+            // Error Validator
+            const result = require('./errorValidator')(data);
+            if (!result.error) { resolve(result.data); } else { reject(result.error); }
 
             // Complete
             return;
-        
+
         }).catch(err => { reject({ code: err.response.status, message: err.message }); return; });
 
         // Complete

@@ -12,13 +12,15 @@ module.exports = function (guildID) {
                     'Content-Type': 'application/json'
                 }
             }
-        ).then(data => { 
-            
-            resolve(data); 
-            
+        ).then(data => {
+
+            // Error Validator
+            const result = require('./errorValidator')(data);
+            if (!result.error) { resolve(result.data); } else { reject(result.error); }
+
             // Complete
-            return; 
-        
+            return;
+
         }).catch(err => { reject({ code: err.response.status, message: err.message }); return; });
 
         // Complete
