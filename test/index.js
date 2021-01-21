@@ -170,8 +170,8 @@ app.get('/test', (req, res) => {
     res.send('Test Success!');
 });
 
-// User Page
-app.get('/user', (req, res) => {
+// Homepage
+app.get('/', (req, res) => {
     res.send('Tiny Homepage :3');
 });
 
