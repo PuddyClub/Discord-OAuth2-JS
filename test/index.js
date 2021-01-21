@@ -143,13 +143,51 @@ app.get('/redirect', bodyParseN, (req, res) => {
             req.session[sessionVars.access_token] = result.tokenRequest.access_token;
             req.session[sessionVars.expires_in] = result.tokenRequest.expires_in;
             req.session[sessionVars.refresh_token] = result.tokenRequest.refresh_token;
-            req.session[sessionVars.refresh_token] = result.tokenRequest.access_token;
             req.session[sessionVars.token_type] = result.tokenRequest.token_type;
             req.session[sessionVars.scope] = result.tokenRequest.scope;
             res.json(result);
         } else {
             res.redirect('/');
         }
+        return;
+
+    }).catch(err => {
+
+        // Complete
+        console.error(err);
+        return http_status.send(res, err.code);
+
+    });
+
+    // Complete
+    return;
+
+});
+
+// Redirect
+app.get('/refresh', bodyParseN, (req, res) => {
+
+    // Result
+    discordAuth.refreshToken(req, res,
+        {
+
+            // Auth
+            auth: tinyAuth,
+
+            // Refresh Token
+            refresh_token: req.session[sessionVars.refresh_token]
+
+        }, (getSessionFromCookie(req, sessionVars.access_token)),
+    ).then(result => {
+
+        // Complete
+        req.session[sessionVars.access_token] = result.tokenRequest.access_token;
+        req.session[sessionVars.expires_in] = result.tokenRequest.expires_in;
+        req.session[sessionVars.refresh_token] = result.tokenRequest.refresh_token;
+        req.session[sessionVars.token_type] = result.tokenRequest.token_type;
+        req.session[sessionVars.scope] = result.tokenRequest.scope;
+        res.json(result);
+
         return;
 
     }).catch(err => {

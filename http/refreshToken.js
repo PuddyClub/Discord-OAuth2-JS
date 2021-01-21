@@ -14,8 +14,7 @@ module.exports = async function (req, cfg, existSession) {
                 redirect: 'http://localhost/redirect',
                 discordScope: [],
                 client_id: '',
-                client_secret: '',
-                refresh_token: ''
+                client_secret: ''
             });
 
             // Detect Query
@@ -44,55 +43,67 @@ module.exports = async function (req, cfg, existSession) {
                         // Exist Session
                         if (existSession) {
 
-                            // Discord Token
-                            const refreshToken = require('../api/refreshToken');
+                            if (
+                                (typeof cfg.refresh_token === "string" && cfg.refresh_token.length > 0) ||
+                                (typeof cfg.refresh_token === "number" && !isNaN(cfg.refresh_token))
+                            ) {
 
-                            refreshToken({
-                                client_id: tinyCfg.client_id,
-                                client_secret: tinyCfg.client_secret,
-                                refresh_token: tinyCfg.refresh_token,
-                                redirect_uri: tinyCfg.redirect,
-                                scope: tinyCfg.discordScope.join(' ')
-                            })
+                                // Discord Token
+                                const refreshToken = require('../api/refreshToken');
 
-                                // Success
-                                .then(json => {
+                                refreshToken({
+                                    client_id: tinyCfg.client_id,
+                                    client_secret: tinyCfg.client_secret,
+                                    refresh_token: cfg.refresh_token,
+                                    redirect_uri: tinyCfg.redirect,
+                                    scope: tinyCfg.discordScope.join(' ')
+                                })
 
-                                    // Valid Json Data
-                                    if (objType(json, 'object')) {
+                                    // Success
+                                    .then(json => {
 
-                                        // Check Token
-                                        if (typeof json.access_token === "string" || typeof json.access_token === "number") {
+                                        // Valid Json Data
+                                        if (objType(json, 'object')) {
 
-                                            // Token
-                                            result.data = json;
+                                            // Check Token
+                                            if (typeof json.access_token === "string" || typeof json.access_token === "number") {
 
-                                            // Return Result
-                                            resolve(result);
+                                                // Token
+                                                result.data = json;
+
+                                                // Return Result
+                                                resolve(result);
+
+                                            }
+
+                                            // Nope
+                                            else {
+                                                reject({ code: 500, message: 'Invalid User Token Data!' });
+                                            }
 
                                         }
 
                                         // Nope
                                         else {
-                                            reject({ code: 500, message: 'Invalid User Token Data!' });
+                                            reject({ code: 500, message: 'Invalid JSON Token Data!' });
                                         }
 
-                                    }
+                                        // Complete
+                                        return;
 
-                                    // Nope
-                                    else {
-                                        reject({ code: 500, message: 'Invalid JSON Token Data!' });
-                                    }
+                                    })
 
-                                    // Complete
-                                    return;
+                                    // Fail
+                                    .catch(err => {
+                                        reject({ code: err.response.status, message: err.message });
+                                    });
 
-                                })
+                            }
 
-                                // Fail
-                                .catch(err => {
-                                    reject({ code: err.response.status, message: err.message });
-                                });
+                            // Nope
+                            else {
+                                reject({ code: 401, message: 'Invalid Refresh Token Data!' });
+                            }
 
                         } else {
                             resolve(result);
