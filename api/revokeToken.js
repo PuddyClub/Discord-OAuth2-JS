@@ -1,4 +1,4 @@
-module.exports = function (access_token, tinyAuth) {
+module.exports = function (tinySession, tinyAuth) {
     return new Promise(function (resolve, reject) {
 
         // API URL
@@ -6,7 +6,7 @@ module.exports = function (access_token, tinyAuth) {
         const credentials = require('../get/credentials')(tinyAuth);
 
         // Response
-        require('@tinypudding/puddy-lib/http/fetch/text')(`${apiURL}oauth2/token/revoke?token=${encodeURIComponent(access_token)}`, {
+        require('@tinypudding/puddy-lib/http/fetch/text')(`${apiURL}oauth2/token/revoke?token=${encodeURIComponent(tinySession.access_token)}`, {
             method: 'POST',
             headers: {
                 'Authorization': `Basic ${credentials}`,

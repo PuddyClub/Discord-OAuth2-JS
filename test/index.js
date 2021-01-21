@@ -75,13 +75,8 @@ app.get('/login', (req, res) => {
 app.get('/logout', (req, res) => {
 
     // Result
-    discordAuth.logout(req, res,
+    discordAuth.logout(req, res, req.session,
         {
-
-            // Auth
-            auth: {
-                csrfToken: ''
-            },
 
             // Query
             query: {

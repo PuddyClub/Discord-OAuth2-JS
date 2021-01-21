@@ -1,5 +1,5 @@
 
-module.exports = async function (req, res, cfg, existSession) {
+module.exports = async function (req, res, session, cfg, existSession) {
     return new Promise(function (resolve, reject) {
 
         // Prepare Modules
@@ -16,7 +16,7 @@ module.exports = async function (req, res, cfg, existSession) {
                 redirect: 'redirect'
             });
 
-            const tinyCfg = _.defaultsDeep({}, cfg.auth, {
+            const tinyState = _.defaultsDeep({}, cfg.state, {
                 csrfToken: ''
             });
 
@@ -24,9 +24,9 @@ module.exports = async function (req, res, cfg, existSession) {
             if (objType(tinyQuery, 'object')) {
 
                 // Exist Query
-                if ((typeof tinyCfg.csrfToken !== "string" || tinyCfg.csrfToken.length < 1) || (
+                if (typeof tinyState.csrfToken !== "string" || tinyState.csrfToken.length < 1 || (
                     objType(req.query, 'object') &&
-                    typeof req.query[tinyQuery.csrfToken] === "string" && tinyCfg.csrfToken === req.query[tinyQuery.csrfToken]
+                    typeof req.query[tinyQuery.csrfToken] === "string" && tinyState.csrfToken === req.query[tinyQuery.csrfToken]
                 )) {
 
                     // Prepare Final Redirect
@@ -51,8 +51,8 @@ module.exports = async function (req, res, cfg, existSession) {
 
                         // Exist Token
                         if (
-                            (typeof cfg.access_token === "string" && cfg.access_token.length > 0) ||
-                            (typeof cfg.access_token === "number" && !isNaN(cfg.access_token))
+                            (typeof session.access_token === "string" && session.access_token.length > 0) ||
+                            (typeof session.access_token === "number" && !isNaN(session.access_token))
                         ) {
 
                             // Prepare Auth
@@ -75,7 +75,7 @@ module.exports = async function (req, res, cfg, existSession) {
 
                                     // Get API HTTP and Revoke the Token
                                     const revokeToken = require('../api/revokeToken');
-                                    revokeToken(cfg.access_token, tinyAuth).then((data) => {
+                                    revokeToken(session, tinyAuth).then((data) => {
                                         result.data = data;
                                         resolve(result);
                                         return;
