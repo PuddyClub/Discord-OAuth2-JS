@@ -239,7 +239,7 @@ app.get('/user', (req, res) => {
 
             // Complete
             console.error(err);
-            return http_status.send(res, err.response.status);
+            return http_status.send(res, err.code);
 
         });
     }
@@ -266,7 +266,7 @@ app.get('/user/guilds', (req, res) => {
 
             // Complete
             console.error(err);
-            return http_status.send(res, err.response.status);
+            return http_status.send(res, err.code);
 
         });
     }
@@ -293,7 +293,7 @@ app.get('/user/connections', (req, res) => {
 
             // Complete
             console.error(err);
-            return http_status.send(res, err.response.status);
+            return http_status.send(res, err.code);
 
         });
     }
