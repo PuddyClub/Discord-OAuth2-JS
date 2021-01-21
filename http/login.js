@@ -62,7 +62,7 @@ module.exports = function (req, res, cfg, existSession) {
                     }
 
                     // Prepare State
-                    tinyState = encodeURIComponent(JSON.stringify(tinyState));
+                    tinyState = Buffer.from(JSON.stringify(tinyState)).toString("base64");
 
                     // Don't exist session
                     if (!existSession) {

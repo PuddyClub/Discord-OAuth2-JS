@@ -23,11 +23,14 @@ module.exports = async function (req, cfg, existSession) {
 
                 // Get State
                 if (typeof req.query.state === "string") {
+
+                    // Convert
                     try {
-                        req.query.state = JSON.parse(req.query.state);
+                        req.query.state = JSON.parse(Buffer.from(req.query.state, 'base64').toString());
                     } catch (err) {
                         req.query.state = {};
                     }
+
                 } else {
                     req.query.state = {};
                 }
