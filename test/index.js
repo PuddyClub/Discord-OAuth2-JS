@@ -105,6 +105,9 @@ app.get('/logout', (req, res) => {
 
         // Complete
         console.log(result);
+
+        // Complete
+        req.session = null;
         result.fn();
         return;
 
