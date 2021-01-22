@@ -22,6 +22,7 @@
   "dependencies": {
     "@tinypudding/puddy-lib": "^1.0.14",
     "lodash": "^4.17.20",
+    "moment-timezone": "^0.5.32",
     "node-fetch": "^2.6.1"
   },
   "devDependencies": {

@@ -70,36 +70,13 @@ module.exports = function (req, res, cfg, existSession) {
                             }
                         }
 
-                        // Prepare State
-                        const crypto = require('crypto');
-                        const cipher = crypto.createCipher(tinyCrypto.algorithm, tinyCrypto.password);
-                        tinyState = cipher.update(Buffer.from(JSON.stringify(tinyState)).toString("base64"),'utf8','hex');
-                        tinyState += cipher.final('hex');
-
                         // Don't exist session
                         if (!existSession) {
 
-                            // Redirect Fixed
-                            if (typeof tinyCfg.redirect === "string") {
-                                tinyCfg.redirect = encodeURIComponent(tinyCfg.redirect);
-                            } else {
-                                tinyCfg.redirect = '';
-                            }
-
-                            // Scopes
-                            tinyCfg.scopeURI = '';
-                            if (Array.isArray(tinyCfg.discordScope)) {
-                                for (const item in tinyCfg.discordScope) {
-                                    if (tinyCfg.scopeURI) {
-                                        tinyCfg.scopeURI += '%20';
-                                    }
-                                    tinyCfg.scopeURI += encodeURIComponent(tinyCfg.discordScope[item]);
-                                }
-                            }
-
-                            // Redirect URL
-                            return res.redirect(`https://discord.com/api/oauth2/authorize?client_id=${encodeURIComponent(tinyCfg.client_id)}&scope=${tinyCfg.scopeURI}&response_type=code&redirect_uri=${tinyCfg.redirect}&state=${encodeURIComponent(tinyState)}`);
-
+                            // Redirect Result
+                            const redirect_discord = require('../get/authURLGenerator')(tinyCfg, tinyState, tinyCrypto);
+                            return res.redirect(redirect_discord);
+                            
                         }
 
                         // Yes

@@ -1,5 +1,6 @@
 FAZER A ADAPTAÇÃO COM O FIREBASE
 Fazer contador de tempo restante da sessão
+Fazer a adaptação com o Firebase
 
-
-https://discord.com/api/oauth2/authorize?response_type=code&client_id=157730590492196864&scope=webhook.incoming&state=15773059ghq9183habn&redirect_uri=https%3A%2F%2Fnicememe.website
+Fazer o solicitador de webhook
+https://discord.com/api/?response_type=code&client_id=${cient_id}&scope=webhook.incoming&state=${state}&redirect_uri=${redirect}
