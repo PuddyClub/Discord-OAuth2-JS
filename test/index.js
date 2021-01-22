@@ -197,15 +197,23 @@ app.get('/redirect', bodyParseN, (req, res) => {
         }, (getSessionFromCookie(req, sessionVars.access_token)),
     ).then(result => {
 
-        // Complete
-        if (result.newSession) {
+        // New Session Result
+        if (result.state.type === "login" && result.newSession) {
             req.session[sessionVars.access_token] = result.tokenRequest.access_token;
             req.session[sessionVars.expires_in] = result.tokenRequest.expires_in;
             req.session[sessionVars.refresh_token] = result.tokenRequest.refresh_token;
             req.session[sessionVars.token_type] = result.tokenRequest.token_type;
             req.session[sessionVars.scope] = result.tokenRequest.scope;
             res.json(result);
-        } else {
+        } 
+        
+        // Webhook Result
+        else if (result.state.type === "webhook") {
+            res.json(result);
+        }
+
+        // Nothing
+        else {
             res.redirect('/');
         }
         return;
