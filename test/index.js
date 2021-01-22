@@ -340,7 +340,8 @@ app.get('/guild', (req, res) => {
 
     // Nope
     else {
-        res.send('No Guild Detect');
+        res.json({ code: 500, message: 'Invalid Guild Widget Value!' });
+        return;
     }
 
 });
