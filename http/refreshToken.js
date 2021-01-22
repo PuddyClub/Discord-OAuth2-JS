@@ -1,5 +1,5 @@
 
-module.exports = async function (req, res, cfg, existSession) {
+module.exports = async function (req, cfg, existSession) {
     return new Promise(function (resolve, reject) {
 
         // Modules
@@ -17,21 +17,29 @@ module.exports = async function (req, res, cfg, existSession) {
                 client_secret: ''
             });
 
-            // Prepare Redirect
-            let redirect_value = '/';
-            if (typeof cfg.redirect === "string") {
-                if (cfg.redirect.startsWith('/')) {
-                    redirect_value = cfg.redirect.substring(1);
+            const tinyQuery = _.defaultsDeep({}, cfg.auth, {
+                redirect: 'redirect'
+            });
+
+            // Prepare Final Redirect
+            let finalRedirect = '/';
+
+            // Redirect
+            if (objType(tinyQuery, 'object') && objType(req.query, 'object') && typeof tinyQuery.redirect === "string" && typeof req.query[tinyQuery.redirect] === "string") {
+
+                if (req.query[tinyQuery.redirect].startsWith('/')) {
+                    finalRedirect = req.query[tinyQuery.redirect].substring(1);
                 } else {
-                    redirect_value = cfg.redirect;
+                    finalRedirect = req.query[tinyQuery.redirect];
                 }
+
             }
 
             // Check Session
             if (typeof tinyCfg.csrfToken !== "string" || tinyCfg.csrfToken.length < 1 || (typeof req[type].csrfToken === "string" && req[type].csrfToken === tinyCfg.csrfToken)) {
 
                 // Result
-                const result = { refreshed: false };
+                const result = { refreshed: false, redirect: finalRedirect };
 
                 // Exist Session
                 if (existSession) {
@@ -63,7 +71,6 @@ module.exports = async function (req, res, cfg, existSession) {
 
                                         // Token
                                         result.tokenRequest = json;
-                                        result.fn = function () { res.redirect(redirect_value); };
 
                                         // Return Result
                                         resolve(result);

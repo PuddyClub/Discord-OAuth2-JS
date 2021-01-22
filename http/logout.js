@@ -44,7 +44,7 @@ module.exports = async function (req, res, session, cfg, existSession) {
                     }
 
                     // Result
-                    const result = { fn: function () { res.redirect(finalRedirect); }, data: null, existSession: (existSession) };
+                    const result = { redirect: finalRedirect, data: null, existSession: (existSession) };
 
                     // Exist Session
                     if (existSession) {
