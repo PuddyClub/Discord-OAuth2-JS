@@ -60,9 +60,6 @@ module.exports = async function (req, cfg, existSession) {
                             // Exist Session
                             if (!existSession || req.query.state.type === "webhook") {
 
-                                // Check New Session
-                                resolveData.newSession = true;
-
                                 if (
                                     (typeof req.query.code === "string" && req.query.code.length > 0) ||
                                     (typeof req.query.code === "number" && !isNaN(req.query.code))
@@ -93,6 +90,9 @@ module.exports = async function (req, cfg, existSession) {
 
                                                     // Login Type
                                                     if (req.query.state.type === "login") {
+
+                                                        // Check New Session
+                                                        resolveData.newSession = true;
 
                                                         // Get User Data
                                                         if (tinyCfg.get_user) {
@@ -141,7 +141,7 @@ module.exports = async function (req, cfg, existSession) {
                                                     }
 
                                                     // Webhook Type
-                                                    else {
+                                                    else if (req.query.state.type === "webhook") {
 
                                                         // Guild ID
                                                         if (typeof req.query.guild_id === "string") {
@@ -151,6 +151,11 @@ module.exports = async function (req, cfg, existSession) {
                                                         // Return Result
                                                         resolve(resolveData);
 
+                                                    }
+
+                                                    // Unknown
+                                                    else {
+                                                        reject({ code: 400, message: 'Invalid State Type!' });
                                                     }
 
                                                 }
