@@ -58,7 +58,7 @@ module.exports = async function (req, cfg, existSession) {
                             const resolveData = { newSession: false, state: req.query.state };
 
                             // Exist Session
-                            if (!existSession) {
+                            if (!existSession || req.query.state.type === "webhook") {
 
                                 // Check New Session
                                 resolveData.newSession = true;
@@ -91,44 +91,62 @@ module.exports = async function (req, cfg, existSession) {
                                                     // Token
                                                     resolveData.tokenRequest = json;
 
-                                                    // Get User Data
-                                                    if (tinyCfg.get_user) {
+                                                    // Login Type
+                                                    if (req.query.state.type === "login") {
 
-                                                        // Discord Token
-                                                        const getUser = require('../api/getUser');
+                                                        // Get User Data
+                                                        if (tinyCfg.get_user) {
 
-                                                        // Get User
-                                                        getUser(json.access_token)
+                                                            // Discord Token
+                                                            const getUser = require('../api/getUser');
 
                                                             // Get User
-                                                            .then(dsUser => {
+                                                            getUser(json.access_token)
 
-                                                                // Validate Data
-                                                                if (objType(dsUser, 'object')) {
-                                                                    resolveData.user = dsUser;
-                                                                    resolve(resolveData);
-                                                                }
+                                                                // Get User
+                                                                .then(dsUser => {
 
-                                                                // Nope
-                                                                else {
-                                                                    reject({ code: 500, message: 'Invalid JSON User Data!' });
-                                                                }
+                                                                    // Validate Data
+                                                                    if (objType(dsUser, 'object')) {
+                                                                        resolveData.user = dsUser;
+                                                                        resolve(resolveData);
+                                                                    }
 
-                                                                // Complete
-                                                                return;
+                                                                    // Nope
+                                                                    else {
+                                                                        reject({ code: 500, message: 'Invalid JSON User Data!' });
+                                                                    }
 
-                                                            })
+                                                                    // Complete
+                                                                    return;
 
-                                                            // Fail
-                                                            .catch(err => {
-                                                                reject(err);
-                                                                return;
-                                                            });
+                                                                })
+
+                                                                // Fail
+                                                                .catch(err => {
+                                                                    reject(err);
+                                                                    return;
+                                                                });
+
+                                                        }
+
+                                                        // Nope
+                                                        else {
+
+                                                            // Return Result
+                                                            resolve(resolveData);
+
+                                                        }
 
                                                     }
 
-                                                    // Nope
+                                                    // Webhook Type
                                                     else {
+
+                                                        // Guild ID
+                                                        if (typeof req.query.guild_id === "string") {
+                                                            resolveData.guild_id = req.query.guild_id;
+                                                        }
 
                                                         // Return Result
                                                         resolve(resolveData);

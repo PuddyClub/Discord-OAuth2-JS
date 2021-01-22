@@ -31,8 +31,12 @@ module.exports = function (req, res, cfg, existSession) {
                 // Default Values State
                 let tinyState = _.defaultsDeep({}, cfg.state, {
                     csrfToken: '',
-                    redirect: ''
+                    redirect: '',
+                    type: cfg.type
                 });
+
+                // Validate
+                if (typeof tinyState.type !== "string") { tinyState.type = cfg.type; }
 
                 // Validate State
                 if (objType(tinyState, 'object')) {
@@ -71,12 +75,12 @@ module.exports = function (req, res, cfg, existSession) {
                         }
 
                         // Don't exist session
-                        if (!existSession) {
+                        if (!existSession || cfg.type === "webhook") {
 
                             // Redirect Result
-                            const redirect_discord = require('../get/authURLGenerator')(tinyCfg, tinyState, tinyCrypto);
+                            const redirect_discord = require('../get/authURLGenerator')(tinyCfg, tinyState, tinyCrypto, cfg.type);
                             return res.redirect(redirect_discord);
-                            
+
                         }
 
                         // Yes

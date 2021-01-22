@@ -1,4 +1,4 @@
-module.exports = function (tinyCfg, jsonState, tinyCrypto) {
+module.exports = function (tinyCfg, jsonState, tinyCrypto, type) {
 
     // Redirect Fixed
     let tinyRedirect = '';
@@ -13,13 +13,22 @@ module.exports = function (tinyCfg, jsonState, tinyCrypto) {
 
     // Scopes
     let tinyScopeURI = '';
-    if (Array.isArray(tinyCfg.discordScope)) {
-        for (const item in tinyCfg.discordScope) {
-            if (tinyScopeURI) {
-                tinyScopeURI += '%20';
+
+    // Login
+    if (type === "login") {
+        if (Array.isArray(tinyCfg.discordScope)) {
+            for (const item in tinyCfg.discordScope) {
+                if (tinyScopeURI) {
+                    tinyScopeURI += '%20';
+                }
+                tinyScopeURI += encodeURIComponent(tinyCfg.discordScope[item]);
             }
-            tinyScopeURI += encodeURIComponent(tinyCfg.discordScope[item]);
         }
+    }
+
+    // Webhook
+    else if(type === "webhook") {
+        tinyScopeURI += 'webhook.incoming';
     }
 
     // API URL

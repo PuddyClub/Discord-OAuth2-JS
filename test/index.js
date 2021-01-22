@@ -402,6 +402,7 @@ app.listen(port, () => {
     console.group('Account URLs');
     console.log(`Guild: http://localhost:${port}/guild?id=`);
     console.log(`Login: http://localhost:${port}/login`);
+    console.log(`Webhook: http://localhost:${port}/webhook`);
     console.log(`Logout: http://localhost:${port}/logout`);
     console.log(`Refresh Token: http://localhost:${port}/refresh`);
     console.log(`User Page: http://localhost:${port}/user`);
@@ -413,6 +414,7 @@ app.listen(port, () => {
     console.log(`Login: http://localhost:${port}/login?redirect=test`);
     console.log(`Logout: http://localhost:${port}/logout?redirect=test`);
     console.log(`Refresh Token: http://localhost:${port}/refresh?redirect=test`);
+    console.log(`Webhook: http://localhost:${port}/webhook?redirect=test`);
     console.groupEnd();
 
 })
