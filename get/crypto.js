@@ -8,6 +8,7 @@ module.exports = {
         const decipher = crypto.createDecipher(tinyCrypto.algorithm, tinyCrypto.password);
         result = decipher.update(result, 'hex', 'utf8');
         result += decipher.final('utf8');
+        result = Buffer.from(result, 'base64').toString();
 
         // Complete
         return result;

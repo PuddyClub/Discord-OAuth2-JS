@@ -34,14 +34,12 @@ module.exports = async function (req, cfg, existSession) {
                     if (typeof req.query.state === "string") {
 
                         // Crypto
-                        const crypto = require('crypto');
-                        const decipher = crypto.createDecipher(tinyCrypto.algorithm, tinyCrypto.password);
-                        req.query.state = decipher.update(req.query.state, 'hex', 'utf8');
-                        req.query.state += decipher.final('utf8');
+                        const crypto = require('../get/crypto');
+                        req.query.state = crypto.decipher(tinyCrypto, req.query.state);
 
                         // Convert
                         try {
-                            req.query.state = JSON.parse(Buffer.from(req.query.state, 'base64').toString());
+                            req.query.state = JSON.parse(req.query.state);
                         } catch (err) {
                             req.query.state = {};
                         }
