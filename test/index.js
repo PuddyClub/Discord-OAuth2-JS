@@ -74,6 +74,47 @@ app.get('/login', (req, res) => {
             // Auth
             auth: tinyAuth,
 
+            // Type
+            type: 'login',
+
+            // Query
+            query: { redirect: 'redirect' },
+
+            // State
+            state: {
+                csrfToken: '',
+                redirect: ''
+            }
+
+        }, (getSessionFromCookie(req, sessionVars.access_token)),
+    );
+
+    // Complete
+    return;
+
+});
+
+// Webhook
+app.get('/webhook', (req, res) => {
+
+    // Result
+    discordAuth.login(req, res,
+        {
+
+            // Error
+            errorCallback: function (err) {
+                return res.json(err);
+            },
+
+            // Crypto
+            crypto: tinyCrypto,
+
+            // Auth
+            auth: tinyAuth,
+
+            // Type
+            type: 'webhook',
+
             // Query
             query: { redirect: 'redirect' },
 
