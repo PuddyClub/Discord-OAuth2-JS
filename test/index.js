@@ -11,7 +11,6 @@
 const objType = require('@tinypudding/puddy-lib/get/objType');
 const discordAuth = require('../index');
 const express = require('express');
-const http_status = require('@tinypudding/puddy-lib/http/HTTP-1.0');
 const getSessionFromCookie = require('../get/cookie-session');
 const app = express();
 
@@ -122,8 +121,8 @@ app.get('/logout', (req, res) => {
     }).catch(err => {
 
         // Complete
-        console.error(err);
-        return http_status.send(res, err.code);
+        res.json(result);
+        return;
 
     });
 
@@ -173,8 +172,8 @@ app.get('/redirect', bodyParseN, (req, res) => {
     }).catch(err => {
 
         // Complete
-        console.error(err);
-        return http_status.send(res, err.code);
+        res.json(result);
+        return;
 
     });
 
@@ -218,8 +217,8 @@ app.get('/refresh', bodyParseN, (req, res) => {
     }).catch(err => {
 
         // Complete
-        console.error(err);
-        return http_status.send(res, err.code);
+        res.json(result);
+        return;
 
     });
 
@@ -252,8 +251,8 @@ app.get('/user', (req, res) => {
         }).catch(err => {
 
             // Complete
-            console.error(err);
-            return http_status.send(res, err.code);
+            res.json(result);
+            return;
 
         });
     }
@@ -279,8 +278,8 @@ app.get('/user/guilds', (req, res) => {
         }).catch(err => {
 
             // Complete
-            console.error(err);
-            return http_status.send(res, err.code);
+            res.json(result);
+            return;
 
         });
     }
@@ -306,8 +305,8 @@ app.get('/user/connections', (req, res) => {
         }).catch(err => {
 
             // Complete
-            console.error(err);
-            return http_status.send(res, err.code);
+            res.json(result);
+            return;
 
         });
     }
@@ -333,8 +332,8 @@ app.get('/guild', (req, res) => {
         }).catch(err => {
 
             // Complete
-            console.error(err);
-            return http_status.send(res, err.code);
+            res.json(result);
+            return;
 
         });
     }
