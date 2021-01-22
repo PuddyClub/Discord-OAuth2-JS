@@ -121,7 +121,7 @@ app.get('/logout', (req, res) => {
     }).catch(err => {
 
         // Complete
-        res.json(result);
+        res.json(err);
         return;
 
     });
@@ -172,7 +172,7 @@ app.get('/redirect', bodyParseN, (req, res) => {
     }).catch(err => {
 
         // Complete
-        res.json(result);
+        res.json(err);
         return;
 
     });
@@ -217,7 +217,7 @@ app.get('/refresh', bodyParseN, (req, res) => {
     }).catch(err => {
 
         // Complete
-        res.json(result);
+        res.json(err);
         return;
 
     });
@@ -251,7 +251,7 @@ app.get('/user', (req, res) => {
         }).catch(err => {
 
             // Complete
-            res.json(result);
+            res.json(err);
             return;
 
         });
@@ -278,7 +278,7 @@ app.get('/user/guilds', (req, res) => {
         }).catch(err => {
 
             // Complete
-            res.json(result);
+            res.json(err);
             return;
 
         });
@@ -305,7 +305,7 @@ app.get('/user/connections', (req, res) => {
         }).catch(err => {
 
             // Complete
-            res.json(result);
+            res.json(err);
             return;
 
         });
@@ -332,7 +332,7 @@ app.get('/guild', (req, res) => {
         }).catch(err => {
 
             // Complete
-            res.json(result);
+            res.json(err);
             return;
 
         });
