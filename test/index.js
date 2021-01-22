@@ -322,7 +322,7 @@ app.get('/user/connections', (req, res) => {
 app.get('/guild', (req, res) => {
 
     // Result
-    if (objType(req.query) && typeof req.query.id === "string") {
+    if (((typeof req.query.id === "string" && req.query.id.length > 0) || typeof req.query.id === "number" && !isNaN(req.query.id))) {
         discordAuth.api.getGuildWidget(req.query.id).then(result => {
 
             // Complete
