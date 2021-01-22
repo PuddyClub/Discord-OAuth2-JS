@@ -11,7 +11,16 @@ module.exports = function (data) {
 
         // Success
         if (typeof data.message !== "string" || data.message !== "401: Unauthorized") {
-            result.data = data;
+
+            // Success Complete
+            if (typeof data.error !== "string" || typeof data.error_description !== "string") {
+                result.data = data;
+            }
+            // Nope 
+            else {
+                result.error = { code: 401, message: data.error_description };
+            }
+
         }
 
         // Nope
@@ -22,7 +31,7 @@ module.exports = function (data) {
     }
 
     // Exist Array
-    else if(Array.isArray(data)) {
+    else if (Array.isArray(data)) {
         result.data = data;
     }
 

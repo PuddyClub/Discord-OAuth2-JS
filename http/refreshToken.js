@@ -70,6 +70,7 @@ module.exports = async function (req, cfg, existSession) {
                                     if (typeof json.access_token === "string" || typeof json.access_token === "number") {
 
                                         // Token
+                                        result.refreshed = true;
                                         result.tokenRequest = json;
 
                                         // Return Result
