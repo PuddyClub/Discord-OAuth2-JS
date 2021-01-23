@@ -16,10 +16,12 @@ app.use(tinySession);
 // Port
 const port = 3000;
 
-// Result
-discordAuth(app, {
+// Auth
+const tinyAuth = require('../auth.json');
+tinyAuth.discordScope = ["identify"];
 
-});
+// Result
+discordAuth(app, { auth: tinyAuth });
 
 // Listen the Server
 app.listen(port, () => {
