@@ -8,7 +8,7 @@ module.exports = function (tinyCfg, jsonState, tinyCrypto, type) {
 
     // Crypto
     const crypto = require('../get/crypto');
-    let tinyState = crypto.cipher(tinyCrypto, JSON.stringify(jsonState));
+    let tinyState = crypto.encrypt(tinyCrypto, JSON.stringify(jsonState));
     tinyState = encodeURIComponent(tinyState);
 
     // Scopes

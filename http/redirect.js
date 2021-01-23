@@ -11,7 +11,7 @@ module.exports = async function (req, cfg, existSession) {
 
             // Create Settings
             const tinyCrypto = _.defaultsDeep({}, cfg.crypto, {
-                algorithm: 'aes-256-ctr',
+                algorithm: 'aes-256-cbc',
                 password: 'tinypudding'
             });
 
@@ -35,7 +35,7 @@ module.exports = async function (req, cfg, existSession) {
 
                         // Crypto
                         const crypto = require('../get/crypto');
-                        req.query.state = crypto.decipher(tinyCrypto, req.query.state);
+                        req.query.state = crypto.decrypt(tinyCrypto, req.query.state);
 
                         // Convert
                         try {

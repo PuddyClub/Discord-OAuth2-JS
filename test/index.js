@@ -52,7 +52,7 @@ const sessionVars = {
 
 // Crypto Values
 const tinyCrypto = {
-    algorithm: 'aes-256-ctr',
+    algorithm: 'aes-256-cbc',
     password: 'tinypudding'
 };
 

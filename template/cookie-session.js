@@ -42,7 +42,7 @@ module.exports = function (cfg, app) {
 
         // Crypto Values
         const tinyCrypto = _.defaultsDeep({}, cfg.crypto, {
-            algorithm: 'aes-256-ctr',
+            algorithm: 'aes-256-cbc',
             password: 'tinypudding'
         });
 

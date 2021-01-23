@@ -1,31 +1,30 @@
+// IV Length
+const IV_LENGTH = 16;
+
+// Module
 module.exports = {
 
-    decipher: function (tinyCrypto, text) {
+    encrypt: function (tinyCrypto, text) {
 
-        // Process
-        let result = text;
-        const crypto = require('crypto');
-        const decipher = crypto.createDecipher(tinyCrypto.algorithm, tinyCrypto.password);
-        result = decipher.update(result, 'hex', 'utf8');
-        result += decipher.final('utf8');
-        result = Buffer.from(result, 'base64').toString();
-
-        // Complete
-        return result;
+        let iv = crypto.randomBytes(IV_LENGTH);
+        let cipher = crypto.createCipheriv(tinyCrypto.algorithm, Buffer.from(tinyCrypto.password), iv);
+        let encrypted = cipher.update(text);
+        encrypted = Buffer.concat([encrypted, cipher.final()]);
+        return iv.toString('hex') + ':' + encrypted.toString('hex');
 
     },
 
-    cipher: function (tinyCrypto, text) {
+    decrypt: function (tinyCrypto, text) {
 
-        // Process
-        let result = text;
-        const crypto = require('crypto');
-        const cipher = crypto.createCipher(tinyCrypto.algorithm, tinyCrypto.password);
-        result = cipher.update(Buffer.from(result).toString("base64"), 'utf8', 'hex');
-        result += cipher.final('hex');
-
-        // Complete
-        return result;
+        let textParts = text.split(':');
+        let iv = Buffer.from(textParts.shift(), 'hex');
+        let encryptedText = Buffer.from(textParts.join(':'), 'hex');
+        let decipher = crypto.createDecipheriv(tinyCrypto.algorithm, Buffer.from(tinyCrypto.password), iv);
+        let decrypted = decipher.update(encryptedText);
+       
+        decrypted = Buffer.concat([decrypted, decipher.final()]);
+       
+        return decrypted.toString();
 
     }
 
