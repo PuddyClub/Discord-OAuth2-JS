@@ -134,7 +134,7 @@ module.exports = function (app, cfg) {
         });
 
         // Redirect
-        app.get(tinyURLPath.redirect, bodyParseN, (req, res) => {
+        app.get(tinyURLPath.redirect, (req, res) => {
 
             // Result
             discordAuth.redirect(req,

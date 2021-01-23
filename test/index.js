@@ -13,13 +13,6 @@ const express = require('express');
 const getSessionFromCookie = require('../get/cookie-session');
 const app = express();
 
-// Prepare Body Parser
-const bodyParser = require('body-parser');
-app.use(bodyParser.json());
-const bodyParseN = bodyParser.urlencoded({     // to support URL-encoded bodies
-    extended: true
-});
-
 // Add Helmet
 const helmet = require('helmet');
 app.use(helmet());
@@ -169,7 +162,7 @@ app.get('/logout', (req, res) => {
 });
 
 // Redirect
-app.get('/redirect', bodyParseN, (req, res) => {
+app.get('/redirect', (req, res) => {
 
     // Result
     discordAuth.redirect(req,
@@ -228,7 +221,7 @@ app.get('/redirect', bodyParseN, (req, res) => {
 });
 
 // Refresh Token
-app.get('/refresh', bodyParseN, (req, res) => {
+app.get('/refresh', (req, res) => {
 
     // Result
     discordAuth.refreshToken(req,
