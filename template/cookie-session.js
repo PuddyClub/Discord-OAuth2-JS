@@ -57,8 +57,12 @@ module.exports = function (app, cfg) {
         // Refresh Validator
         app.use(function (req, res, next) {
 
+            // Preparing Clocks
+            const tinyClock = { now: moment.tz('Universal') };
+            tinyClock.token_expires_in = moment.tz('Universal', req.session[sessionVars.token_expires_in]);
+
             console.log(req.session);
-            console.log(moment.tz('Universal').format());
+            console.log(tinyClock.now.format(), tinyClock.token_expires_in.format());
 
             // Complete
             next();
@@ -176,7 +180,7 @@ module.exports = function (app, cfg) {
 
                     // Expire In
                     req.session[sessionVars.token_expires_in] = moment.tz('Universal').add(result.tokenRequest.expires_in, 'second').format();
-                
+
                 }
 
                 // Complete
