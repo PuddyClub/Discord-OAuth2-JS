@@ -24,7 +24,7 @@ module.exports = async function (req, cfg, existSession) {
                     discordScope: [],
                     client_id: '',
                     client_secret: '',
-                    get_user: true
+                    first_get_user: true
                 });
 
                 // Detect Query
@@ -95,7 +95,7 @@ module.exports = async function (req, cfg, existSession) {
                                                         resolveData.newSession = true;
 
                                                         // Get User Data
-                                                        if (tinyCfg.get_user) {
+                                                        if (tinyCfg.first_get_user) {
 
                                                             // Discord Token
                                                             const getUser = require('../api/getUser');

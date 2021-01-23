@@ -26,7 +26,7 @@ module.exports = function (cfg, app) {
             client_id: "",
             client_secret: "",
             bot_token: "",
-            get_user: true,
+            first_get_user: true,
             discordScope: []
         });
 
