@@ -51,7 +51,9 @@ module.exports = function (app, cfg) {
         });
 
         // Refresh Validator
-        app.use(function helmetMiddleware(req, res, next) {
+        app.use(function (req, res, next) {
+
+            console.log(req.session);
             
             // Complete
             next();
