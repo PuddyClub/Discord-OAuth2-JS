@@ -70,7 +70,7 @@ module.exports = function (req, res, cfg, existSession) {
                                 tinyState.redirect = '';
                                 delete req.query[tinyQuery.redirect];
                             }
-                        }
+                        } else { tinyState.redirect = ''; }
 
                         // Don't exist session
                         if (!existSession || cfg.type === "webhook") {
