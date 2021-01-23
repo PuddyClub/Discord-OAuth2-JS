@@ -1,5 +1,7 @@
 // Test Modules Prepare
 const discordAuth = require('../../template/cookie-session');
+const express = require('express');
+const app = express();
 
 // Add Helmet
 const helmet = require('helmet');
