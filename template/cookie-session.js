@@ -41,10 +41,7 @@ module.exports = function (cfg, app) {
         });
 
         // Crypto Values
-        const tinyCrypto = _.defaultsDeep({}, cfg.crypto, {
-            algorithm: 'aes-256-cbc',
-            password: 'tinypudding'
-        });
+        const tinyCrypto = _.defaultsDeep({}, cfg.crypto, require('../get/crypto/default.json'));
 
         // Crypto Values
         const tinyURLPath = _.defaultsDeep({}, cfg.url, {

@@ -10,10 +10,7 @@ module.exports = async function (req, cfg, existSession) {
         if (objType(cfg, 'object')) {
 
             // Create Settings
-            const tinyCrypto = _.defaultsDeep({}, cfg.crypto, {
-                algorithm: 'aes-256-cbc',
-                password: 'tinypudding'
-            });
+            const tinyCrypto = _.defaultsDeep({}, cfg.crypto, require('../get/crypto/default.json'));
 
             // Detect Config
             if (objType(tinyCrypto, 'object')) {
@@ -34,8 +31,7 @@ module.exports = async function (req, cfg, existSession) {
                     if (typeof req.query.state === "string") {
 
                         // Crypto
-                        const crypto = require('../get/crypto');
-                        req.query.state = crypto.decrypt(tinyCrypto, req.query.state);
+                        req.query.state = require('../get/crypto/decrypt')(tinyCrypto, req.query.state);
 
                         // Convert
                         try {

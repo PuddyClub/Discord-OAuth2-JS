@@ -51,10 +51,7 @@ const sessionVars = {
 };
 
 // Crypto Values
-const tinyCrypto = {
-    algorithm: 'aes-256-cbc',
-    password: 'tinypudding'
-};
+const tinyCrypto = require('../get/crypto/default.json');
 
 // Login
 app.get('/login', (req, res) => {

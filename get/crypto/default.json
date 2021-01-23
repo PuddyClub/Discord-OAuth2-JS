@@ -1,0 +1,5 @@
+{
+    "IV_LENGTH": 16,
+    "algorithm": "aes-256-cbc",
+    "password": "tinypudding"
+}
