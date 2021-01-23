@@ -104,10 +104,10 @@ module.exports = function (cfg, app) {
                     // State
                     state: {
                         csrfToken: req.session[sessionVars.csrfToken]
-                    }.
+                    },
 
-                        // Auth
-                        auth: tinyAuth,
+                    // Auth
+                    auth: tinyAuth,
 
                     // Access Token
                     access_token: req.session[sessionVars.access_token]
