@@ -7,7 +7,7 @@ module.exports = function (tinyCfg, jsonState, tinyCrypto, type) {
     }
 
     // Crypto
-    let tinyState = require('./crypto/encrypt')(tinyCrypto, JSON.stringify(jsonState));
+    let tinyState = require('@tinypudding/puddy-lib/crypto/encrypt')(tinyCrypto, JSON.stringify(jsonState));
     tinyState = encodeURIComponent(tinyState);
 
     // Scopes

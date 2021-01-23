@@ -10,7 +10,7 @@ module.exports = async function (req, cfg, existSession) {
         if (objType(cfg, 'object')) {
 
             // Create Settings
-            const tinyCrypto = _.defaultsDeep({}, cfg.crypto, require('../get/crypto/default.json'));
+            const tinyCrypto = _.defaultsDeep({}, cfg.crypto, require('@tinypudding/puddy-lib/crypto/default.json'));
 
             // Detect Config
             if (objType(tinyCrypto, 'object')) {
@@ -31,7 +31,7 @@ module.exports = async function (req, cfg, existSession) {
                     if (typeof req.query.state === "string") {
 
                         // Crypto
-                        req.query.state = require('../get/crypto/decrypt')(tinyCrypto, req.query.state);
+                        req.query.state = require('@tinypudding/puddy-lib/crypto/decrypt')(tinyCrypto, req.query.state);
 
                         // Convert
                         try {

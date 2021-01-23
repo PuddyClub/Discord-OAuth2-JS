@@ -51,7 +51,7 @@ const sessionVars = {
 };
 
 // Crypto Values
-const tinyCrypto = require('../get/crypto/default.json');
+const tinyCrypto = require('@tinypudding/puddy-lib/crypto/default.json');
 
 // Login
 app.get('/login', (req, res) => {

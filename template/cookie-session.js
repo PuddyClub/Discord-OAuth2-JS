@@ -41,7 +41,7 @@ module.exports = function (cfg, app) {
         });
 
         // Crypto Values
-        const tinyCrypto = _.defaultsDeep({}, cfg.crypto, require('../get/crypto/default.json'));
+        const tinyCrypto = _.defaultsDeep({}, cfg.crypto, require('@tinypudding/puddy-lib/crypto/default.json'));
 
         // Crypto Values
         const tinyURLPath = _.defaultsDeep({}, cfg.url, {
