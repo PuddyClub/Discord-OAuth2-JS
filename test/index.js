@@ -275,6 +275,11 @@ app.get('/', (req, res) => {
     res.send('Tiny Homepage :3');
 });
 
+// Get Session
+app.get('/session', (req, res) => {
+    return res.json(req.session);
+});
+
 // User Page
 app.get('/user', (req, res) => {
 
