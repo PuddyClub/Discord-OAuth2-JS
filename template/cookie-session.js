@@ -50,6 +50,15 @@ module.exports = function (cfg, app) {
             redirect: '/redirect'
         });
 
+        // Refresh Validator
+        app.use(function helmetMiddleware(req, res, next) {
+            
+            // Complete
+            next();
+            return;
+
+		});
+
         // Login
         app.get(tinyURLPath.login, (req, res) => {
 
