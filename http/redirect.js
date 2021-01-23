@@ -50,6 +50,12 @@ module.exports = async function (req, cfg, existSession) {
                         // Check Session
                         if (typeof tinyCfg.csrfToken !== "string" || tinyCfg.csrfToken.length < 1 || (typeof req.query.state.csrfToken === "string" && req.query.state.csrfToken === tinyCfg.csrfToken)) {
 
+                            // Final Redirect
+                            let final_redirect = '/';
+                            if(typeof req.query.state.redirect === "string") {
+                                final_redirect += req.query.state.redirect;
+                            }
+
                             // Prepare Resolve Data
                             const resolveData = { newSession: false, state: req.query.state };
 
