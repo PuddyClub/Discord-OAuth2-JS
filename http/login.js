@@ -65,8 +65,9 @@ module.exports = function (req, res, cfg, existSession) {
                                     // Fix Redirect
                                     returnRedirect = '/' + returnRedirect;
 
-                                }
+                                } else { tinyState.redirect = ''; }
                             } else {
+                                tinyState.redirect = '';
                                 delete req.query[tinyQuery.redirect];
                             }
                         }
