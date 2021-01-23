@@ -3,5 +3,6 @@
     "client_id": "",
     "client_secret": "",
     "bot_token": "",
-    "get_user": true
+    "get_user": true,
+    "discordScope": []
 }
