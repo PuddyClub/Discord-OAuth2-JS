@@ -36,7 +36,8 @@ module.exports = function (cfg, app) {
             expires_in: 'expires_in',
             refresh_token: 'refresh_token',
             token_type: 'token_type',
-            scope: 'scope'
+            scope: 'scope',
+            csrfToken: 'csrfToken'
         });
 
         // Crypto Values
@@ -77,8 +78,7 @@ module.exports = function (cfg, app) {
 
                     // State
                     state: {
-                        csrfToken: req.session[sessionVars.access_token],
-                        redirect: ''
+                        csrfToken: req.session[sessionVars.csrfToken]
                     }
 
                 }, (getSessionFromCookie(req, sessionVars.access_token)),
@@ -102,8 +102,13 @@ module.exports = function (cfg, app) {
                         redirect: 'redirect'
                     },
 
-                    // Auth
-                    auth: tinyAuth,
+                    // State
+                    state: {
+                        csrfToken: req.session[sessionVars.csrfToken]
+                    }.
+
+                        // Auth
+                        auth: tinyAuth,
 
                     // Access Token
                     access_token: req.session[sessionVars.access_token]
@@ -116,13 +121,7 @@ module.exports = function (cfg, app) {
                 res.json(result);
                 return;
 
-            }).catch(err => {
-
-                // Complete
-                res.json(err);
-                return;
-
-            });
+            }).catch(tinyCfg.errorCallback);
 
             // Complete
             return;
@@ -147,8 +146,7 @@ module.exports = function (cfg, app) {
 
                     // State
                     state: {
-                        csrfToken: '',
-                        redirect: ''
+                        csrfToken: csrfToken: req.session[sessionVars.csrfToken]
                     }
 
                 }, (getSessionFromCookie(req, sessionVars.access_token)),
@@ -161,36 +159,27 @@ module.exports = function (cfg, app) {
                     req.session[sessionVars.refresh_token] = result.tokenRequest.refresh_token;
                     req.session[sessionVars.token_type] = result.tokenRequest.token_type;
                     req.session[sessionVars.scope] = result.tokenRequest.scope;
-                    res.json(result);
                 }
-
-                // Webhook Result
-                else if (result.state.type === "webhook") {
-                    res.json(result);
-                }
-
-                // Nothing
-                else {
-                    res.redirect('/');
-                }
-                return;
-
-            }).catch(err => {
 
                 // Complete
-                res.json(err);
+                res.redirect(result.redirect);
                 return;
 
-            });
+            }).catch(tinyCfg.errorCallback);
 
             // Complete
             return;
 
         });
 
+        // Complete
+        return;
+
     }
 
-    // Complete
-    return;
+    // Nope
+    else {
+        throw new Error('Invalid Config Value!');
+    }
 
 };
