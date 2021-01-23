@@ -1,5 +1,6 @@
 module.exports = function (tinyCrypto, text) {
 
+    const crypto = require('crypto');
     let textParts = text.split(':');
     let iv = Buffer.from(textParts.shift(), 'hex');
     let encryptedText = Buffer.from(textParts.join(':'), 'hex');
