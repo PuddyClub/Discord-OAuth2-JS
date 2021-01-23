@@ -1,2 +1,3 @@
 Fazer contador de tempo restante da sessão
 Fazer a adaptação com o Firebase
+Usar o modulo Moment para ele detectar o tempo para dar refresh no Token. Se o tempo for maior que o limite, a gente reseta a cache.
