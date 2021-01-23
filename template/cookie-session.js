@@ -117,7 +117,7 @@ module.exports = function (cfg, app) {
 
                 // Complete
                 req.session = null;
-                res.json(result);
+                res.redirect(result.redirect);
                 return;
 
             }).catch(tinyCfg.errorCallback);
@@ -145,7 +145,7 @@ module.exports = function (cfg, app) {
 
                     // State
                     state: {
-                        csrfToken: csrfToken: req.session[sessionVars.csrfToken]
+                        csrfToken: req.session[sessionVars.csrfToken]
                     }
 
                 }, (getSessionFromCookie(req, sessionVars.access_token)),
