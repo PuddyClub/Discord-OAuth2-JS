@@ -58,6 +58,7 @@ module.exports = function (app, cfg) {
         app.use(function (req, res, next) {
 
             console.log(req.session);
+            console.log(moment.tz('Universal').format());
 
             // Complete
             next();
