@@ -7,11 +7,16 @@ const app = express();
 const helmet = require('helmet');
 app.use(helmet());
 
-// Prepare Cooke Session
+// Prepare Cookie Session
 const cookieSession = require('cookie-session');
 const tinySession = cookieSession({
     keys: ['0000000000', '11111111111']
 });
+
+// Session Vars
+const sessionVars = {
+    access_token: 'access_token'
+};
 
 app.use(tinySession);
 
@@ -23,7 +28,7 @@ const tinyAuth = require('../auth.json');
 tinyAuth.discordScope = ["identify"];
 
 // Result
-discordAuth(app, { auth: tinyAuth });
+discordAuth(app, { auth: tinyAuth, vars: sessionVars });
 
 // Homepage
 app.get('/', (req, res) => {
@@ -57,6 +62,9 @@ app.get('/user', (req, res) => {
 
 });
 
+// Error Pages
+app.post('*', (req, res) => { res.status(404); return res.json({ code: 404, message: 'Page Not Found! (POST)' }); });
+app.get('*', (req, res) => { res.status(404); return res.json({ code: 404, message: 'Page Not Found! (GET)' }); });
 
 // Listen the Server
 app.listen(port, () => {

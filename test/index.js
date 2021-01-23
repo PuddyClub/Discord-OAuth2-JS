@@ -17,7 +17,7 @@ const app = express();
 const helmet = require('helmet');
 app.use(helmet());
 
-// Prepare Cooke Session
+// Prepare Cookie Session
 const cookieSession = require('cookie-session');
 const tinySession = cookieSession({
     keys: ['0000000000', '11111111111']
