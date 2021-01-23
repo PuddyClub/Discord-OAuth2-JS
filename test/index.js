@@ -8,7 +8,6 @@
 */
 
 // Test Modules Prepare
-const objType = require('@tinypudding/puddy-lib/get/objType');
 const discordAuth = require('../index');
 const express = require('express');
 const getSessionFromCookie = require('../get/cookie-session');
@@ -422,4 +421,4 @@ app.listen(port, () => {
     console.log(`Webhook: http://localhost:${port}/webhook?redirect=test`);
     console.groupEnd();
 
-})
+});

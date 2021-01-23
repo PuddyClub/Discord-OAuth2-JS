@@ -1,4 +1,4 @@
-module.exports = function (cfg, app) {
+module.exports = function (app, cfg) {
 
     // OBJ Type
     const objType = require('@tinypudding/puddy-lib/get/objType');
