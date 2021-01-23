@@ -6,6 +6,9 @@ module.exports = function (app, cfg) {
     // Config
     if (objType(cfg, 'object')) {
 
+        // Moment
+        const moment = require('moment-timezone');
+
         // Modules
         const _ = require('lodash');
 
@@ -37,7 +40,8 @@ module.exports = function (app, cfg) {
             refresh_token: 'refresh_token',
             token_type: 'token_type',
             scope: 'scope',
-            csrfToken: 'csrfToken'
+            csrfToken: 'csrfToken',
+            token_expires_in: 'token_expires_in'
         });
 
         // Crypto Values
@@ -54,12 +58,12 @@ module.exports = function (app, cfg) {
         app.use(function (req, res, next) {
 
             console.log(req.session);
-            
+
             // Complete
             next();
             return;
 
-		});
+        });
 
         // Login
         app.get(tinyURLPath.login, (req, res) => {
@@ -161,11 +165,17 @@ module.exports = function (app, cfg) {
 
                 // New Session Result
                 if (result.state.type === "login" && result.newSession) {
+
+                    // Session Items
                     req.session[sessionVars.access_token] = result.tokenRequest.access_token;
                     req.session[sessionVars.expires_in] = result.tokenRequest.expires_in;
                     req.session[sessionVars.refresh_token] = result.tokenRequest.refresh_token;
                     req.session[sessionVars.token_type] = result.tokenRequest.token_type;
                     req.session[sessionVars.scope] = result.tokenRequest.scope;
+
+                    // Expire In
+                    req.session[sessionVars.token_expires_in] = moment.tz('Universal').add(result.tokenRequest.expires_in, 'second').format();
+                
                 }
 
                 // Complete
