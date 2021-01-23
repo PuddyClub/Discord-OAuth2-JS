@@ -49,7 +49,6 @@ module.exports = function (cfg, app) {
         // Crypto Values
         const tinyURLPath = _.defaultsDeep({}, cfg.url, {
             login: '/login',
-            webhook: '/webhook',
             logout: '/logout',
             redirect: '/redirect'
         });
