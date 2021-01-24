@@ -51,7 +51,15 @@ module.exports = function (app, cfg) {
         });
 
         // Firebase Mode
-        if (objType(cfg.firebase, 'object')) { tinyAuth.first_get_user = true }
+        if (objType(cfg.firebase, 'object')) {
+
+            // Fix First Get User Value
+            tinyAuth.first_get_user = true;
+
+            // Fix Auth Value
+            if (!cfg.firebase.auth) { cfg.firebase.auth = cfg.firebase.root.auth(); }
+
+        }
 
         // Session Vars
         const sessionVars = _.defaultsDeep({}, cfg.vars, {
