@@ -31,7 +31,7 @@ module.exports = function (app, cfg) {
 
         // Create Settings
         const tinyCfg = _.defaultsDeep({}, cfg.cfg, {
-            errorCallback: function (err) {
+            errorCallback: function (err, req, res) {
                 return res.json(err);
             }
         });
@@ -124,7 +124,7 @@ module.exports = function (app, cfg) {
                             next();
                             return;
 
-                        }).catch(tinyCfg.errorCallback);
+                        }).catch((err) => { tinyCfg.errorCallback(err, req, res); return; });
 
                     }
 
@@ -161,7 +161,7 @@ module.exports = function (app, cfg) {
                             res.redirect(result.redirect);
                             return;
 
-                        }).catch(tinyCfg.errorCallback);
+                        }).catch((err) => { tinyCfg.errorCallback(err, req, res); return; });
 
                     }
 
@@ -241,7 +241,7 @@ module.exports = function (app, cfg) {
                 res.redirect(result.redirect);
                 return;
 
-            }).catch(tinyCfg.errorCallback);
+            }).catch((err) => { tinyCfg.errorCallback(err, req, res); return; });
 
             // Complete
             return;
@@ -274,14 +274,29 @@ module.exports = function (app, cfg) {
 
                 // New Session Result
                 if (result.state.type === "login" && result.newSession) {
+
+                    // Set Cookie Session
                     setDiscordSession(req, result.tokenRequest);
+
+                    // Set Firebase Session
+                    if (cfg.firebase) {
+                        cfg.firebase.auth.createCustomToken(`discord_id_${result.user.id}`);
+                    }
+
+                    // Normal
+                    else {
+                        res.redirect(result.redirect);
+                    }
+
                 }
 
+                // Normal Redirect
+                else { res.redirect(result.redirect) };
+
                 // Complete
-                res.redirect(result.redirect);
                 return;
 
-            }).catch(tinyCfg.errorCallback);
+            }).catch((err) => { tinyCfg.errorCallback(err, req, res); return; });
 
             // Complete
             return;

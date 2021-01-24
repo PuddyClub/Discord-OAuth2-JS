@@ -89,7 +89,7 @@ module.exports = function (req, res, cfg, existSession) {
                     // Nope
                     else {
                         if (typeof cfg.errorCallback !== "function") { return http_status.send(res, 400); } else {
-                            return cfg.errorCallback({ code: 400, message: 'Invalide Request!' });
+                            return cfg.errorCallback({ code: 400, message: 'Invalide Request!' }, req, res);
                         }
 
                     }
@@ -99,7 +99,7 @@ module.exports = function (req, res, cfg, existSession) {
                 // Error
                 else {
                     if (typeof cfg.errorCallback !== "function") { return http_status.send(res, 400); } else {
-                        return cfg.errorCallback({ code: 400, message: 'Invalide State Config!' });
+                        return cfg.errorCallback({ code: 400, message: 'Invalide State Config!' }, req, res);
                     }
                 }
 
@@ -108,7 +108,7 @@ module.exports = function (req, res, cfg, existSession) {
             // Error
             else {
                 if (typeof cfg.errorCallback !== "function") { return http_status.send(res, 500); } else {
-                    return cfg.errorCallback({ code: 500, message: 'Invalide System Config!' });
+                    return cfg.errorCallback({ code: 500, message: 'Invalide System Config!' }, req, res);
                 }
             }
 
@@ -117,7 +117,7 @@ module.exports = function (req, res, cfg, existSession) {
         // Nope
         else {
             if (typeof cfg.errorCallback !== "function") { return http_status.send(res, 500); } else {
-                return cfg.errorCallback({ code: 500, message: 'Invalid Crypto Values!' });
+                return cfg.errorCallback({ code: 500, message: 'Invalid Crypto Values!' }, req, res);
             }
         }
 
@@ -126,7 +126,7 @@ module.exports = function (req, res, cfg, existSession) {
     // Nope
     else {
         if (typeof cfg.errorCallback !== "function") { return http_status.send(res, 500); } else {
-            return cfg.errorCallback({ code: 500, message: 'Invalid Config Values!' });
+            return cfg.errorCallback({ code: 500, message: 'Invalid Config Values!' }, req, res);
         }
     }
 
