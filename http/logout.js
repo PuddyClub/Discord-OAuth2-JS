@@ -17,7 +17,8 @@ module.exports = async function (req, res, session, cfg, existSession) {
             });
 
             const tinyState = _.defaultsDeep({}, cfg.state, {
-                csrfToken: ''
+                csrfToken: '',
+                redirect: ''
             });
 
             // Exist Query Setting
@@ -29,22 +30,33 @@ module.exports = async function (req, res, session, cfg, existSession) {
                     typeof req.query[tinyQuery.csrfToken] === "string" && tinyState.csrfToken === req.query[tinyQuery.csrfToken]
                 )) {
 
+                    // Result
+                    const result = { data: null, existSession: (existSession) };
+
                     // Prepare Final Redirect
-                    let finalRedirect = '/';
+                    result.redirect = '/';
 
                     // Redirect
-                    if (typeof req.query[tinyQuery.redirect] === "string") {
-
-                        if (req.query[tinyQuery.redirect].startsWith('/')) {
-                            finalRedirect = req.query[tinyQuery.redirect].substring(1);
+                    if (typeof tinyState.redirect === "string" && tinyState.redirect.length > 0) {
+                        
+                        if (tinyState.redirect.startsWith('/')) {
+                            result.redirect = tinyState.redirect.substring(1);
                         } else {
-                            finalRedirect = req.query[tinyQuery.redirect];
+                            result.redirect = tinyState.redirect;
                         }
 
                     }
 
-                    // Result
-                    const result = { redirect: finalRedirect, data: null, existSession: (existSession) };
+                    // Get Query
+                    else if (typeof req.query[tinyQuery.redirect] === "string") {
+
+                        if (req.query[tinyQuery.redirect].startsWith('/')) {
+                            result.redirect = req.query[tinyQuery.redirect].substring(1);
+                        } else {
+                            result.redirect = req.query[tinyQuery.redirect];
+                        }
+
+                    }
 
                     // Exist Session
                     if (existSession) {

@@ -64,8 +64,57 @@ module.exports = function (app, cfg) {
                 const tinyClock = { now: moment.tz('Universal') };
                 tinyClock.token_expires_in = moment.tz(req.session[sessionVars.token_expires_in], 'Universal');
 
-                console.log(req.session);
-                console.log(tinyClock.now.format(), tinyClock.token_expires_in.format());
+                // Time Left
+                tinyClock.time_left = tinyClock.token_expires_in.diff(tinyClock.now, 'minutes');
+
+                // Need Refresh
+                if (tinyClock.time_left < 1440) {
+
+                    // Not Expired
+                    if (tinyClock.time_left > 0) {
+
+                    }
+
+                    // Finish the Session
+                    else {
+
+                        // Result
+                        discordAuth.logout(req, res, req.session,
+                            {
+
+                                // Query
+                                query: {
+                                    csrfToken: 'csrfToken',
+                                    redirect: 'redirect'
+                                },
+
+                                // State
+                                state: {
+                                    csrfToken: req.session[sessionVars.csrfToken]
+                                },
+
+                                // Auth
+                                auth: tinyAuth,
+
+                                // Access Token
+                                access_token: req.session[sessionVars.access_token]
+
+                            }, (getSessionFromCookie(req, sessionVars.access_token)),
+                        ).then(result => {
+
+                            // Complete
+                            req.session = null;
+                            res.redirect(result.redirect);
+                            return;
+
+                        }).catch(tinyCfg.errorCallback);
+
+                        // Complete
+                        return;
+
+                    }
+
+                }
 
             }
 
