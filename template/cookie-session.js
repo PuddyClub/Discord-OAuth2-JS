@@ -6,8 +6,11 @@ module.exports = function (app, cfg) {
     // Config
     if (objType(cfg, 'object')) {
 
+        // Discord session
+        const discordSession = {};
+
         // Session Set
-        const setDiscordSession = function (req, tokenRequest) {
+        discordSession.set = function (req, tokenRequest) {
 
             // Session Items
             req.session[sessionVars.access_token] = tokenRequest.access_token;
@@ -21,6 +24,16 @@ module.exports = function (app, cfg) {
             // Complete
             return;
 
+        };
+
+        discordSession.get = function (req) {
+            return {
+                access_token: req.session[sessionVars.access_token],
+                refresh_token: req.session[sessionVars.refresh_token],
+                token_type: req.session[sessionVars.token_type],
+                scope: req.session[sessionVars.scope],
+                token_expires_in: req.session[sessionVars.token_expires_in],
+            };
         };
 
         // Moment
@@ -170,7 +183,7 @@ module.exports = function (app, cfg) {
 
                             // Complete
                             if (result.refreshed) {
-                                setDiscordSession(req, result.tokenRequest);
+                                discordSession.set(req, result.tokenRequest);
                             }
 
                             // Redirect
@@ -291,13 +304,23 @@ module.exports = function (app, cfg) {
                 if (result.state.type === "login" && result.newSession) {
 
                     // Set Cookie Session
-                    setDiscordSession(req, result.tokenRequest);
+                    discordSession.set(req, result.tokenRequest);
 
                     // Set Firebase Session
                     if (cfg.firebase) {
 
+                        // Discord Session
+                        const dsSession = discordSession.get();
+                        const preparedsSession = {};
+
+                        for(const item in dsSession) {
+                            if((typeof dsSession[item] === "string" && dsSession[item].length > 0) || (typeof dsSession[item] === "number" && !isNaN(dsSession[item]))){
+                                preparedsSession[item] = dsSession[item];
+                            }
+                        }
+
                         // Prepare Auth
-                        cfg.firebase.auth.createCustomToken(`discord_id_${result.user.id}`)
+                        cfg.firebase.auth.createCustomToken(`discord_id_${encodeURIComponent(result.user.id)}`, preparedsSession)
 
                             // Complete
                             .then((customToken) => {
