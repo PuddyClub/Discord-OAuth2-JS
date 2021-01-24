@@ -83,16 +83,16 @@ module.exports = function (app, cfg) {
             // Exist Session
             if (typeof req.session[sessionVars.token_expires_in] === "string" && typeof req.session[sessionVars.access_token] === "string" && typeof req.session[sessionVars.refresh_token] === "string") {
 
-                req.utc_clock.token_expires_in = moment.tz(req.session[sessionVars.token_expires_in], 'Universal');
+                req.utc_clock.ds_token_expires_in = moment.tz(req.session[sessionVars.token_expires_in], 'Universal');
 
                 // Time Left
-                req.utc_clock.time_left = req.utc_clock.token_expires_in.diff(req.utc_clock.now, 'minutes');
+                req.utc_clock.ds_token_time_left = req.utc_clock.ds_token_expires_in.diff(req.utc_clock.now, 'minutes');
 
                 // Need Refresh
-                if (req.utc_clock.time_left < 1440) {
+                if (req.utc_clock.ds_token_time_left < 1440) {
 
                     // Not Expired
-                    if (req.utc_clock.time_left > 0) {
+                    if (req.utc_clock.ds_token_time_left > 0) {
 
                         discordAuth.refreshToken(req,
                             {
