@@ -61,7 +61,7 @@ module.exports = function (app, cfg) {
             return new Promise(function (resolve, reject) {
 
                 // Prepare Auth
-                cfg.firebase.auth.createCustomToken(`discord_id_${encodeURIComponent(userID)}`, prepare_fire_auth_discord(req))
+                cfg.firebase.auth.createCustomToken(`discord_user_id_${tinyAuth.client_id}_${encodeURIComponent(userID)}`, prepare_fire_auth_discord(req))
 
                     // Complete
                     .then((customToken) => {
@@ -293,7 +293,7 @@ module.exports = function (app, cfg) {
                                 // Set New Firebase Session Data
                                 require('../api/getUser')(req.session[sessionVars.access_token]).then(user => {
 
-                                    cfg.firebase.auth.setCustomUserClaims(`discord_id_${encodeURIComponent(user.id)}`, prepare_fire_auth_discord(req))
+                                    cfg.firebase.auth.setCustomUserClaims(`discord_user_id_${tinyAuth.client_id}_${encodeURIComponent(user.id)}`, prepare_fire_auth_discord(req))
                                         .then(() => {
                                             next(); return;
                                         }).catch((err) => { tinyCfg.errorCallback(err, req, res); return; });
