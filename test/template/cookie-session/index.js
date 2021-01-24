@@ -1,6 +1,6 @@
 // Test Modules Prepare
-const discordAuth = require('../../template/cookie-session');
-const getUser = require('../../api/getUser');
+const discordAuth = require('../../../template/cookie-session');
+const getUser = require('../../../api/getUser');
 const express = require('express');
 const app = express();
 
@@ -26,7 +26,7 @@ app.use(tinySession);
 const port = 3000;
 
 // Auth
-const tinyAuth = require('../auth.json');
+const tinyAuth = require('../../auth.json');
 tinyAuth.discordScope = ["identify"];
 
 // Result
