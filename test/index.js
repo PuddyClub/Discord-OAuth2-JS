@@ -270,16 +270,19 @@ app.get('/refresh', (req, res) => {
 // Test Page
 app.get('/test', (req, res) => {
     res.send('Test Success!');
+    return;
 });
 
 // Homepage
 app.get('/', (req, res) => {
     res.send('Tiny Homepage :3');
+    return;
 });
 
 // Get Session
 app.get('/session', (req, res) => {
-    return res.json(req.session);
+    res.json(req.session);
+    return;
 });
 
 // User Page
@@ -306,6 +309,9 @@ app.get('/user', (req, res) => {
     else {
         res.send('No Account Detect');
     }
+
+    // Complete
+    return;
 
 });
 
@@ -334,6 +340,9 @@ app.get('/user/guilds', (req, res) => {
         res.send('No Account Detect');
     }
 
+    // Complete
+    return;
+
 });
 
 // User Connections
@@ -361,6 +370,9 @@ app.get('/user/connections', (req, res) => {
         res.send('No Account Detect');
     }
 
+    // Complete
+    return;
+
 });
 
 // Guild
@@ -386,8 +398,10 @@ app.get('/guild', (req, res) => {
     // Nope
     else {
         res.json({ code: 500, message: 'Invalid Guild Widget Value!' });
-        return;
     }
+
+    // Complete
+    return;
 
 });
 
@@ -420,5 +434,8 @@ app.listen(port, () => {
     console.log(`Refresh Token: http://localhost:${port}/refresh?redirect=test`);
     console.log(`Webhook: http://localhost:${port}/webhook?redirect=test`);
     console.groupEnd();
+
+    // Complete
+    return;
 
 });
