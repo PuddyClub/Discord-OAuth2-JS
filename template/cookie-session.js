@@ -295,7 +295,10 @@ module.exports = function (app, cfg) {
         };
 
         // Check Discord Session
-        const checkDiscordSession = function (req, next) {
+        const checkDiscordSession = function (req, next, userFiredata) {
+
+            // GET USER DATA TO TEST
+            console.log(userFiredata);
 
             req.utc_clock.ds_token_expires_in = moment.tz(req.session[sessionVars.token_expires_in], 'Universal');
 
@@ -393,10 +396,10 @@ module.exports = function (app, cfg) {
 
                     // Exist Firebase
                     if (cfg.firebase) {
-                        discordSession.firebase.get().then(() => {
+                        discordSession.firebase.get().then((userFiredata) => {
 
                             // Complete
-                            checkDiscordSession(req, next);
+                            checkDiscordSession(req, next, userFiredata);
                             return;
 
                         }).catch(err => {
