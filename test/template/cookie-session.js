@@ -1,5 +1,6 @@
 // Test Modules Prepare
 const discordAuth = require('../../template/cookie-session');
+const getUser = require('../../api/getUser');
 const express = require('express');
 const app = express();
 
@@ -45,7 +46,7 @@ app.get('/user', (req, res) => {
 
     // Result
     if (typeof req.session[sessionVars.access_token] === "string") {
-        discordAuth.api.getUser(req.session[sessionVars.access_token]).then(result => {
+        getUser(req.session[sessionVars.access_token]).then(result => {
 
             // Complete
             res.json(result);
