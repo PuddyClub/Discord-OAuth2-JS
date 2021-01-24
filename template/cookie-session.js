@@ -90,7 +90,8 @@ module.exports = function (app, cfg) {
 
                                 // State
                                 state: {
-                                    csrfToken: req.session[sessionVars.csrfToken]
+                                    csrfToken: req.session[sessionVars.csrfToken],
+                                    redirect: req.url
                                 },
 
                                 // Auth
@@ -114,12 +115,11 @@ module.exports = function (app, cfg) {
 
                     }
 
-                }
+                } else { next(); }
 
-            }
+            } else { next(); }
 
             // Complete
-            next();
             return;
 
         });
