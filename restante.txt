@@ -1,2 +1,4 @@
 Fazer a adaptação com o Firebase
+cfg.firebase.auth
+
 Fazer o leitor de interaction
