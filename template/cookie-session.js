@@ -39,24 +39,57 @@ module.exports = function (app, cfg) {
         // Prepare Firebase Items
         const prepare_fire_auth_discord = function (req) {
 
-                // Discord Session
-                const dsSession = discordSession.get(req);
-                const preparedsSession = {};
+            // Discord Session
+            const dsSession = discordSession.get(req);
+            const preparedsSession = {};
 
-                for (const item in dsSession) {
-                    if ((typeof dsSession[item] === "string" && dsSession[item].length > 0) || (typeof dsSession[item] === "number" && !isNaN(dsSession[item]))) {
-                        preparedsSession[item] = dsSession[item];
-                    }
+            for (const item in dsSession) {
+                if ((typeof dsSession[item] === "string" && dsSession[item].length > 0) || (typeof dsSession[item] === "number" && !isNaN(dsSession[item]))) {
+                    preparedsSession[item] = dsSession[item];
                 }
+            }
 
-                // Complete
-                return preparedsSession;
+            // Complete
+            return preparedsSession;
 
         };
 
         // Firebase Discord Auth
         discordSession.firebase = {};
 
+        // Set Firebase Account
+        discordSession.firebase.setAccount = function (userData) {
+            return new Promise(function (resolve, reject) {
+
+                // Prepare New User Data
+                const newUserData = {
+                    displayName: newUserData.username + '#' + newUserData.discriminator,
+                    photoURL: `https://cdn.discordapp.com/avatars/${userData.id}/${avatar}`
+                };
+
+                // Insert User Email
+                if (typeof userData.email === "string") {
+                    newUserData.email = userData.email;
+                    newUserData.emailVerified = (userData.verified);
+                }
+
+                // Update User
+                cfg.firebase.auth.updateUser(userData.id, newUserData)
+                .then((userRecord) => {
+                    resolve(userRecord.toJSON());
+                    return;
+                })
+                .catch((err) => {
+                    reject({ code: 500, message: err.message });
+                });;
+
+                // Complete
+                return;
+
+            });
+        };
+
+        // Set User
         discordSession.firebase.set = function (req, userID) {
             return new Promise(function (resolve, reject) {
 
@@ -82,6 +115,7 @@ module.exports = function (app, cfg) {
             });
         };
 
+        // Get User
         discordSession.firebase.get = function (req, res) {
             return new Promise(function (resolve, reject) {
 
@@ -130,8 +164,7 @@ module.exports = function (app, cfg) {
 
                     // Error
                     .catch((err) => {
-                        err = { code: 500, message: err.message };
-                        reject(err);
+                        reject({ code: 500, message: err.message });
                         return;
                     });
 
