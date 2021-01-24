@@ -39,7 +39,8 @@ module.exports = function (app, cfg) {
         // Firebase Discord Auth
         discordSession.firebase = {};
 
-        discordSession.firebase.set = function (req, res) {
+        discordSession.firebase.set = function (req, userID) {
+            return new Promise(function (resolve, reject) {
 
             // Discord Session
             const dsSession = discordSession.get(req);
@@ -52,24 +53,25 @@ module.exports = function (app, cfg) {
             }
 
             // Prepare Auth
-            cfg.firebase.auth.createCustomToken(`discord_id_${encodeURIComponent(result.user.id)}`, preparedsSession)
+            cfg.firebase.auth.createCustomToken(`discord_id_${encodeURIComponent(userID)}`, preparedsSession)
 
                 // Complete
                 .then((customToken) => {
                     req.session[sessionVars.firebase_auth_token] = customToken;
-                    res.redirect(result.redirect);
+                    resolve();
                     return;
                 })
 
                 // Error
                 .catch((err) => {
-                    auto_logout(req, res, { code: 500, message: err.message });
+                    reject(err);
                     return;
                 });
 
             // Complete
             return;
 
+            });
         };
 
         discordSession.firebase.get = function (req, res) {
@@ -373,7 +375,13 @@ module.exports = function (app, cfg) {
 
                     // Set Firebase Session
                     if (cfg.firebase) {
-                        discordSession.firebase.set(req, res);
+                        discordSession.firebase.set(req, result.user.id).then(() => {
+                            res.redirect(result.redirect);
+                            return;
+                        }).catch(err => {
+                            auto_logout(req, res, { code: 500, message: err.message });
+                            return;
+                        });
                     }
 
                     // Normal
