@@ -122,7 +122,7 @@ module.exports = function (app, cfg) {
                         */
 
                         // Complete
-                        req.firebaseAuth = decodedToken;
+                        req.firebase_session = decodedToken;
                         resolve();
                         return;
 
