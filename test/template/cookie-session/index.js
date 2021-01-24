@@ -1,4 +1,4 @@
-module.exports = function (webtype = 'default') {
+module.exports = function (webtype = 'default', firebase) {
 
     // Test Modules Prepare
     const discordAuth = require('../../../template/cookie-session');
@@ -32,7 +32,7 @@ module.exports = function (webtype = 'default') {
     tinyAuth.discordScope = ["identify"];
 
     // Result
-    discordAuth(app, { auth: tinyAuth, vars: sessionVars });
+    discordAuth(app, { auth: tinyAuth, vars: sessionVars, firebase: firebase });
 
     // Homepage
     app.get('/', (req, res) => {
