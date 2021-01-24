@@ -42,34 +42,34 @@ module.exports = function (app, cfg) {
         discordSession.firebase.set = function (req, userID) {
             return new Promise(function (resolve, reject) {
 
-            // Discord Session
-            const dsSession = discordSession.get(req);
-            const preparedsSession = {};
+                // Discord Session
+                const dsSession = discordSession.get(req);
+                const preparedsSession = {};
 
-            for (const item in dsSession) {
-                if ((typeof dsSession[item] === "string" && dsSession[item].length > 0) || (typeof dsSession[item] === "number" && !isNaN(dsSession[item]))) {
-                    preparedsSession[item] = dsSession[item];
+                for (const item in dsSession) {
+                    if ((typeof dsSession[item] === "string" && dsSession[item].length > 0) || (typeof dsSession[item] === "number" && !isNaN(dsSession[item]))) {
+                        preparedsSession[item] = dsSession[item];
+                    }
                 }
-            }
 
-            // Prepare Auth
-            cfg.firebase.auth.createCustomToken(`discord_id_${encodeURIComponent(userID)}`, preparedsSession)
+                // Prepare Auth
+                cfg.firebase.auth.createCustomToken(`discord_id_${encodeURIComponent(userID)}`, preparedsSession)
+
+                    // Complete
+                    .then((customToken) => {
+                        req.session[sessionVars.firebase_auth_token] = customToken;
+                        resolve();
+                        return;
+                    })
+
+                    // Error
+                    .catch((err) => {
+                        reject(err);
+                        return;
+                    });
 
                 // Complete
-                .then((customToken) => {
-                    req.session[sessionVars.firebase_auth_token] = customToken;
-                    resolve();
-                    return;
-                })
-
-                // Error
-                .catch((err) => {
-                    reject(err);
-                    return;
-                });
-
-            // Complete
-            return;
+                return;
 
             });
         };
@@ -89,7 +89,6 @@ module.exports = function (app, cfg) {
                     // Error
                     .catch((err) => {
                         err = { code: 500, message: err.message };
-                        auto_logout(req, res, err);
                         reject(err);
                         return;
                     });
@@ -214,6 +213,56 @@ module.exports = function (app, cfg) {
             });
         };
 
+        // Check Discord Session
+        const checkDiscordSession = function (req, next) {
+
+            req.utc_clock.ds_token_expires_in = moment.tz(req.session[sessionVars.token_expires_in], 'Universal');
+
+            // Time Left
+            req.utc_clock.ds_token_time_left = req.utc_clock.ds_token_expires_in.diff(req.utc_clock.now, 'minutes');
+
+            // Need Refresh
+            if (req.utc_clock.ds_token_time_left < 1440) {
+
+                // Not Expired
+                if (req.utc_clock.ds_token_time_left > 0) {
+
+                    discordAuth.refreshToken(req,
+                        {
+
+                            // Auth
+                            auth: tinyAuth,
+
+                            // Refresh Token
+                            refresh_token: req.session[sessionVars.refresh_token]
+
+                        }, (getSessionFromCookie(req, sessionVars.access_token)),
+                    ).then(result => {
+
+                        // Complete
+                        if (result.refreshed) {
+                            discordSession.set(req, result.tokenRequest);
+                            discordSession.firebase.get();
+                        }
+
+                        // Redirect
+                        next();
+                        return;
+
+                    }).catch((err) => { tinyCfg.errorCallback(err, req, res); return; });
+
+                }
+
+                // Finish the Session
+                else { auto_logout(req, res); }
+
+            } else { next(); }
+
+            // Complete
+            return;
+
+        };
+
         // Refresh Validator
         app.use(function (req, res, next) {
 
@@ -222,50 +271,12 @@ module.exports = function (app, cfg) {
                 req.utc_clock = { now: moment.tz('Universal') };
             }
 
+            // Exist Discord Session
+            const existDiscordSession = (typeof req.session[sessionVars.token_expires_in] === "string" && typeof req.session[sessionVars.access_token] === "string" && typeof req.session[sessionVars.refresh_token] === "string");
+
             // Exist Session
-            if (typeof req.session[sessionVars.token_expires_in] === "string" && typeof req.session[sessionVars.access_token] === "string" && typeof req.session[sessionVars.refresh_token] === "string") {
-
-                req.utc_clock.ds_token_expires_in = moment.tz(req.session[sessionVars.token_expires_in], 'Universal');
-
-                // Time Left
-                req.utc_clock.ds_token_time_left = req.utc_clock.ds_token_expires_in.diff(req.utc_clock.now, 'minutes');
-
-                // Need Refresh
-                if (req.utc_clock.ds_token_time_left < 1440) {
-
-                    // Not Expired
-                    if (req.utc_clock.ds_token_time_left > 0) {
-
-                        discordAuth.refreshToken(req,
-                            {
-
-                                // Auth
-                                auth: tinyAuth,
-
-                                // Refresh Token
-                                refresh_token: req.session[sessionVars.refresh_token]
-
-                            }, (getSessionFromCookie(req, sessionVars.access_token)),
-                        ).then(result => {
-
-                            // Complete
-                            if (result.refreshed) {
-                                discordSession.set(req, result.tokenRequest);
-                            }
-
-                            // Redirect
-                            next();
-                            return;
-
-                        }).catch((err) => { tinyCfg.errorCallback(err, req, res); return; });
-
-                    }
-
-                    // Finish the Session
-                    else { auto_logout(req, res); }
-
-                } else { next(); }
-
+            if (existDiscordSession) {
+                checkDiscordSession(req, next);
             } else { next(); }
 
             // Complete
