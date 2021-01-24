@@ -258,17 +258,25 @@ module.exports = function (app, cfg) {
             // Firebase Logout
             if (cfg.firebase) {
 
-                cfg.firebase.auth
-                    .revokeRefreshTokens(uid)
-                    .then(() => {
-                        return admin.auth().getUser(uid);
-                    })
-                    .then((userRecord) => {
-                        return new Date(userRecord.tokensValidAfterTime).getTime() / 1000;
-                    })
-                    .then((timestamp) => {
-                        console.log(`Tokens revoked at: ${timestamp}`);
-                    });
+                // Set New Firebase Session Data
+                require('../api/getUser')(req.session[sessionVars.access_token]).then(user => {
+
+                    // Revoke Refresh
+                    cfg.firebase.auth
+                        .revokeRefreshTokens(discordSession.uidGenerator(user.id))
+                        .then(() => {
+                            finalResult();
+                            return;
+                        }).catch(err => {
+                            tinyCfg.errorCallback({ code: 500, message: err.message }, req, res); return;
+                        });
+
+                    // Complete
+                    return;
+
+                }).catch(err => {
+                    tinyCfg.errorCallback(err, req, res); return;
+                });
 
             }
 
