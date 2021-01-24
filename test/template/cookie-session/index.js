@@ -1,4 +1,4 @@
-module.exports = function () {
+module.exports = function (webtype = 'default') {
 
     // Test Modules Prepare
     const discordAuth = require('../../../template/cookie-session');
@@ -127,6 +127,8 @@ module.exports = function () {
 
     // Listen the Server
     app.listen(port, () => {
+
+        console.log(`Website Mode: ${webtype}`);
 
         console.log(`Homepage: http://localhost:${port}/`);
         console.log(`User Page: http://localhost:${port}/user`);
