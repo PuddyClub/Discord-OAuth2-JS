@@ -75,21 +75,24 @@ module.exports = function (app, cfg) {
         // Refresh Validator
         app.use(function (req, res, next) {
 
+            // Preparing Clocks
+            if (!req.utc_clock) {
+                req.utc_clock = { now: moment.tz('Universal') };
+            }
+
             // Exist Session
             if (typeof req.session[sessionVars.token_expires_in] === "string" && typeof req.session[sessionVars.access_token] === "string" && typeof req.session[sessionVars.refresh_token] === "string") {
 
-                // Preparing Clocks
-                const tinyClock = { now: moment.tz('Universal') };
-                tinyClock.token_expires_in = moment.tz(req.session[sessionVars.token_expires_in], 'Universal');
+                req.utc_clock.token_expires_in = moment.tz(req.session[sessionVars.token_expires_in], 'Universal');
 
                 // Time Left
-                tinyClock.time_left = tinyClock.token_expires_in.diff(tinyClock.now, 'minutes');
+                req.utc_clock.time_left = req.utc_clock.token_expires_in.diff(req.utc_clock.now, 'minutes');
 
                 // Need Refresh
-                if (tinyClock.time_left < 1440) {
+                if (req.utc_clock.time_left < 1440) {
 
                     // Not Expired
-                    if (tinyClock.time_left > 0) {
+                    if (req.utc_clock.time_left > 0) {
 
                         discordAuth.refreshToken(req,
                             {
