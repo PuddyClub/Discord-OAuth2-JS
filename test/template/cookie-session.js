@@ -82,6 +82,7 @@ app.get('/session/refresh', (req, res) => {
         // Expire In
         const moment = require('moment-timezone');
         req.session[sessionVars.token_expires_in] = moment.tz('Universal').add(10, 'minute').format();
+        res.json(req.session);
 
     }
 
