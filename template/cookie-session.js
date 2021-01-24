@@ -36,11 +36,8 @@ module.exports = function (app, cfg) {
             };
         };
 
-        // Firebase Discord Auth
-        discordSession.firebase = {};
-
-        discordSession.firebase.set = function (req, userID) {
-            return new Promise(function (resolve, reject) {
+        // Prepare Firebase Items
+        const prepare_fire_auth_discord = function (req) {
 
                 // Discord Session
                 const dsSession = discordSession.get(req);
@@ -52,8 +49,19 @@ module.exports = function (app, cfg) {
                     }
                 }
 
+                // Complete
+                return preparedsSession;
+
+        };
+
+        // Firebase Discord Auth
+        discordSession.firebase = {};
+
+        discordSession.firebase.set = function (req, userID) {
+            return new Promise(function (resolve, reject) {
+
                 // Prepare Auth
-                cfg.firebase.auth.createCustomToken(`discord_id_${encodeURIComponent(userID)}`, preparedsSession)
+                cfg.firebase.auth.createCustomToken(`discord_id_${encodeURIComponent(userID)}`, prepare_fire_auth_discord(req))
 
                     // Complete
                     .then((customToken) => {
@@ -285,7 +293,7 @@ module.exports = function (app, cfg) {
                                 // Set New Firebase Session Data
                                 require('../api/getUser')(req.session[sessionVars.access_token]).then(user => {
 
-                                    cfg.firebase.auth.setCustomUserClaims(`discord_id_${encodeURIComponent(user.id)}`, { admin: true })
+                                    cfg.firebase.auth.setCustomUserClaims(`discord_id_${encodeURIComponent(user.id)}`, prepare_fire_auth_discord(req))
                                         .then(() => {
                                             next(); return;
                                         }).catch((err) => { tinyCfg.errorCallback(err, req, res); return; });
