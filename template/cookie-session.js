@@ -11,7 +11,6 @@ module.exports = function (app, cfg) {
 
             // Session Items
             req.session[sessionVars.access_token] = tokenRequest.access_token;
-            req.session[sessionVars.expires_in] = tokenRequest.expires_in;
             req.session[sessionVars.refresh_token] = tokenRequest.refresh_token;
             req.session[sessionVars.token_type] = tokenRequest.token_type;
             req.session[sessionVars.scope] = tokenRequest.scope;
@@ -57,7 +56,6 @@ module.exports = function (app, cfg) {
         // Session Vars
         const sessionVars = _.defaultsDeep({}, cfg.vars, {
             access_token: 'access_token',
-            expires_in: 'expires_in',
             refresh_token: 'refresh_token',
             token_type: 'token_type',
             scope: 'scope',
