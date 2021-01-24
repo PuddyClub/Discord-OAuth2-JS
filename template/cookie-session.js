@@ -187,6 +187,7 @@ module.exports = function (app, cfg) {
 
         // Create Settings
         const tinyCfg = _.defaultsDeep({}, cfg.cfg, {
+            needEmailVerified: true,
             errorCallback: function (err, req, res) {
                 return res.json(err);
             }
@@ -514,25 +515,34 @@ module.exports = function (app, cfg) {
                 // New Session Result
                 if (result.state.type === "login" && result.newSession) {
 
-                    // Set Cookie Session
-                    discordSession.set(req, result.tokenRequest);
+                    if (!tinyCfg.needEmailVerified || result.user.verified) {
 
-                    // Set Firebase Session
-                    if (cfg.firebase) {
-                        discordSession.firebase.set(req, result.user.id).then(() => {
-                            discordSession.firebase.setAccount(result.user).then(() => {
-                                res.redirect(result.redirect); return;
-                            }).catch((err) => { tinyCfg.errorCallback(err, req, res); return; });
-                            return;
-                        }).catch(err => {
-                            auto_logout(req, res, { code: 500, message: err.message });
-                            return;
-                        });
+                        // Set Cookie Session
+                        discordSession.set(req, result.tokenRequest);
+
+                        // Set Firebase Session
+                        if (cfg.firebase) {
+                            discordSession.firebase.set(req, result.user.id).then(() => {
+                                discordSession.firebase.setAccount(result.user).then(() => {
+                                    res.redirect(result.redirect); return;
+                                }).catch((err) => { tinyCfg.errorCallback(err, req, res); return; });
+                                return;
+                            }).catch(err => {
+                                auto_logout(req, res, { code: 500, message: err.message });
+                                return;
+                            });
+                        }
+
+                        // Normal
+                        else {
+                            res.redirect(result.redirect);
+                        }
+
                     }
 
-                    // Normal
+                    // Nope
                     else {
-                        res.redirect(result.redirect);
+                        tinyCfg.errorCallback({code: 401, message: 'This email is not a verified email!'}, req, res);
                     }
 
                 }
