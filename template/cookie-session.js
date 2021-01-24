@@ -82,8 +82,42 @@ module.exports = function (app, cfg) {
 
                     // Complete
                     .then((decodedToken) => {
-                        resolve(decodedToken);
+
+
+                        /* 
+                        
+                        claims.sub
+                        
+                        // Get the request IP address.
+                        const requestIpAddress = req.connection.remoteAddress;
+                            // Check if the request IP address origin is suspicious relative to previous
+                            // IP addresses. The current request timestamp and the auth_time of the ID
+                            // token can provide additional signals of abuse especially if the IP address
+                            // suddenly changed. If there was a sudden location change in a
+                            // short period of time, then it will give stronger signals of possible abuse.
+                            if (!isValidIpAddress(previousIpAddresses, requestIpAddress)) {
+                              // Invalid IP address, take action quickly and revoke all user's refresh tokens.
+                              revokeUserTokens(claims.uid).then(() => {
+                                res.status(401).send({error: 'Unauthorized access. Please login again!'});
+                              }, error => {
+                                res.status(401).send({error: 'Unauthorized access. Please login again!'});
+                              });
+                            } else {
+                              // Access is valid. Try to return data.
+                              getData(claims).then(data => {
+                                res.end(JSON.stringify(data);
+                              }, error => {
+                                res.status(500).send({ error: 'Server error!' })
+                              });
+                            }
+                        
+                        */
+                       
+                        // Complete
+                        req.firebaseAuth = decodedToken;
+                        resolve();
                         return;
+
                     })
 
                     // Error
@@ -241,12 +275,28 @@ module.exports = function (app, cfg) {
 
                         // Complete
                         if (result.refreshed) {
+
+                            // Set Cookie Session
                             discordSession.set(req, result.tokenRequest);
-                            discordSession.firebase.get();
+
+                            // Exist Firebase
+                            if (cfg.firebase) {
+                                discordSession.firebase.get().then(() => {
+                                    next(); return;
+                                }).catch(err => {
+                                    tinyCfg.errorCallback(err, req, res); return;
+                                });
+                            }
+
+                            // Nope
+                            else { next(); }
+
                         }
 
-                        // Redirect
-                        next();
+                        // Nope
+                        else { next(); }
+
+                        // Complete
                         return;
 
                     }).catch((err) => { tinyCfg.errorCallback(err, req, res); return; });
@@ -276,7 +326,23 @@ module.exports = function (app, cfg) {
 
             // Exist Session
             if (existDiscordSession) {
-                checkDiscordSession(req, next);
+
+                // Exist Firebase
+                if (cfg.firebase) {
+
+                    cfg.firebase.auth.setCustomUserClaims(uid, { admin: true })
+                        .then(() => {
+                            // The new custom claims will propagate to the user's ID token the
+                            // next time a new one is issued.
+                        });
+
+                }
+
+                // Nope
+                else {
+                    checkDiscordSession(req, next);
+                }
+
             } else { next(); }
 
             // Complete
