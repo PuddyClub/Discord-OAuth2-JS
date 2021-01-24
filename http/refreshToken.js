@@ -17,29 +17,45 @@ module.exports = async function (req, cfg, existSession) {
                 client_secret: ''
             });
 
-            const tinyQuery = _.defaultsDeep({}, cfg.auth, {
-                redirect: 'redirect'
-            });
-
-            // Prepare Final Redirect
-            let finalRedirect = '/';
-
-            // Redirect
-            if (objType(tinyQuery, 'object') && objType(req.query, 'object') && typeof tinyQuery.redirect === "string" && typeof req.query[tinyQuery.redirect] === "string") {
-
-                if (req.query[tinyQuery.redirect].startsWith('/')) {
-                    finalRedirect = req.query[tinyQuery.redirect].substring(1);
-                } else {
-                    finalRedirect = req.query[tinyQuery.redirect];
-                }
-
-            }
-
             // Check Session
             if (typeof tinyCfg.csrfToken !== "string" || tinyCfg.csrfToken.length < 1 || (typeof req[type].csrfToken === "string" && req[type].csrfToken === tinyCfg.csrfToken)) {
 
+                // Prepare more settings
+                const tinyQuery = _.defaultsDeep({}, cfg.auth, {
+                    redirect: 'redirect'
+                });
+
+                const tinyState = _.defaultsDeep({}, cfg.state, {
+                    redirect: ''
+                });
+
                 // Result
-                const result = { refreshed: false, redirect: finalRedirect };
+                const result = { refreshed: false };
+
+                // Prepare Final Redirect
+                result.redirect = '/';
+
+                // Redirect
+                if (typeof tinyState.redirect === "string" && tinyState.redirect.length > 0) {
+                        
+                    if (tinyState.redirect.startsWith('/')) {
+                        result.redirect = tinyState.redirect.substring(1);
+                    } else {
+                        result.redirect = tinyState.redirect;
+                    }
+
+                }
+
+                // Get Query
+                else if (objType(tinyQuery, 'object') && objType(req.query, 'object') && typeof tinyQuery.redirect === "string" && typeof req.query[tinyQuery.redirect] === "string") {
+
+                    if (req.query[tinyQuery.redirect].startsWith('/')) {
+                        result.redirect = req.query[tinyQuery.redirect].substring(1);
+                    } else {
+                        result.redirect = req.query[tinyQuery.redirect];
+                    }
+
+                }
 
                 // Exist Session
                 if (existSession) {

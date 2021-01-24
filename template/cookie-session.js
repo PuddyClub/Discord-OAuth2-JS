@@ -73,6 +73,44 @@ module.exports = function (app, cfg) {
                     // Not Expired
                     if (tinyClock.time_left > 0) {
 
+                        discordAuth.refreshToken(req,
+                            {
+
+                                // State
+                                state: {
+                                    redirect: req.url
+                                },
+
+                                // Auth
+                                auth: tinyAuth,
+
+                                // Refresh Token
+                                refresh_token: req.session[sessionVars.refresh_token]
+
+                            }, (getSessionFromCookie(req, sessionVars.access_token)),
+                        ).then(result => {
+
+                            // Complete
+                            if (result.refreshed) {
+                                req.session[sessionVars.access_token] = result.tokenRequest.access_token;
+                                req.session[sessionVars.expires_in] = result.tokenRequest.expires_in;
+                                req.session[sessionVars.refresh_token] = result.tokenRequest.refresh_token;
+                                req.session[sessionVars.token_type] = result.tokenRequest.token_type;
+                                req.session[sessionVars.scope] = result.tokenRequest.scope;
+                            }
+
+                            res.json(result);
+
+                            return;
+
+                        }).catch(err => {
+
+                            // Complete
+                            res.json(err);
+                            return;
+
+                        });
+
                     }
 
                     // Finish the Session
@@ -109,9 +147,6 @@ module.exports = function (app, cfg) {
                             return;
 
                         }).catch(tinyCfg.errorCallback);
-
-                        // Complete
-                        return;
 
                     }
 

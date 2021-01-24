@@ -194,8 +194,8 @@ app.get('/redirect', (req, res) => {
             req.session[sessionVars.token_type] = result.tokenRequest.token_type;
             req.session[sessionVars.scope] = result.tokenRequest.scope;
             res.json(result);
-        } 
-        
+        }
+
         // Webhook Result
         else if (result.state.type === "webhook") {
             res.json(result);
@@ -227,8 +227,10 @@ app.get('/refresh', (req, res) => {
     discordAuth.refreshToken(req,
         {
 
-            // Redirect
-            redirect: '',
+            // State
+            state: {
+                redirect: req.url
+            },
 
             // Auth
             auth: tinyAuth,
