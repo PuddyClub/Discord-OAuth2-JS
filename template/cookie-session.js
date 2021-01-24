@@ -75,8 +75,6 @@ module.exports = function (app, cfg) {
             redirect: '/redirect'
         });
 
-        console.log(cfg);
-
         // Refresh Validator
         app.use(function (req, res, next) {
 
