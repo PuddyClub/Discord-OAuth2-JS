@@ -69,7 +69,8 @@ module.exports = function (app, cfg) {
             scope: 'scope',
             csrfToken: 'csrfToken',
             token_expires_in: 'token_expires_in',
-            firebase_token: 'firebase_token'
+            firebase_token: 'firebase_token',
+            firebase_auth_token: 'firebase_auth_token'
         });
 
         // Crypto Values
@@ -81,6 +82,57 @@ module.exports = function (app, cfg) {
             logout: '/logout',
             redirect: '/redirect'
         });
+
+        // Logout Result
+        const logout_result = (result, req, res) => {
+
+            // Complete
+            req.session = null;
+            res.redirect(result.redirect);
+            return;
+
+        };
+
+        // Auto Logout
+        const auto_logout = function (req, res, err) {
+
+            // Result
+            discordAuth.logout(req, res, req.session,
+                {
+
+                    // Query
+                    query: {
+                        csrfToken: 'csrfToken',
+                        redirect: 'redirect'
+                    },
+
+                    // State
+                    state: {
+                        csrfToken: req.session[sessionVars.csrfToken],
+                        redirect: req.url
+                    },
+
+                    // Auth
+                    auth: tinyAuth,
+
+                    // Access Token
+                    access_token: req.session[sessionVars.access_token]
+
+                }, (getSessionFromCookie(req, sessionVars.access_token)),
+            ).then(result => {
+
+                // Complete
+                if (!err) { logout_result(result, req, res); }
+                // Error
+                else { tinyCfg.errorCallback(err, req, res); }
+                return;
+
+            }).catch((err) => { tinyCfg.errorCallback(err, req, res); return; });
+
+            // Complete
+            return;
+
+        };
 
         // Refresh Validator
         app.use(function (req, res, next) {
@@ -130,41 +182,7 @@ module.exports = function (app, cfg) {
                     }
 
                     // Finish the Session
-                    else {
-
-                        // Result
-                        discordAuth.logout(req, res, req.session,
-                            {
-
-                                // Query
-                                query: {
-                                    csrfToken: 'csrfToken',
-                                    redirect: 'redirect'
-                                },
-
-                                // State
-                                state: {
-                                    csrfToken: req.session[sessionVars.csrfToken],
-                                    redirect: req.url
-                                },
-
-                                // Auth
-                                auth: tinyAuth,
-
-                                // Access Token
-                                access_token: req.session[sessionVars.access_token]
-
-                            }, (getSessionFromCookie(req, sessionVars.access_token)),
-                        ).then(result => {
-
-                            // Complete
-                            req.session = null;
-                            res.redirect(result.redirect);
-                            return;
-
-                        }).catch((err) => { tinyCfg.errorCallback(err, req, res); return; });
-
-                    }
+                    else { auto_logout(req, res); }
 
                 } else { next(); }
 
@@ -236,12 +254,8 @@ module.exports = function (app, cfg) {
 
                 }, (getSessionFromCookie(req, sessionVars.access_token)),
             ).then(result => {
-
-                // Complete
-                req.session = null;
-                res.redirect(result.redirect);
+                logout_result(result, req, res);
                 return;
-
             }).catch((err) => { tinyCfg.errorCallback(err, req, res); return; });
 
             // Complete
@@ -281,12 +295,20 @@ module.exports = function (app, cfg) {
 
                     // Set Firebase Session
                     if (cfg.firebase) {
-                        cfg.firebase.auth.createCustomToken(`discord_id_${result.user.id}`).then((customToken) => {
-                            req.session[sessionVars.firebase_token] = customToken;
-                        })
-                            .catch((error) => {
-                                console.log('Error creating custom token:', error);
+
+                        // Prepare Auth
+                        cfg.firebase.auth.createCustomToken(`discord_id_${result.user.id}`)
+
+                            // Complete
+                            .then((customToken) => {
+                                req.session[sessionVars.firebase_auth_token] = customToken;
+                            })
+
+                            // Error
+                            .catch((err) => {
+                                auto_logout(req, res, { code: 500, message: err.message });
                             });
+
                     }
 
                     // Normal
