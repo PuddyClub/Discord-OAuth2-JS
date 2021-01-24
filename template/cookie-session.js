@@ -113,17 +113,11 @@ module.exports = function (app, cfg) {
                                 setDiscordSession(req, result.tokenRequest);
                             }
 
-                            res.json(result);
-
+                            // Redirect
+                            res.redirect(result.redirect);
                             return;
 
-                        }).catch(err => {
-
-                            // Complete
-                            res.json(err);
-                            return;
-
-                        });
+                        }).catch(tinyCfg.errorCallback);
 
                     }
 
