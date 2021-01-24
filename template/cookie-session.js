@@ -94,11 +94,6 @@ module.exports = function (app, cfg) {
                         discordAuth.refreshToken(req,
                             {
 
-                                // State
-                                state: {
-                                    redirect: req.url
-                                },
-
                                 // Auth
                                 auth: tinyAuth,
 
@@ -114,7 +109,7 @@ module.exports = function (app, cfg) {
                             }
 
                             // Redirect
-                            res.redirect(result.redirect);
+                            next();
                             return;
 
                         }).catch(tinyCfg.errorCallback);
