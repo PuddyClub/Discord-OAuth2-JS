@@ -6,6 +6,24 @@ module.exports = function (app, cfg) {
     // Config
     if (objType(cfg, 'object')) {
 
+        // Session Set
+        const setDiscordSession = function (req, tokenRequest) {
+
+            // Session Items
+            req.session[sessionVars.access_token] = tokenRequest.access_token;
+            req.session[sessionVars.expires_in] = tokenRequest.expires_in;
+            req.session[sessionVars.refresh_token] = tokenRequest.refresh_token;
+            req.session[sessionVars.token_type] = tokenRequest.token_type;
+            req.session[sessionVars.scope] = tokenRequest.scope;
+
+            // Expire In
+            req.session[sessionVars.token_expires_in] = moment.tz('Universal').add(tokenRequest.expires_in, 'second').format();
+
+            // Complete
+            return;
+
+        };
+
         // Moment
         const moment = require('moment-timezone');
 
@@ -92,11 +110,7 @@ module.exports = function (app, cfg) {
 
                             // Complete
                             if (result.refreshed) {
-                                req.session[sessionVars.access_token] = result.tokenRequest.access_token;
-                                req.session[sessionVars.expires_in] = result.tokenRequest.expires_in;
-                                req.session[sessionVars.refresh_token] = result.tokenRequest.refresh_token;
-                                req.session[sessionVars.token_type] = result.tokenRequest.token_type;
-                                req.session[sessionVars.scope] = result.tokenRequest.scope;
+                                setDiscordSession(req, result.tokenRequest);
                             }
 
                             res.json(result);
@@ -259,17 +273,7 @@ module.exports = function (app, cfg) {
 
                 // New Session Result
                 if (result.state.type === "login" && result.newSession) {
-
-                    // Session Items
-                    req.session[sessionVars.access_token] = result.tokenRequest.access_token;
-                    req.session[sessionVars.expires_in] = result.tokenRequest.expires_in;
-                    req.session[sessionVars.refresh_token] = result.tokenRequest.refresh_token;
-                    req.session[sessionVars.token_type] = result.tokenRequest.token_type;
-                    req.session[sessionVars.scope] = result.tokenRequest.scope;
-
-                    // Expire In
-                    req.session[sessionVars.token_expires_in] = moment.tz('Universal').add(result.tokenRequest.expires_in, 'second').format();
-
+                    setDiscordSession(req, result.tokenRequest);
                 }
 
                 // Complete
