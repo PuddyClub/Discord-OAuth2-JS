@@ -72,6 +72,32 @@ module.exports = function (app, cfg) {
 
         };
 
+        discordSession.firebase.get = function (req, res) {
+            return new Promise(function (resolve, reject) {
+
+                // Prepare Auth
+                cfg.firebase.auth.verifyIdToken(req.session[sessionVars.firebase_token])
+
+                    // Complete
+                    .then((decodedToken) => {
+                        resolve(decodedToken);
+                        return;
+                    })
+
+                    // Error
+                    .catch((err) => {
+                        err = { code: 500, message: err.message };
+                        auto_logout(req, res, err);
+                        reject(err);
+                        return;
+                    });
+
+                // Complete
+                return;
+
+            });
+        };
+
         // Moment
         const moment = require('moment-timezone');
 
@@ -144,43 +170,46 @@ module.exports = function (app, cfg) {
 
         // Auto Logout
         const auto_logout = function (req, res, err) {
+            return new Promise(function (resolve, reject) {
 
-            // Result
-            discordAuth.logout(req, res, req.session,
-                {
+                // Result
+                discordAuth.logout(req, res, req.session,
+                    {
 
-                    // Query
-                    query: {
-                        csrfToken: 'csrfToken',
-                        redirect: 'redirect'
-                    },
+                        // Query
+                        query: {
+                            csrfToken: 'csrfToken',
+                            redirect: 'redirect'
+                        },
 
-                    // State
-                    state: {
-                        csrfToken: req.session[sessionVars.csrfToken],
-                        redirect: req.url
-                    },
+                        // State
+                        state: {
+                            csrfToken: req.session[sessionVars.csrfToken],
+                            redirect: req.url
+                        },
 
-                    // Auth
-                    auth: tinyAuth,
+                        // Auth
+                        auth: tinyAuth,
 
-                    // Access Token
-                    access_token: req.session[sessionVars.access_token]
+                        // Access Token
+                        access_token: req.session[sessionVars.access_token]
 
-                }, (getSessionFromCookie(req, sessionVars.access_token)),
-            ).then(result => {
+                    }, (getSessionFromCookie(req, sessionVars.access_token)),
+                ).then(result => {
+
+                    // Complete
+                    if (!err) { logout_result(result, req, res); }
+                    // Error
+                    else { tinyCfg.errorCallback(err, req, res); }
+                    resolve();
+                    return;
+
+                }).catch((err) => { tinyCfg.errorCallback(err, req, res); reject(err); return; });
 
                 // Complete
-                if (!err) { logout_result(result, req, res); }
-                // Error
-                else { tinyCfg.errorCallback(err, req, res); }
                 return;
 
-            }).catch((err) => { tinyCfg.errorCallback(err, req, res); return; });
-
-            // Complete
-            return;
-
+            });
         };
 
         // Refresh Validator
