@@ -58,30 +58,35 @@ module.exports = function (app, cfg) {
         discordSession.firebase = {};
 
         // Set Firebase Account
-        discordSession.firebase.setAccount = function (userData) {
+        discordSession.firebase.setAccount = function (userData, oldData) {
             return new Promise(function (resolve, reject) {
 
                 // Prepare New User Data
-                const newUserData = {
-                    displayName: newUserData.username + '#' + newUserData.discriminator,
-                    photoURL: `https://cdn.discordapp.com/avatars/${userData.id}/${avatar}`
-                };
+                const newUserData = {};
+                const existOLD = (objType(oldData, 'object'));
+
+                const newUsername = newUserData.username + '#' + newUserData.discriminator;
+                const newAvatar = `https://cdn.discordapp.com/avatars/${userData.id}/${userData.avatar}`;
+
+                // Basic Profile
+                if (!existOLD || newUsername !== oldData.displayNama) { newUserData.displayName = newUsername; }
+                if (!existOLD || newAvatar !== oldData.photoURL) { newUserData.photoURL = newAvatar; }
 
                 // Insert User Email
                 if (typeof userData.email === "string") {
-                    newUserData.email = userData.email;
+                    if (!existOLD || userData.email !== oldData.email) { newUserData.email = userData.email; }
                     newUserData.emailVerified = (userData.verified);
                 }
 
                 // Update User
                 cfg.firebase.auth.updateUser(userData.id, newUserData)
-                .then((userRecord) => {
-                    resolve(userRecord.toJSON());
-                    return;
-                })
-                .catch((err) => {
-                    reject({ code: 500, message: err.message });
-                });;
+                    .then((userRecord) => {
+                        resolve(userRecord.toJSON());
+                        return;
+                    })
+                    .catch((err) => {
+                        reject({ code: 500, message: err.message });
+                    });;
 
                 // Complete
                 return;
