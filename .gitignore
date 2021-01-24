@@ -1,5 +1,6 @@
 # Test Files
 test/auth.json
+test/firebase.json
 
 # Logs
 logs
