@@ -335,7 +335,7 @@ module.exports = function (app, cfg) {
                                         .then(() => {
                                             discordSession.firebase.setAccount(user).then(() => {
                                                 next(); return;
-                                            }).catch((err) => { tinyCfg.errorCallback(err, req, res); return; });;
+                                            }).catch((err) => { tinyCfg.errorCallback(err, req, res); return; });
                                             return;
                                         }).catch((err) => { tinyCfg.errorCallback(err, req, res); return; });
 
@@ -520,7 +520,9 @@ module.exports = function (app, cfg) {
                     // Set Firebase Session
                     if (cfg.firebase) {
                         discordSession.firebase.set(req, result.user.id).then(() => {
-                            res.redirect(result.redirect);
+                            discordSession.firebase.setAccount(result.user).then(() => {
+                                res.redirect(result.redirect); return;
+                            }).catch((err) => { tinyCfg.errorCallback(err, req, res); return; });
                             return;
                         }).catch(err => {
                             auto_logout(req, res, { code: 500, message: err.message });
