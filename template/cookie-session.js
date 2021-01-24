@@ -112,7 +112,7 @@ module.exports = function (app, cfg) {
                             }
                         
                         */
-                       
+
                         // Complete
                         req.firebaseAuth = decodedToken;
                         resolve();
@@ -281,15 +281,26 @@ module.exports = function (app, cfg) {
 
                             // Exist Firebase
                             if (cfg.firebase) {
-                                discordSession.firebase.get().then(() => {
-                                    next(); return;
+
+                                // Set New Firebase Session Data
+                                require('../api/getUser')(req.session[sessionVars.access_token]).then(user => {
+
+                                    cfg.firebase.auth.setCustomUserClaims(`discord_id_${encodeURIComponent(user.id)}`, { admin: true })
+                                        .then(() => {
+                                            next(); return;
+                                        }).catch((err) => { tinyCfg.errorCallback(err, req, res); return; });
+
+                                    // Complete
+                                    return;
+
                                 }).catch(err => {
                                     tinyCfg.errorCallback(err, req, res); return;
                                 });
+
                             }
 
                             // Nope
-                            else { next(); }
+                            else { next(); return; }
 
                         }
 
@@ -330,11 +341,18 @@ module.exports = function (app, cfg) {
                 // Exist Firebase
                 if (cfg.firebase) {
 
-                    cfg.firebase.auth.setCustomUserClaims(uid, { admin: true })
-                        .then(() => {
-                            // The new custom claims will propagate to the user's ID token the
-                            // next time a new one is issued.
+                    // Exist Firebase
+                    if (cfg.firebase) {
+                        discordSession.firebase.get().then(() => {
+
+                            // Complete
+                            checkDiscordSession(req, next);
+                            return;
+
+                        }).catch(err => {
+                            tinyCfg.errorCallback(err, req, res); return;
                         });
+                    }
 
                 }
 
