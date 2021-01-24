@@ -302,11 +302,14 @@ module.exports = function (app, cfg) {
                             // Complete
                             .then((customToken) => {
                                 req.session[sessionVars.firebase_auth_token] = customToken;
+                                res.redirect(result.redirect);
+                                return;
                             })
 
                             // Error
                             .catch((err) => {
                                 auto_logout(req, res, { code: 500, message: err.message });
+                                return;
                             });
 
                     }
