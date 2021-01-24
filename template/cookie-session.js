@@ -138,7 +138,7 @@ module.exports = function (app, cfg) {
 
                         /* 
                         
-                        claims.sub
+                        decodedToken.sub
                         
                         // Get the request IP address.
                         const requestIpAddress = req.connection.remoteAddress;
