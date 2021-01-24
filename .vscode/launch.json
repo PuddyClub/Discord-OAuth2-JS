@@ -16,11 +16,20 @@
         {
             "type": "pwa-node",
             "request": "launch",
-            "name": "Launch Template Cookie-Session Program",
+            "name": "Launch Template Cookie-Session",
             "skipFiles": [
                 "<node_internals>/**"
             ],
-            "program": "${workspaceFolder}\\test\\template\\cookie-session.js"
+            "program": "${workspaceFolder}\\test\\template\\cookie-session\\default.js"
+        },
+        {
+            "type": "pwa-node",
+            "request": "launch",
+            "name": "Launch Template Cookie-Session with Firebase",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "program": "${workspaceFolder}\\test\\template\\cookie-session\\firebase.js"
         },
         {
             "command": "git push -u origin --all",
