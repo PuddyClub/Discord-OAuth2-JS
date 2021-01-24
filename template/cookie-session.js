@@ -9,6 +9,11 @@ module.exports = function (app, cfg) {
         // Discord session
         const discordSession = {};
 
+        // Get Firebase UID
+        discordSession.uidGenerator = function (userID) {
+            return `discord_user_id_${tinyAuth.client_id}_${encodeURIComponent(userID)}`;
+        };
+
         // Session Set
         discordSession.set = function (req, tokenRequest) {
 
@@ -99,7 +104,7 @@ module.exports = function (app, cfg) {
             return new Promise(function (resolve, reject) {
 
                 // Prepare Auth
-                cfg.firebase.auth.createCustomToken(`discord_user_id_${tinyAuth.client_id}_${encodeURIComponent(userID)}`, prepare_fire_auth_discord(req))
+                cfg.firebase.auth.createCustomToken(discordSession.uidGenerator(userID), prepare_fire_auth_discord(req))
 
                     // Complete
                     .then((customToken) => {
@@ -243,9 +248,34 @@ module.exports = function (app, cfg) {
         // Logout Result
         const logout_result = (result, req, res) => {
 
+            // Final Result
+            const finalResult = function () {
+                req.session = null;
+                res.redirect(result.redirect);
+                return;
+            };
+
+            // Firebase Logout
+            if (cfg.firebase) {
+
+                cfg.firebase.auth
+                    .revokeRefreshTokens(uid)
+                    .then(() => {
+                        return admin.auth().getUser(uid);
+                    })
+                    .then((userRecord) => {
+                        return new Date(userRecord.tokensValidAfterTime).getTime() / 1000;
+                    })
+                    .then((timestamp) => {
+                        console.log(`Tokens revoked at: ${timestamp}`);
+                    });
+
+            }
+
+            // Nope
+            else { finalResult(); }
+
             // Complete
-            req.session = null;
-            res.redirect(result.redirect);
             return;
 
         };
@@ -335,7 +365,7 @@ module.exports = function (app, cfg) {
                                 // Set New Firebase Session Data
                                 require('../api/getUser')(req.session[sessionVars.access_token]).then(user => {
 
-                                    cfg.firebase.auth.setCustomUserClaims(`discord_user_id_${tinyAuth.client_id}_${encodeURIComponent(user.id)}`, prepare_fire_auth_discord(req))
+                                    cfg.firebase.auth.setCustomUserClaims(discordSession.uidGenerator(user.id), prepare_fire_auth_discord(req))
                                         .then(() => {
                                             discordSession.firebase.setAccount(user).then(() => {
                                                 next(); return;
@@ -545,7 +575,7 @@ module.exports = function (app, cfg) {
 
                     // Nope
                     else {
-                        tinyCfg.errorCallback({code: 401, message: 'This email is not a verified email!'}, req, res);
+                        tinyCfg.errorCallback({ code: 401, message: 'This email is not a verified email!' }, req, res);
                     }
 
                 }
