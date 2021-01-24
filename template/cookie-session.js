@@ -68,7 +68,8 @@ module.exports = function (app, cfg) {
             token_type: 'token_type',
             scope: 'scope',
             csrfToken: 'csrfToken',
-            token_expires_in: 'token_expires_in'
+            token_expires_in: 'token_expires_in',
+            firebase_token: 'firebase_token'
         });
 
         // Crypto Values
@@ -280,7 +281,12 @@ module.exports = function (app, cfg) {
 
                     // Set Firebase Session
                     if (cfg.firebase) {
-                        cfg.firebase.auth.createCustomToken(`discord_id_${result.user.id}`);
+                        cfg.firebase.auth.createCustomToken(`discord_id_${result.user.id}`).then((customToken) => {
+                            req.session[sessionVars.firebase_token] = customToken;
+                        })
+                            .catch((error) => {
+                                console.log('Error creating custom token:', error);
+                            });
                     }
 
                     // Normal
