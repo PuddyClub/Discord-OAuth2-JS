@@ -51,6 +51,9 @@ module.exports = function (app, cfg) {
             discordScope: []
         });
 
+        // Firebase Mode
+        if (objType(cfg.firebase, 'object')) { tinyAuth.first_get_user = true }
+
         // Session Vars
         const sessionVars = _.defaultsDeep({}, cfg.vars, {
             access_token: 'access_token',
@@ -71,6 +74,8 @@ module.exports = function (app, cfg) {
             logout: '/logout',
             redirect: '/redirect'
         });
+
+        console.log(cfg);
 
         // Refresh Validator
         app.use(function (req, res, next) {
