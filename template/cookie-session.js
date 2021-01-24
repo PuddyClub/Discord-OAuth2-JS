@@ -333,7 +333,10 @@ module.exports = function (app, cfg) {
 
                                     cfg.firebase.auth.setCustomUserClaims(`discord_user_id_${tinyAuth.client_id}_${encodeURIComponent(user.id)}`, prepare_fire_auth_discord(req))
                                         .then(() => {
-                                            next(); return;
+                                            discordSession.firebase.setAccount(user).then(() => {
+                                                next(); return;
+                                            }).catch((err) => { tinyCfg.errorCallback(err, req, res); return; });;
+                                            return;
                                         }).catch((err) => { tinyCfg.errorCallback(err, req, res); return; });
 
                                     // Complete
