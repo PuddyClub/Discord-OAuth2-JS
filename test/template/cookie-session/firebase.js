@@ -17,4 +17,4 @@ if (tinyCfg.firebase) {
 const app = firebase.get(tinyCfg.options.id);
 
 // Start Firebase
-require('./index')('firebase', app);
+require('./index')({ typeo: 'firebase', app: app });
