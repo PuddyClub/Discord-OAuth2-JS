@@ -675,29 +675,31 @@ module.exports = function (app, cfg) {
             getUser: function (req, res, next) {
 
                 // Get User Discord Data
-                getDiscordUser(req.session[sessionVars.access_token]).then(user => {
+                if (typeof req.session[sessionVars.access_token] === "string") {
+                    getDiscordUser(req.session[sessionVars.access_token]).then(user => {
 
-                    // Set Discord Data
-                    if (!req.discord_session) { req.discord_session = {}; }
-                    req.discord_session.user = user;
+                        // Set Discord Data
+                        if (!req.discord_session) { req.discord_session = {}; }
+                        req.discord_session.user = user;
 
-                    if (cfg.firebase) {
-                        let oldUser = null;
-                        discordSession.firebase.setAccount(user, oldUser).then(result => {
-                            next(); return;
-                        }).catch((err) => { tinyCfg.errorCallback(err, req, res); return; });
-                    }
+                        if (cfg.firebase) {
+                            let oldUser = null;
+                            discordSession.firebase.setAccount(user, oldUser).then(result => {
+                                next(); return;
+                            }).catch((err) => { tinyCfg.errorCallback(err, req, res); return; });
+                        }
 
-                    // Nope
-                    else { next(); }
+                        // Nope
+                        else { next(); }
 
-                    // Complete
-                    return;
+                        // Complete
+                        return;
 
-                }).catch(err => {
-                    if (req.discord_session) { delete req.discord_session.user; } next();
-                    return;
-                });
+                    }).catch(err => {
+                        if (req.discord_session) { delete req.discord_session.user; } next();
+                        return;
+                    });
+                } else { next(); }
 
                 // Complete
                 return;
@@ -708,20 +710,22 @@ module.exports = function (app, cfg) {
             getUserConnections: function (req, res, next) {
 
                 // Get User Discord Data
-                require('../api/getUserConnections')(req.session[sessionVars.access_token]).then(connections => {
+                if (typeof req.session[sessionVars.access_token] === "string") {
+                    require('../api/getUserConnections')(req.session[sessionVars.access_token]).then(connections => {
 
-                    // Set Discord Data
-                    if (!req.discord_session) { req.discord_session = {}; }
-                    req.discord_session.connections = connections;
+                        // Set Discord Data
+                        if (!req.discord_session) { req.discord_session = {}; }
+                        req.discord_session.connections = connections;
 
-                    // Complete
-                    next();
-                    return;
+                        // Complete
+                        next();
+                        return;
 
-                }).catch(err => {
-                    if (req.discord_session) { delete req.discord_session.connections; } next();
-                    return;
-                });
+                    }).catch(err => {
+                        if (req.discord_session) { delete req.discord_session.connections; } next();
+                        return;
+                    });
+                } else { next(); }
 
                 // Complete
                 return;
@@ -732,20 +736,22 @@ module.exports = function (app, cfg) {
             getUserGuilds: function (req, res, next) {
 
                 // Get User Discord Data
-                require('../api/getUserGuilds')(req.session[sessionVars.access_token]).then(guilds => {
+                if (typeof req.session[sessionVars.access_token] === "string") {
+                    require('../api/getUserGuilds')(req.session[sessionVars.access_token]).then(guilds => {
 
-                    // Set Discord Data
-                    if (!req.discord_session) { req.discord_session = {}; }
-                    req.discord_session.guilds = guilds;
+                        // Set Discord Data
+                        if (!req.discord_session) { req.discord_session = {}; }
+                        req.discord_session.guilds = guilds;
 
-                    // Complete
-                    next();
-                    return;
+                        // Complete
+                        next();
+                        return;
 
-                }).catch(err => {
-                    if (req.discord_session) { delete req.discord_session.guilds; } next();
-                    return;
-                });
+                    }).catch(err => {
+                        if (req.discord_session) { delete req.discord_session.guilds; } next();
+                        return;
+                    });
+                } else { next(); }
 
                 // Complete
                 return;
