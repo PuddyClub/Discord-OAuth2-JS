@@ -38,7 +38,7 @@ module.exports = function (webItem = { type: 'default' }) {
         const authOptions = { auth: tinyAuth, vars: sessionVars };
 
         // Firebase
-        if (webItem.type === "firebase") { authOptions.firebase = webItem.app; }
+        if (webItem.type === "firebase") { authOptions.firebase = webItem.app; authOptions.cfg = webItem.cfg; }
 
         // Send Auth
         const dsFunctions = discordAuth(app, authOptions);
