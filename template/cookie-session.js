@@ -19,7 +19,7 @@ module.exports = function (app, cfg) {
         discordSession.firebaseAuth.redirect = {
 
             // Login
-            login: function () {
+            login: function (res, redirect_url) {
 
                 // Complete
                 return;
@@ -27,7 +27,7 @@ module.exports = function (app, cfg) {
             },
 
             // Logout
-            logout: function () {
+            logout: function (res, redirect_url) {
 
                 // Complete
                 return;
@@ -472,7 +472,7 @@ module.exports = function (app, cfg) {
 
                         // Exist Firebase
                         if (cfg.firebase) {
-                            discordSession.firebaseAuth.redirect(res, result.redirect);
+                            discordSession.firebaseAuth.redirect.logout(res, result.redirect);
                         }
 
                         // Nope
@@ -526,7 +526,7 @@ module.exports = function (app, cfg) {
 
                                 // Exist Firebase
                                 if (cfg.firebase) {
-                                    discordSession.firebaseAuth.redirect(res, result.redirect);
+                                    discordSession.firebaseAuth.redirect.logout(res, result.redirect);
                                 }
 
                                 // Nope
@@ -627,7 +627,7 @@ module.exports = function (app, cfg) {
 
                         // Exist Firebase
                         if (cfg.firebase) {
-                            discordSession.firebaseAuth.redirect(res, result.redirect);
+                            discordSession.firebaseAuth.redirect.logout(res, result.redirect);
                         }
 
                         // Nope
@@ -694,7 +694,20 @@ module.exports = function (app, cfg) {
                         if (cfg.firebase) {
                             discordSession.firebase.set(req, result.user.id).then(() => {
                                 discordSession.firebase.setAccount(result.tokenRequest.access_token, result.user).then(result => {
-                                    res.redirect(result.redirect); return;
+                                    
+                                    // Exist Firebase
+                                    if (cfg.firebase) {
+                                        discordSession.firebaseAuth.redirect.login(res, result.redirect);
+                                    }
+
+                                    // Nope
+                                    else {
+                                        res.redirect(result.redirect);
+                                    }
+
+                                    // Complete
+                                    return;
+                                    
                                 }).catch((err) => { tinyCfg.errorCallback(err, req, res); return; });
                                 return;
                             }).catch(err => {
@@ -702,7 +715,7 @@ module.exports = function (app, cfg) {
 
                                     // Exist Firebase
                                     if (cfg.firebase) {
-                                        discordSession.firebaseAuth.redirect(res, result.redirect);
+                                        discordSession.firebaseAuth.redirect.logout(res, result.redirect);
                                     }
 
                                     // Nope
