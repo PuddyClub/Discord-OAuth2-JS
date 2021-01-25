@@ -77,7 +77,7 @@ module.exports = function (webtype = 'default', extraApp) {
 
         // Nope
         else {
-            res.send('No Account Detect');
+            res.send('No Account User Detect');
         }
 
         // Complete
@@ -94,7 +94,7 @@ module.exports = function (webtype = 'default', extraApp) {
 
         // Nope
         else {
-            res.send('No Account Detect');
+            res.send('No Account Guilds Detect');
         }
 
         // Complete
@@ -111,7 +111,7 @@ module.exports = function (webtype = 'default', extraApp) {
 
         // Nope
         else {
-            res.send('No Account Detect');
+            res.send('No Account Connections Detect');
         }
 
         // Complete
