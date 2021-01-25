@@ -17,18 +17,6 @@ module.exports = function (app, cfg) {
             return `discord_user_id_${tinyAuth.client_id}_${encodeURIComponent(userID)}`;
         };
 
-        // Set User Claims
-        discordSession.setAccountUpdater = function (user, oldUser, req, res, next) {
-
-            discordSession.firebase.setAccount(user, oldUser).then(result => {
-                next(); return;
-            }).catch((err) => { tinyCfg.errorCallback(err, req, res); return; });
-
-            // Complete
-            return;
-
-        };
-
         // Session Set
         discordSession.set = function (req, tokenRequest) {
 
@@ -685,7 +673,13 @@ module.exports = function (app, cfg) {
 
                     // Set Discord Data
                     req.discord_session = user;
-                    return discordSession.setAccountUpdater(user, null, req, res, next);
+                    let oldUser = null;
+                    discordSession.firebase.setAccount(user, oldUser).then(result => {
+                        next(); return;
+                    }).catch((err) => { tinyCfg.errorCallback(err, req, res); return; });
+        
+                    // Complete
+                    return;
 
                 }).catch(err => {
                     tinyCfg.errorCallback(err, req, res); return;
