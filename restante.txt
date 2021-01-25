@@ -4,5 +4,11 @@ console.log(userFiredata);
 Fazer o discordSession.firebase.setAccount atualizar os dados do usuário na cache (result.updated and result.data)
 
 
+checar discordSession.firebase.get
+
+
+
+O redirect final com firebase manda para uma página para logar o javascript do firebase antes de ir para a página redirecionada
+
 
 Fazer o leitor de interaction
