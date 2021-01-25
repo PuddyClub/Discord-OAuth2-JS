@@ -555,6 +555,28 @@ module.exports = function (app, cfg) {
 
         });
 
+        // Login Firebase
+        app.get(tinyURLPath.firebaseLogin, (req, res) => {
+
+            // Page
+            res.send('');
+
+            // Complete
+            return;
+
+        });
+
+        // Logout Firebase
+        app.get(tinyURLPath.firebaseLogout, (req, res) => {
+
+            // Page
+            res.send('');
+
+            // Complete
+            return;
+
+        });
+
         // Login
         app.get(tinyURLPath.login, (req, res) => {
 
