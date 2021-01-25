@@ -176,6 +176,9 @@ module.exports = function (webtype = 'default', extraApp) {
 
         console.log(`Homepage: http://localhost:${port}/`);
         console.log(`User Page: http://localhost:${port}/user`);
+        console.log(`User Page: http://localhost:${port}/user/connections`);
+        console.log(`User Page: http://localhost:${port}/user/guilds`);
+        console.log(`User Page: http://localhost:${port}/user/all`);
         console.log(`Session Page: http://localhost:${port}/session`);
         console.log(`Session Logout Page: http://localhost:${port}/session/logout`);
         console.log(`Session Refresh Page: http://localhost:${port}/session/refresh`);
