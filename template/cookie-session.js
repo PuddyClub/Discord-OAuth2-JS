@@ -20,18 +20,16 @@ module.exports = function (app, cfg) {
 
             // Login
             login: function (res, redirect_url) {
-
-                // Complete
+                if (redirect_url.startsWith('/')) { redirect_url = redirect_url.substring(1); }
+                res.redirect(`${tinyURLPath.firebaseLogin}?redirect=${encodeURIComponent(redirect_url)}`);
                 return;
-
             },
 
             // Logout
             logout: function (res, redirect_url) {
-
-                // Complete
+                if (redirect_url.startsWith('/')) { redirect_url = redirect_url.substring(1); }
+                res.redirect(`${tinyURLPath.firebaseLogout}?redirect=${encodeURIComponent(redirect_url)}`);
                 return;
-
             }
 
         };
@@ -91,7 +89,7 @@ module.exports = function (app, cfg) {
 
         // Update Session
         discordSession.firebase.updateSession = function (result) {
-            if(result.updated){
+            if (result.updated) {
                 console.log(result.data);
             }
         };
@@ -302,7 +300,9 @@ module.exports = function (app, cfg) {
         const tinyURLPath = _.defaultsDeep({}, cfg.url, {
             login: '/login',
             logout: '/logout',
-            redirect: '/redirect'
+            redirect: '/redirect',
+            firebaseLogin: '/firebase/login',
+            firebaseLogout: '/firebase/logout'
         });
 
         // Logout Result
