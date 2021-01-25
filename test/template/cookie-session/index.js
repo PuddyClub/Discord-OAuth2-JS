@@ -28,7 +28,7 @@ module.exports = function (webtype = 'default', extraApp) {
 
     // Auth
     const tinyAuth = require('../../auth.json');
-    tinyAuth.discordScope = ["identify", "email"];
+    tinyAuth.discordScope = ["identify", "email", "guilds", "guilds.join", "connections", "gdm.join"];
 
     // Result
     const authOptions = { auth: tinyAuth, vars: sessionVars };
