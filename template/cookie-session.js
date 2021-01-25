@@ -671,90 +671,95 @@ module.exports = function (app, cfg) {
         // Final Result
         const final_functions = {
 
-            // Get User Module
-            getUser: function (req, res, next) {
+            // Session Plugins
+            sessionPlugins: {
 
-                // Get User Discord Data
-                if (typeof req.session[sessionVars.access_token] === "string") {
-                    getDiscordUser(req.session[sessionVars.access_token]).then(user => {
+                // Get User Module
+                getUser: function (req, res, next) {
 
-                        // Set Discord Data
-                        if (!req.discord_session) { req.discord_session = {}; }
-                        req.discord_session.user = user;
+                    // Get User Discord Data
+                    if (typeof req.session[sessionVars.access_token] === "string") {
+                        getDiscordUser(req.session[sessionVars.access_token]).then(user => {
 
-                        if (cfg.firebase) {
-                            let oldUser = null;
-                            discordSession.firebase.setAccount(user, oldUser).then(result => {
-                                next(); return;
-                            }).catch((err) => { tinyCfg.errorCallback(err, req, res); return; });
-                        }
+                            // Set Discord Data
+                            if (!req.discord_session) { req.discord_session = {}; }
+                            req.discord_session.user = user;
 
-                        // Nope
-                        else { next(); }
+                            if (cfg.firebase) {
+                                let oldUser = null;
+                                discordSession.firebase.setAccount(user, oldUser).then(result => {
+                                    next(); return;
+                                }).catch((err) => { tinyCfg.errorCallback(err, req, res); return; });
+                            }
 
-                        // Complete
-                        return;
+                            // Nope
+                            else { next(); }
 
-                    }).catch(err => {
-                        if (req.discord_session) { delete req.discord_session.user; } next();
-                        return;
-                    });
-                } else { next(); }
+                            // Complete
+                            return;
 
-                // Complete
-                return;
+                        }).catch(err => {
+                            if (req.discord_session) { delete req.discord_session.user; } next();
+                            return;
+                        });
+                    } else { next(); }
 
-            },
+                    // Complete
+                    return;
 
-            // Get User Module
-            getUserConnections: function (req, res, next) {
+                },
 
-                // Get User Discord Data
-                if (typeof req.session[sessionVars.access_token] === "string") {
-                    require('../api/getUserConnections')(req.session[sessionVars.access_token]).then(connections => {
+                // Get User Module
+                getUserConnections: function (req, res, next) {
 
-                        // Set Discord Data
-                        if (!req.discord_session) { req.discord_session = {}; }
-                        req.discord_session.connections = connections;
+                    // Get User Discord Data
+                    if (typeof req.session[sessionVars.access_token] === "string") {
+                        require('../api/getUserConnections')(req.session[sessionVars.access_token]).then(connections => {
 
-                        // Complete
-                        next();
-                        return;
+                            // Set Discord Data
+                            if (!req.discord_session) { req.discord_session = {}; }
+                            req.discord_session.connections = connections;
 
-                    }).catch(err => {
-                        if (req.discord_session) { delete req.discord_session.connections; } next();
-                        return;
-                    });
-                } else { next(); }
+                            // Complete
+                            next();
+                            return;
 
-                // Complete
-                return;
+                        }).catch(err => {
+                            if (req.discord_session) { delete req.discord_session.connections; } next();
+                            return;
+                        });
+                    } else { next(); }
 
-            },
+                    // Complete
+                    return;
 
-            // Get User Module
-            getUserGuilds: function (req, res, next) {
+                },
 
-                // Get User Discord Data
-                if (typeof req.session[sessionVars.access_token] === "string") {
-                    require('../api/getUserGuilds')(req.session[sessionVars.access_token]).then(guilds => {
+                // Get User Module
+                getUserGuilds: function (req, res, next) {
 
-                        // Set Discord Data
-                        if (!req.discord_session) { req.discord_session = {}; }
-                        req.discord_session.guilds = guilds;
+                    // Get User Discord Data
+                    if (typeof req.session[sessionVars.access_token] === "string") {
+                        require('../api/getUserGuilds')(req.session[sessionVars.access_token]).then(guilds => {
 
-                        // Complete
-                        next();
-                        return;
+                            // Set Discord Data
+                            if (!req.discord_session) { req.discord_session = {}; }
+                            req.discord_session.guilds = guilds;
 
-                    }).catch(err => {
-                        if (req.discord_session) { delete req.discord_session.guilds; } next();
-                        return;
-                    });
-                } else { next(); }
+                            // Complete
+                            next();
+                            return;
 
-                // Complete
-                return;
+                        }).catch(err => {
+                            if (req.discord_session) { delete req.discord_session.guilds; } next();
+                            return;
+                        });
+                    } else { next(); }
+
+                    // Complete
+                    return;
+
+                }
 
             }
 
