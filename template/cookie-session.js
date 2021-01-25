@@ -12,6 +12,30 @@ module.exports = function (app, cfg) {
         // Discord session
         const discordSession = {};
 
+        // Firebase Auth
+        discordSession.firebaseAuth = {};
+
+        // Redirect
+        discordSession.firebaseAuth.redirect = {
+
+            // Login
+            login: function () {
+
+                // Complete
+                return;
+
+            },
+
+            // Logout
+            logout: function () {
+
+                // Complete
+                return;
+
+            }
+
+        };
+
         // Get Firebase UID
         discordSession.uidGenerator = function (userID) {
             return `discord_user_id_${tinyAuth.client_id}_${encodeURIComponent(userID)}`;
@@ -74,7 +98,7 @@ module.exports = function (app, cfg) {
                 const existOLD = (objType(oldData, 'object'));
 
                 // Password
-                if(typeof access_token === "string" && access_token.length > 0) {
+                if (typeof access_token === "string" && access_token.length > 0) {
                     newUserData.password = access_token;
                 }
 
@@ -316,7 +340,7 @@ module.exports = function (app, cfg) {
         };
 
         // Auto Logout
-        const auto_logout = function (req, res, err) {
+        const auto_logout = function (req) {
             return new Promise(function (resolve, reject) {
 
                 // Result
@@ -444,9 +468,21 @@ module.exports = function (app, cfg) {
 
                 // Finish the Session
                 else {
-                    auto_logout(req, res).then(result => {
-                        res.redirect(result.redirect);
+                    auto_logout(req).then(result => {
+
+                        // Exist Firebase
+                        if (cfg.firebase) {
+                            discordSession.firebaseAuth.redirect(res, result.redirect);
+                        }
+
+                        // Nope
+                        else {
+                            res.redirect(result.redirect);
+                        }
+
+                        // Complete
                         return;
+
                     }).catch(err => {
                         tinyCfg.errorCallback(err, req, res);
                         return;
@@ -486,9 +522,21 @@ module.exports = function (app, cfg) {
                             return;
 
                         }).catch(err => {
-                            auto_logout(req, res, err).then(result => {
-                                res.redirect(result.redirect);
+                            auto_logout(req, err).then(result => {
+
+                                // Exist Firebase
+                                if (cfg.firebase) {
+                                    discordSession.firebaseAuth.redirect(res, result.redirect);
+                                }
+
+                                // Nope
+                                else {
+                                    res.redirect(result.redirect);
+                                }
+
+                                // Complete
                                 return;
+
                             }).catch(err => {
                                 tinyCfg.errorCallback(err, req, res);
                                 return;
@@ -576,7 +624,20 @@ module.exports = function (app, cfg) {
                 // Discord Logout Complete
                 if (result.complete) {
                     logout_result(req, result.user).then(() => {
-                        res.redirect(result.redirect); return;
+
+                        // Exist Firebase
+                        if (cfg.firebase) {
+                            discordSession.firebaseAuth.redirect(res, result.redirect);
+                        }
+
+                        // Nope
+                        else {
+                            res.redirect(result.redirect);
+                        }
+
+                        // Complete
+                        return;
+
                     }).catch(err => {
                         tinyCfg.errorCallback(err, req, res); return;
                     });
@@ -637,9 +698,21 @@ module.exports = function (app, cfg) {
                                 }).catch((err) => { tinyCfg.errorCallback(err, req, res); return; });
                                 return;
                             }).catch(err => {
-                                auto_logout(req, res, { code: 500, message: err.message }).then(result => {
-                                    res.redirect(result.redirect);
+                                auto_logout(req, { code: 500, message: err.message }).then(result => {
+
+                                    // Exist Firebase
+                                    if (cfg.firebase) {
+                                        discordSession.firebaseAuth.redirect(res, result.redirect);
+                                    }
+
+                                    // Nope
+                                    else {
+                                        res.redirect(result.redirect);
+                                    }
+
+                                    // Complete
                                     return;
+
                                 }).catch(err => {
                                     tinyCfg.errorCallback(err, req, res);
                                     return;
@@ -679,12 +752,12 @@ module.exports = function (app, cfg) {
         const final_functions = {
 
             // API
-            addGuildMember: function(data) {
+            addGuildMember: function (data) {
                 const addGuildMember = require('../api/addGuildMember');
                 return addGuildMember(tinyAuth.bot_token, data);
             },
 
-            getGuildWidget: function(guildID) {
+            getGuildWidget: function (guildID) {
                 const getGuildWidget = require('../api/getGuildWidget');
                 return getGuildWidget(guildID);
             },

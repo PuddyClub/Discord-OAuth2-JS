@@ -13,9 +13,6 @@ O redirect final com firebase manda para uma página para logar o javascript do 
 
 
 
-Se detecta que não tem Discord, deslogar do Firebase
-se detectar que não tem firebase, deslogar do Discord
-
 
 
 
