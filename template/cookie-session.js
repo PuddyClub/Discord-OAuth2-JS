@@ -246,46 +246,42 @@ module.exports = function (app, cfg) {
         });
 
         // Logout Result
-        const logout_result = (result, req, res) => {
+        const logout_result = (req) => {
+            return new Promise(function (resolve, reject) {
 
-            // Final Result
-            const finalResult = function () {
-                req.session = null;
-                res.redirect(result.redirect);
+                // Firebase Logout
+                if (cfg.firebase) {
+
+                    // Set New Firebase Session Data
+                    require('../api/getUser')(req.session[sessionVars.access_token]).then(user => {
+
+                        // Revoke Refresh
+                        cfg.firebase.auth
+                            .revokeRefreshTokens(discordSession.uidGenerator(user.id))
+                            .then(() => {
+                                req.session = null;
+                                resolve();
+                                return;
+                            }).catch(err => {
+                                reject({ code: 500, message: err.message }); return;
+                            });
+
+                        // Complete
+                        return;
+
+                    }).catch(err => {
+                        reject(err); return;
+                    });
+
+                }
+
+                // Nope
+                else { req.session = null; resolve(); }
+
+                // Complete
                 return;
-            };
 
-            // Firebase Logout
-            if (cfg.firebase) {
-
-                // Set New Firebase Session Data
-                require('../api/getUser')(req.session[sessionVars.access_token]).then(user => {
-
-                    // Revoke Refresh
-                    cfg.firebase.auth
-                        .revokeRefreshTokens(discordSession.uidGenerator(user.id))
-                        .then(() => {
-                            finalResult();
-                            return;
-                        }).catch(err => {
-                            tinyCfg.errorCallback({ code: 500, message: err.message }, req, res); return;
-                        });
-
-                    // Complete
-                    return;
-
-                }).catch(err => {
-                    tinyCfg.errorCallback(err, req, res); return;
-                });
-
-            }
-
-            // Nope
-            else { finalResult(); }
-
-            // Complete
-            return;
-
+            });
         };
 
         // Auto Logout
@@ -317,14 +313,14 @@ module.exports = function (app, cfg) {
                     }, (getSessionFromCookie(req, sessionVars.access_token)),
                 ).then(result => {
 
-                    // Complete
-                    if (!err) { logout_result(result, req, res); }
-                    // Error
-                    else { tinyCfg.errorCallback(err, req, res); }
-                    resolve();
+                    logout_result(req).then(() => {
+                        resolve(result); return;
+                    }).catch(err => {
+                        reject(err); return;
+                    });
                     return;
 
-                }).catch((err) => { tinyCfg.errorCallback(err, req, res); reject(err); return; });
+                }).catch((err) => { reject(err); return; });
 
                 // Complete
                 return;
@@ -406,7 +402,15 @@ module.exports = function (app, cfg) {
                 }
 
                 // Finish the Session
-                else { auto_logout(req, res); }
+                else {
+                    auto_logout(req, res).then(result => {
+                        res.redirect(result.redirect);
+                        return;
+                    }).catch(err => {
+                        tinyCfg.errorCallback(err, req, res); 
+                        return;
+                    });
+                }
 
             } else { next(); }
 
@@ -520,7 +524,11 @@ module.exports = function (app, cfg) {
 
                 }, (getSessionFromCookie(req, sessionVars.access_token)),
             ).then(result => {
-                logout_result(result, req, res);
+                logout_result(req).then(() => {
+                    res.redirect(result.redirect); resolve(); return;
+                }).catch(err => {
+                    tinyCfg.errorCallback(err, req, res); reject(err); return;
+                });
                 return;
             }).catch((err) => { tinyCfg.errorCallback(err, req, res); return; });
 
@@ -569,7 +577,13 @@ module.exports = function (app, cfg) {
                                 }).catch((err) => { tinyCfg.errorCallback(err, req, res); return; });
                                 return;
                             }).catch(err => {
-                                auto_logout(req, res, { code: 500, message: err.message });
+                                auto_logout(req, res, { code: 500, message: err.message }).then(result => {
+                                    res.redirect(result.redirect);
+                                    return;
+                                }).catch(err => {
+                                    tinyCfg.errorCallback(err, req, res); 
+                                    return;
+                                });
                                 return;
                             });
                         }
