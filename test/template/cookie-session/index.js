@@ -208,7 +208,7 @@ module.exports = function (webtype = 'default', extraApp) {
         console.log(`Website Mode: ${webtype}`);
 
         console.log(`Homepage: http://localhost:${port}/`);
-        console.log(`User Page: http://localhost:${port}/guild/widget`);
+        console.log(`User Page: http://localhost:${port}/guild/widget?id=`);
         console.log(`User Page: http://localhost:${port}/user`);
         console.log(`User Page: http://localhost:${port}/user/connections`);
         console.log(`User Page: http://localhost:${port}/user/guilds`);
