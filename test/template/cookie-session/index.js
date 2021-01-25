@@ -2,7 +2,6 @@ module.exports = function (webtype = 'default', extraApp) {
 
     // Test Modules Prepare
     const discordAuth = require('../../../template/cookie-session');
-    const getUser = require('../../../api/getUser');
     const express = require('express');
     const app = express();
 
