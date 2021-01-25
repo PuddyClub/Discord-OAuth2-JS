@@ -124,7 +124,7 @@ module.exports = function (webtype = 'default', extraApp) {
     app.get('/guild/widget', (req, res) => {
 
         // Get Widget
-        dsFunctions.getGuildWidget(req.query.guild).then(data => {
+        dsFunctions.getGuildWidget(req.query.id).then(data => {
             res.json(data);
         }).then(err => {
             res.json(err);
