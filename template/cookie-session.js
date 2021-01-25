@@ -152,7 +152,7 @@ module.exports = function (app, cfg) {
                     // Complete
                     .then((decodedToken) => {
 
-
+                        console.log(decodedToken);
                         /* 
                         
                         decodedToken.sub
@@ -357,7 +357,7 @@ module.exports = function (app, cfg) {
         };
 
         // Check Discord Session
-        const checkDiscordSession = function (req, next, userFiredata) {
+        const checkDiscordSession = function (req, res, next, userFiredata) {
 
             // GET USER DATA TO TEST
             console.log(userFiredata);
@@ -469,7 +469,7 @@ module.exports = function (app, cfg) {
                         discordSession.firebase.get().then((userFiredata) => {
 
                             // Complete
-                            checkDiscordSession(req, next, userFiredata);
+                            checkDiscordSession(req, res, next, userFiredata);
                             return;
 
                         }).catch(err => {
@@ -488,7 +488,7 @@ module.exports = function (app, cfg) {
 
                 // Nope
                 else {
-                    checkDiscordSession(req, next);
+                    checkDiscordSession(req, res, next);
                 }
 
             } else { next(); }
@@ -673,17 +673,26 @@ module.exports = function (app, cfg) {
 
                     // Set Discord Data
                     req.discord_session = user;
-                    let oldUser = null;
-                    discordSession.firebase.setAccount(user, oldUser).then(result => {
-                        next(); return;
-                    }).catch((err) => { tinyCfg.errorCallback(err, req, res); return; });
-        
+
+                    if (cfg.firebase) {
+                        let oldUser = null;
+                        discordSession.firebase.setAccount(user, oldUser).then(result => {
+                            next(); return;
+                        }).catch((err) => { tinyCfg.errorCallback(err, req, res); return; });
+                    }
+
+                    // Nope
+                    else { next(); }
+
                     // Complete
                     return;
 
                 }).catch(err => {
                     tinyCfg.errorCallback(err, req, res); return;
                 });
+
+                // Complete
+                return;
 
             }
 

@@ -38,7 +38,7 @@ module.exports = function (webtype = 'default', extraApp) {
     if (webtype === "firebase") { authOptions.firebase = extraApp; }
 
     // Send Auth
-    discordAuth(app, authOptions);
+    const dsFunctions = discordAuth(app, authOptions);
 
     // Homepage
     app.get('/', (req, res) => {
@@ -52,23 +52,11 @@ module.exports = function (webtype = 'default', extraApp) {
     });
 
     // User Page
-    app.get('/user', (req, res) => {
+    app.get('/user', dsFunctions.getUser, (req, res) => {
 
         // Result
-        if (typeof req.session[sessionVars.access_token] === "string") {
-            getUser(req.session[sessionVars.access_token]).then(result => {
-
-                // Complete
-                res.json(result);
-                return;
-
-            }).catch(err => {
-
-                // Complete
-                res.json(err);
-                return;
-
-            });
+        if (typeof req.discord_session) {
+            res.json(req.discord_session);
         }
 
         // Nope
