@@ -17,6 +17,18 @@ module.exports = function (app, cfg) {
             return `discord_user_id_${tinyAuth.client_id}_${encodeURIComponent(userID)}`;
         };
 
+        // Set User Claims
+        discordSession.setAccountUpdater = function (user, oldUser, next) {
+
+            discordSession.firebase.setAccount(user, oldUser).then(() => {
+                next(); return;
+            }).catch((err) => { tinyCfg.errorCallback(err, req, res); return; });
+
+            // Complete
+            return;
+
+        };
+
         // Session Set
         discordSession.set = function (req, tokenRequest) {
 
@@ -73,7 +85,7 @@ module.exports = function (app, cfg) {
                 const newUserData = {};
                 const existOLD = (objType(oldData, 'object'));
 
-                const newUsername = newUserData.username + '#' + newUserData.discriminator;
+                const newUsername = userData.username + '#' + userData.discriminator;
                 const newAvatar = `https://cdn.discordapp.com/avatars/${userData.id}/${userData.avatar}`;
 
                 // Basic Profile
@@ -82,19 +94,33 @@ module.exports = function (app, cfg) {
 
                 // Insert User Email
                 if (typeof userData.email === "string") {
-                    if (!existOLD || userData.email !== oldData.email) { newUserData.email = userData.email; }
-                    newUserData.emailVerified = (userData.verified);
+                    if (!existOLD || userData.email !== oldData.email) {
+                        newUserData.email = userData.email;
+                        newUserData.emailVerified = (userData.verified);
+                    }
                 }
 
+                // Final Result
+                const finalResult = { updated: false };
+
                 // Update User
-                cfg.firebase.auth.updateUser(userData.id, newUserData)
-                    .then((userRecord) => {
-                        resolve(userRecord.toJSON());
-                        return;
-                    })
-                    .catch((err) => {
-                        reject({ code: 500, message: err.message });
-                    });;
+                if (Object.keys(newUserData).length > 0) {
+                    cfg.firebase.auth.updateUser(userData.id, newUserData)
+                        .then((userRecord) => {
+                            finalResult.data = userRecord.toJSON();
+                            finalResult.updated = true;
+                            resolve(finalResult);
+                            return;
+                        })
+                        .catch((err) => {
+                            reject({ code: 500, message: err.message });
+                        });
+                }
+
+                // Nope
+                else {
+                    resolve(finalResult);
+                }
 
                 // Complete
                 return;
@@ -659,6 +685,11 @@ module.exports = function (app, cfg) {
 
                     // Set Discord Data
                     req.discord_session = user;
+                    discordSession.setAccountUpdater(user, null, next).then(() => {
+                        next(); return;
+                    }).catch(err => {
+                        tinyCfg.errorCallback(err, req, res); return;
+                    });;
 
                     // Complete
                     next(); return;

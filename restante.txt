@@ -1,4 +1,8 @@
-Fazer a adaptação com o Firebase
-cfg.firebase.auth
+A gente vai pegar esse valor e colocar a parte fundamental dele dentro do discordSession.firebase.setAccount(user) para validar quais são os dados novos
+console.log(userFiredata);
+
+Fazer o discordSession.firebase.setAccount atualizar os dados do usuário na cache
+
+
 
 Fazer o leitor de interaction
