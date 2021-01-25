@@ -671,6 +671,22 @@ module.exports = function (app, cfg) {
         // Final Result
         const final_functions = {
 
+            // API
+            addGuildMember: function(data) {
+                const addGuildMember = require('../api/addGuildMember');
+                return addGuildMember(tinyAuth.bot_token, data);
+            },
+
+            getGuildWidget: function(guildID) {
+                const getGuildWidget = require('../api/getGuildWidget');
+                return getGuildWidget(guildID);
+            },
+
+            // UID Generator
+            discordUIDGenerator: function (userID) {
+                return discordSession.uidGenerator(userID);
+            },
+
             // Session Plugins
             sessionPlugins: {
 
