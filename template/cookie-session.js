@@ -689,7 +689,8 @@ module.exports = function (app, cfg) {
                     return;
 
                 }).catch(err => {
-                    if (req.discord_session) { delete req.discord_session.user; } return;
+                    if (req.discord_session) { delete req.discord_session.user; } next();
+                    return;
                 });
 
                 // Complete
@@ -712,7 +713,8 @@ module.exports = function (app, cfg) {
                     return;
 
                 }).catch(err => {
-                    if (req.discord_session) { delete req.discord_session.connections; } return;
+                    if (req.discord_session) { delete req.discord_session.connections; } next();
+                    return;
                 });
 
                 // Complete
@@ -735,7 +737,8 @@ module.exports = function (app, cfg) {
                     return;
 
                 }).catch(err => {
-                    if (req.discord_session) { delete req.discord_session.guilds; } return;
+                    if (req.discord_session) { delete req.discord_session.guilds; } next();
+                    return;
                 });
 
                 // Complete
