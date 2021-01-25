@@ -672,7 +672,8 @@ module.exports = function (app, cfg) {
                 getDiscordUser(req.session[sessionVars.access_token]).then(user => {
 
                     // Set Discord Data
-                    req.discord_session = user;
+                    if (!req.discord_session) { req.discord_session = {}; }
+                    req.discord_session.user = user;
 
                     if (cfg.firebase) {
                         let oldUser = null;
@@ -688,7 +689,53 @@ module.exports = function (app, cfg) {
                     return;
 
                 }).catch(err => {
-                    tinyCfg.errorCallback(err, req, res); return;
+                    if (req.discord_session) { delete req.discord_session.user; } return;
+                });
+
+                // Complete
+                return;
+
+            },
+
+            // Get User Module
+            getUserConnections: function (req, res, next) {
+
+                // Get User Discord Data
+                require('../api/getUserConnections')(req.session[sessionVars.access_token]).then(connections => {
+
+                    // Set Discord Data
+                    if (!req.discord_session) { req.discord_session = {}; }
+                    req.discord_session.connections = connections;
+
+                    // Complete
+                    next();
+                    return;
+
+                }).catch(err => {
+                    if (req.discord_session) { delete req.discord_session.connections; } return;
+                });
+
+                // Complete
+                return;
+
+            },
+
+            // Get User Module
+            getUserGuilds: function (req, res, next) {
+
+                // Get User Discord Data
+                require('../api/getUserGuilds')(req.session[sessionVars.access_token]).then(guilds => {
+
+                    // Set Discord Data
+                    if (!req.discord_session) { req.discord_session = {}; }
+                    req.discord_session.guilds = guilds;
+
+                    // Complete
+                    next();
+                    return;
+
+                }).catch(err => {
+                    if (req.discord_session) { delete req.discord_session.guilds; } return;
                 });
 
                 // Complete
