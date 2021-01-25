@@ -18,9 +18,9 @@ module.exports = function (app, cfg) {
         };
 
         // Set User Claims
-        discordSession.setAccountUpdater = function (user, oldUser, next) {
+        discordSession.setAccountUpdater = function (user, oldUser, req, res, next) {
 
-            discordSession.firebase.setAccount(user, oldUser).then(() => {
+            discordSession.firebase.setAccount(user, oldUser).then(result => {
                 next(); return;
             }).catch((err) => { tinyCfg.errorCallback(err, req, res); return; });
 
@@ -411,7 +411,7 @@ module.exports = function (app, cfg) {
 
                                     cfg.firebase.auth.setCustomUserClaims(discordSession.uidGenerator(user.id), prepare_fire_auth_discord(req))
                                         .then(() => {
-                                            discordSession.firebase.setAccount(user).then(() => {
+                                            discordSession.firebase.setAccount(user).then(result => {
                                                 next(); return;
                                             }).catch((err) => { tinyCfg.errorCallback(err, req, res); return; });
                                             return;
@@ -631,7 +631,7 @@ module.exports = function (app, cfg) {
                         // Set Firebase Session
                         if (cfg.firebase) {
                             discordSession.firebase.set(req, result.user.id).then(() => {
-                                discordSession.firebase.setAccount(result.user).then(() => {
+                                discordSession.firebase.setAccount(result.user).then(result => {
                                     res.redirect(result.redirect); return;
                                 }).catch((err) => { tinyCfg.errorCallback(err, req, res); return; });
                                 return;
@@ -685,14 +685,7 @@ module.exports = function (app, cfg) {
 
                     // Set Discord Data
                     req.discord_session = user;
-                    discordSession.setAccountUpdater(user, null, next).then(() => {
-                        next(); return;
-                    }).catch(err => {
-                        tinyCfg.errorCallback(err, req, res); return;
-                    });;
-
-                    // Complete
-                    next(); return;
+                    return discordSession.setAccountUpdater(user, null, req, res, next);
 
                 }).catch(err => {
                     tinyCfg.errorCallback(err, req, res); return;
