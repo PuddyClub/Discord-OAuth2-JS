@@ -525,9 +525,9 @@ module.exports = function (app, cfg) {
                 }, (getSessionFromCookie(req, sessionVars.access_token)),
             ).then(result => {
                 logout_result(req).then(() => {
-                    res.redirect(result.redirect); resolve(); return;
+                    res.redirect(result.redirect); return;
                 }).catch(err => {
-                    tinyCfg.errorCallback(err, req, res); reject(err); return;
+                    tinyCfg.errorCallback(err, req, res); return;
                 });
                 return;
             }).catch((err) => { tinyCfg.errorCallback(err, req, res); return; });
