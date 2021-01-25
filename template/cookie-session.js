@@ -683,7 +683,7 @@ module.exports = function (app, cfg) {
             },
 
             // UID Generator
-            discordUIDGenerator: function (userID) {
+            uidGenerator: function (userID) {
                 return discordSession.uidGenerator(userID);
             },
 
