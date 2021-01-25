@@ -51,7 +51,7 @@ module.exports = function (webtype = 'default', extraApp) {
     });
 
     // User Page
-    app.get('/user', dsFunctions.getUser, (req, res) => {
+    app.get('/user', dsFunctions.sessionPlugins.getUser, (req, res) => {
 
         // Result
         if (req.discord_session && req.discord_session.user) {
@@ -68,7 +68,7 @@ module.exports = function (webtype = 'default', extraApp) {
 
     });
 
-    app.get('/user/connections', dsFunctions.getUserConnections, (req, res) => {
+    app.get('/user/connections', dsFunctions.sessionPlugins.getUserConnections, (req, res) => {
 
         // Result
         if (req.discord_session && req.discord_session.connections) {
@@ -85,7 +85,7 @@ module.exports = function (webtype = 'default', extraApp) {
 
     });
 
-    app.get('/user/guilds', dsFunctions.getUserGuilds, (req, res) => {
+    app.get('/user/guilds', dsFunctions.sessionPlugins.getUserGuilds, (req, res) => {
 
         // Result
         if (req.discord_session && req.discord_session.guilds) {
@@ -102,7 +102,7 @@ module.exports = function (webtype = 'default', extraApp) {
 
     });
 
-    app.get('/user/all', dsFunctions.getUserConnections, dsFunctions.getUser, dsFunctions.getUserGuilds, (req, res) => {
+    app.get('/user/all', dsFunctions.sessionPlugins.getUserConnections, dsFunctions.sessionPlugins.getUser, dsFunctions.sessionPlugins.getUserGuilds, (req, res) => {
 
         // Result
         if (req.discord_session) {
