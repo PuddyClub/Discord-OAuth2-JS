@@ -1,17 +1,10 @@
 A gente vai pegar esse valor e colocar a parte fundamental dele dentro do discordSession.firebase.setAccount(user) para validar quais são os dados novos
 console.log(userFiredata);
 
-Fazer o discordSession.firebase.setAccount atualizar os dados do usuário na cache (result.updated and result.data)
+discordSession.firebase.updateSession vai atualizar a sessão no req
 
 
 checar discordSession.firebase.get
-
-
-
-O redirect final com firebase manda para uma página para logar o javascript do firebase antes de ir para a página redirecionada
-
-
-
 
 
 
