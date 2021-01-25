@@ -106,6 +106,7 @@ module.exports = function (webtype = 'default', extraApp) {
 
         // Result
         if (req.discord_session) {
+            req.discord_session.uid = dsFunctions.uidGenerator(req.discord_session.user.id);
             res.json(req.discord_session);
         }
 
@@ -125,7 +126,7 @@ module.exports = function (webtype = 'default', extraApp) {
         // Get Widget
         dsFunctions.getGuildWidget(req.query.guild).then(data => {
             res.json(data);
-        }).then (err => {
+        }).then(err => {
             res.json(err);
         });
 
@@ -138,7 +139,7 @@ module.exports = function (webtype = 'default', extraApp) {
 
         // Result
         if (req.discord_session) {
-            res.json(dsFunctions.uidGenerator(req.discord_session.id));
+            res.json({ result: dsFunctions.uidGenerator(req.discord_session.user.id) });
         }
 
         // Nope
@@ -207,9 +208,11 @@ module.exports = function (webtype = 'default', extraApp) {
         console.log(`Website Mode: ${webtype}`);
 
         console.log(`Homepage: http://localhost:${port}/`);
+        console.log(`User Page: http://localhost:${port}/guild/widget`);
         console.log(`User Page: http://localhost:${port}/user`);
         console.log(`User Page: http://localhost:${port}/user/connections`);
         console.log(`User Page: http://localhost:${port}/user/guilds`);
+        console.log(`User Page: http://localhost:${port}/user/uid`);
         console.log(`User Page: http://localhost:${port}/user/all`);
         console.log(`Session Page: http://localhost:${port}/session`);
         console.log(`Session Logout Page: http://localhost:${port}/session/logout`);
