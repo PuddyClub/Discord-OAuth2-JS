@@ -119,6 +119,38 @@ module.exports = function (webtype = 'default', extraApp) {
 
     });
 
+    // Informations
+    app.get('/guild/widget', (req, res) => {
+
+        // Get Widget
+        dsFunctions.getGuildWidget(req.query.guild).then(data => {
+            res.json(data);
+        }).then (err => {
+            res.json(err);
+        });
+
+        // Complete
+        return;
+
+    });
+
+    app.get('/user/uid', dsFunctions.sessionPlugins.getUser, (req, res) => {
+
+        // Result
+        if (req.discord_session) {
+            res.json(dsFunctions.uidGenerator(req.discord_session.id));
+        }
+
+        // Nope
+        else {
+            res.send('No Account Connections Detect');
+        }
+
+        // Complete
+        return;
+
+    });
+
     // Test Refresh
     app.get('/session/refresh', (req, res) => {
 
