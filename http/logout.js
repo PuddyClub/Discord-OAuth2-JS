@@ -1,5 +1,5 @@
 
-module.exports = async function (req, session, cfg, existSession, getUserInfo = false) {
+module.exports = async function (req, session, cfg, existSession, access_token) {
     return new Promise(function (resolve, reject) {
 
         // Prepare Modules
@@ -106,9 +106,21 @@ module.exports = async function (req, session, cfg, existSession, getUserInfo = 
                                     };
 
                                     // Don't need user info
-                                    if (!getUserInfo) { end_discord_session(); }
+                                    if (typeof access_token !== "string" || access_token.length < 1) { end_discord_session(); }
+                                    
                                     // Yes
                                     else {
+
+                                        // Get User
+                                        const getUser = require('../api/getUser');
+                                        getUser(access_token).then((data) => {
+                                            result.user = data;
+                                            end_discord_session();
+                                            return;
+                                        }).catch(err => {
+                                            reject(err);
+                                            return;
+                                        });
 
                                     }
 

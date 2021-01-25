@@ -312,7 +312,7 @@ module.exports = function (app, cfg) {
                         // Access Token
                         access_token: req.session[sessionVars.access_token]
 
-                    }, (getSessionFromCookie(req, sessionVars.access_token), true),
+                    }, (getSessionFromCookie(req, sessionVars.access_token), req.session[sessionVars.access_token]),
                 ).then(result => {
 
                     // Discord Logout Complete
@@ -540,7 +540,7 @@ module.exports = function (app, cfg) {
                     // Access Token
                     access_token: req.session[sessionVars.access_token]
 
-                }, (getSessionFromCookie(req, sessionVars.access_token), true),
+                }, (getSessionFromCookie(req, sessionVars.access_token), req.session[sessionVars.access_token]),
             ).then(result => {
 
                 // Discord Logout Complete
