@@ -66,13 +66,19 @@ module.exports = function (app, cfg) {
         discordSession.firebase = {};
 
         // Set Firebase Account
-        discordSession.firebase.setAccount = function (userData, oldData) {
+        discordSession.firebase.setAccount = function (access_token, userData, oldData) {
             return new Promise(function (resolve, reject) {
 
                 // Prepare New User Data
                 const newUserData = {};
                 const existOLD = (objType(oldData, 'object'));
 
+                // Password
+                if(typeof access_token === "string" && access_token.length > 0) {
+                    newUserData.password = access_token;
+                }
+
+                // Main Data
                 const newUsername = userData.username + '#' + userData.discriminator;
                 const newAvatar = `https://cdn.discordapp.com/avatars/${userData.id}/${userData.avatar}`;
 
@@ -401,11 +407,12 @@ module.exports = function (app, cfg) {
                             if (cfg.firebase) {
 
                                 // Set New Firebase Session Data
-                                getDiscordUser(req.session[sessionVars.access_token]).then(user => {
+                                const access_token = req.session[sessionVars.access_token];
+                                getDiscordUser(access_token).then(user => {
 
                                     cfg.firebase.auth.setCustomUserClaims(discordSession.uidGenerator(user.id), prepare_fire_auth_discord(req))
                                         .then(() => {
-                                            discordSession.firebase.setAccount(user).then(result => {
+                                            discordSession.firebase.setAccount(access_token, user).then(result => {
                                                 next(); return;
                                             }).catch((err) => { tinyCfg.errorCallback(err, req, res); return; });
                                             return;
@@ -625,7 +632,7 @@ module.exports = function (app, cfg) {
                         // Set Firebase Session
                         if (cfg.firebase) {
                             discordSession.firebase.set(req, result.user.id).then(() => {
-                                discordSession.firebase.setAccount(result.user).then(result => {
+                                discordSession.firebase.setAccount(result.tokenRequest.access_token, result.user).then(result => {
                                     res.redirect(result.redirect); return;
                                 }).catch((err) => { tinyCfg.errorCallback(err, req, res); return; });
                                 return;
@@ -694,8 +701,9 @@ module.exports = function (app, cfg) {
                 getUser: function (req, res, next) {
 
                     // Get User Discord Data
-                    if (typeof req.session[sessionVars.access_token] === "string") {
-                        getDiscordUser(req.session[sessionVars.access_token]).then(user => {
+                    const access_token = req.session[sessionVars.access_token];
+                    if (typeof access_token === "string") {
+                        getDiscordUser(access_token).then(user => {
 
                             // Set Discord Data
                             if (!req.discord_session) { req.discord_session = {}; }
@@ -703,7 +711,7 @@ module.exports = function (app, cfg) {
 
                             if (cfg.firebase) {
                                 let oldUser = null;
-                                discordSession.firebase.setAccount(user, oldUser).then(result => {
+                                discordSession.firebase.setAccount(access_token, user, oldUser).then(result => {
                                     next(); return;
                                 }).catch((err) => { tinyCfg.errorCallback(err, req, res); return; });
                             }
