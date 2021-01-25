@@ -648,17 +648,31 @@ module.exports = function (app, cfg) {
 
         });
 
-        // Complete
-        return {
+        // Final Result
+        const final_functions = {
 
             // Get User Module
-            getUser: function () {
-                
+            getUser: function (req, res, next) {
 
+                // Get User Discord Data
+                getDiscordUser(req.session[sessionVars.access_token]).then(user => {
+
+                    // Set Discord Data
+                    req.discord_session = user;
+
+                    // Complete
+                    next(); return;
+
+                }).catch(err => {
+                    tinyCfg.errorCallback(err, req, res); return;
+                });
 
             }
 
         };
+
+        // Complete
+        return final_functions;
 
     }
 
