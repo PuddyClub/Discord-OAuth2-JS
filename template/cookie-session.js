@@ -523,20 +523,8 @@ module.exports = function (app, cfg) {
 
                         }).catch(err => {
                             auto_logout(req, err).then(result => {
-
-                                // Exist Firebase
-                                if (cfg.firebase) {
-                                    discordSession.firebaseAuth.redirect.logout(res, result.redirect);
-                                }
-
-                                // Nope
-                                else {
-                                    res.redirect(result.redirect);
-                                }
-
-                                // Complete
+                                discordSession.firebaseAuth.redirect.logout(res, result.redirect);
                                 return;
-
                             }).catch(err => {
                                 tinyCfg.errorCallback(err, req, res);
                                 return;
@@ -694,38 +682,14 @@ module.exports = function (app, cfg) {
                         if (cfg.firebase) {
                             discordSession.firebase.set(req, result.user.id).then(() => {
                                 discordSession.firebase.setAccount(result.tokenRequest.access_token, result.user).then(result => {
-                                    
-                                    // Exist Firebase
-                                    if (cfg.firebase) {
-                                        discordSession.firebaseAuth.redirect.login(res, result.redirect);
-                                    }
-
-                                    // Nope
-                                    else {
-                                        res.redirect(result.redirect);
-                                    }
-
-                                    // Complete
+                                    discordSession.firebaseAuth.redirect.login(res, result.redirect);
                                     return;
-                                    
                                 }).catch((err) => { tinyCfg.errorCallback(err, req, res); return; });
                                 return;
                             }).catch(err => {
                                 auto_logout(req, { code: 500, message: err.message }).then(result => {
-
-                                    // Exist Firebase
-                                    if (cfg.firebase) {
-                                        discordSession.firebaseAuth.redirect.logout(res, result.redirect);
-                                    }
-
-                                    // Nope
-                                    else {
-                                        res.redirect(result.redirect);
-                                    }
-
-                                    // Complete
+                                    discordSession.firebaseAuth.redirect.logout(res, result.redirect);
                                     return;
-
                                 }).catch(err => {
                                     tinyCfg.errorCallback(err, req, res);
                                     return;
