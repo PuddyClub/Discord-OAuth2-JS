@@ -125,7 +125,7 @@ app.get('/webhook', (req, res) => {
 app.get('/logout', (req, res) => {
 
     // Result
-    discordAuth.logout(req, res, req.session,
+    discordAuth.logout(req, req.session,
         {
 
             // Query

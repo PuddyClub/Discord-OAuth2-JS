@@ -1,5 +1,5 @@
 
-module.exports = async function (req, res, session, cfg, existSession) {
+module.exports = async function (req, session, cfg, existSession, getUserInfo = false) {
     return new Promise(function (resolve, reject) {
 
         // Prepare Modules
@@ -31,14 +31,14 @@ module.exports = async function (req, res, session, cfg, existSession) {
                 )) {
 
                     // Result
-                    const result = { data: null, existSession: (existSession) };
+                    const result = { data: null, existSession: (existSession), complete: false };
 
                     // Prepare Final Redirect
                     result.redirect = '/';
 
                     // Redirect
                     if (typeof tinyState.redirect === "string" && tinyState.redirect.length > 0) {
-                        
+
                         if (tinyState.redirect.startsWith('/')) {
                             result.redirect = tinyState.redirect.substring(1);
                         } else {
@@ -86,16 +86,31 @@ module.exports = async function (req, res, session, cfg, existSession) {
                                     (typeof tinyAuth.client_secret === "number" && !isNaN(tinyAuth.client_secret))
                                 ) {
 
-                                    // Get API HTTP and Revoke the Token
-                                    const revokeToken = require('../api/revokeToken');
-                                    revokeToken(session, tinyAuth).then((data) => {
-                                        result.data = data;
-                                        resolve(result);
+                                    // End Discord
+                                    const end_discord_session = function () {
+
+                                        // Get API HTTP and Revoke the Token
+                                        const revokeToken = require('../api/revokeToken');
+                                        revokeToken(session, tinyAuth).then((data) => {
+                                            result.complete = true;
+                                            result.data = data;
+                                            resolve(result);
+                                            return;
+                                        }).catch(err => {
+                                            reject(err);
+                                            return;
+                                        });
+
                                         return;
-                                    }).catch(err => {
-                                        reject(err);
-                                        return;
-                                    });
+
+                                    };
+
+                                    // Don't need user info
+                                    if (!getUserInfo) { end_discord_session(); }
+                                    // Yes
+                                    else {
+
+                                    }
 
                                 }
 

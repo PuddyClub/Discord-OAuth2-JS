@@ -246,7 +246,7 @@ module.exports = function (app, cfg) {
         });
 
         // Logout Result
-        const logout_result = (req) => {
+        const logout_result = (req, user) => {
             return new Promise(function (resolve, reject) {
 
                 // Firebase Logout
@@ -263,7 +263,9 @@ module.exports = function (app, cfg) {
                                 resolve();
                                 return;
                             }).catch(err => {
-                                reject({ code: 500, message: err.message }); return;
+                                req.session = null;
+                                resolve();
+                                return;
                             });
 
                         // Complete
@@ -289,7 +291,7 @@ module.exports = function (app, cfg) {
             return new Promise(function (resolve, reject) {
 
                 // Result
-                discordAuth.logout(req, res, req.session,
+                discordAuth.logout(req, req.session,
                     {
 
                         // Query
@@ -310,14 +312,23 @@ module.exports = function (app, cfg) {
                         // Access Token
                         access_token: req.session[sessionVars.access_token]
 
-                    }, (getSessionFromCookie(req, sessionVars.access_token)),
+                    }, (getSessionFromCookie(req, sessionVars.access_token), true),
                 ).then(result => {
 
-                    logout_result(req).then(() => {
-                        resolve(result); return;
-                    }).catch(err => {
-                        reject(err); return;
-                    });
+                    // Discord Logout Complete
+                    if (result.complete) {
+                        logout_result(req, result.user).then(() => {
+                            resolve(result); return;
+                        }).catch(err => {
+                            reject(err); return;
+                        });
+                    }
+
+                    // Nope
+                    else {
+                        resolve(result);
+                    }
+
                     return;
 
                 }).catch((err) => { reject(err); return; });
@@ -407,7 +418,7 @@ module.exports = function (app, cfg) {
                         res.redirect(result.redirect);
                         return;
                     }).catch(err => {
-                        tinyCfg.errorCallback(err, req, res); 
+                        tinyCfg.errorCallback(err, req, res);
                         return;
                     });
                 }
@@ -445,7 +456,14 @@ module.exports = function (app, cfg) {
                             return;
 
                         }).catch(err => {
-                            tinyCfg.errorCallback(err, req, res); return;
+                            auto_logout(req, res, err).then(result => {
+                                res.redirect(result.redirect);
+                                return;
+                            }).catch(err => {
+                                tinyCfg.errorCallback(err, req, res);
+                                return;
+                            });
+                            return;
                         });
                     }
 
@@ -502,7 +520,7 @@ module.exports = function (app, cfg) {
         app.get(tinyURLPath.logout, (req, res) => {
 
             // Result
-            discordAuth.logout(req, res, req.session,
+            discordAuth.logout(req, req.session,
                 {
 
                     // Query
@@ -522,14 +540,26 @@ module.exports = function (app, cfg) {
                     // Access Token
                     access_token: req.session[sessionVars.access_token]
 
-                }, (getSessionFromCookie(req, sessionVars.access_token)),
+                }, (getSessionFromCookie(req, sessionVars.access_token), true),
             ).then(result => {
-                logout_result(req).then(() => {
-                    res.redirect(result.redirect); return;
-                }).catch(err => {
-                    tinyCfg.errorCallback(err, req, res); return;
-                });
+
+                // Discord Logout Complete
+                if (result.complete) {
+                    logout_result(req, result.user).then(() => {
+                        res.redirect(result.redirect); return;
+                    }).catch(err => {
+                        tinyCfg.errorCallback(err, req, res); return;
+                    });
+                }
+
+                // Nope
+                else {
+                    res.redirect(result.redirect);
+                }
+
+                // Complete
                 return;
+
             }).catch((err) => { tinyCfg.errorCallback(err, req, res); return; });
 
             // Complete
@@ -581,7 +611,7 @@ module.exports = function (app, cfg) {
                                     res.redirect(result.redirect);
                                     return;
                                 }).catch(err => {
-                                    tinyCfg.errorCallback(err, req, res); 
+                                    tinyCfg.errorCallback(err, req, res);
                                     return;
                                 });
                                 return;
