@@ -260,11 +260,11 @@ module.exports = function (app, cfg) {
                             .revokeRefreshTokens(discordSession.uidGenerator(user.id))
                             .then(() => {
                                 req.session = null;
-                                resolve();
+                                resolve(user);
                                 return;
                             }).catch(err => {
                                 req.session = null;
-                                resolve();
+                                resolve(user);
                                 return;
                             });
 
@@ -278,7 +278,7 @@ module.exports = function (app, cfg) {
                 }
 
                 // Nope
-                else { req.session = null; resolve(); }
+                else { req.session = null; resolve(user); }
 
                 // Complete
                 return;
