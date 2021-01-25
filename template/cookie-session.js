@@ -226,8 +226,14 @@ module.exports = function (app, cfg) {
             client_secret: "",
             bot_token: "",
             first_get_user: true,
-            discordScope: []
+            discordScope: ["identify", "email"]
         });
+
+        // Fix Need Email Verified
+        if (tinyCfg.needEmailVerified) {
+            if (tinyAuth.discordScope.indexOf('identify') < 0) { tinyAuth.discordScope.push('identify'); }
+            if (tinyAuth.discordScope.indexOf('email') < 0) { tinyAuth.discordScope.push('email'); }
+        }
 
         // Firebase Mode
         if (objType(cfg.firebase, 'object')) {
