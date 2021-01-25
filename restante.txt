@@ -11,4 +11,13 @@ checar discordSession.firebase.get
 O redirect final com firebase manda para uma página para logar o javascript do firebase antes de ir para a página redirecionada
 
 
+
+
+Se detecta que não tem Discord, deslogar do Firebase
+se detectar que não tem firebase, deslogar do Discord
+
+
+
+
+
 Fazer o leitor de interaction
