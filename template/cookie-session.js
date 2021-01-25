@@ -6,6 +6,9 @@ module.exports = function (app, cfg) {
     // Config
     if (objType(cfg, 'object')) {
 
+        // Get Discord User
+        const getDiscordUser = require('../api/getUser');
+
         // Discord session
         const discordSession = {};
 
@@ -253,7 +256,7 @@ module.exports = function (app, cfg) {
                 if (cfg.firebase) {
 
                     // Set New Firebase Session Data
-                    require('../api/getUser')(req.session[sessionVars.access_token]).then(user => {
+                    getDiscordUser(req.session[sessionVars.access_token]).then(user => {
 
                         // Revoke Refresh
                         cfg.firebase.auth
@@ -378,7 +381,7 @@ module.exports = function (app, cfg) {
                             if (cfg.firebase) {
 
                                 // Set New Firebase Session Data
-                                require('../api/getUser')(req.session[sessionVars.access_token]).then(user => {
+                                getDiscordUser(req.session[sessionVars.access_token]).then(user => {
 
                                     cfg.firebase.auth.setCustomUserClaims(discordSession.uidGenerator(user.id), prepare_fire_auth_discord(req))
                                         .then(() => {
@@ -646,7 +649,16 @@ module.exports = function (app, cfg) {
         });
 
         // Complete
-        return;
+        return {
+
+            // Get User Module
+            getUser: function () {
+                
+
+
+            }
+
+        };
 
     }
 
