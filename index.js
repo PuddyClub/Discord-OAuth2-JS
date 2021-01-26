@@ -4,6 +4,9 @@ const discordAuth = {
     // Login
     api: require('./api'),
 
+    // Random Avatar
+    randomAvatar: require('./get/randomAvatar'),
+
     // Login
     login: require('./http/login'),
 
