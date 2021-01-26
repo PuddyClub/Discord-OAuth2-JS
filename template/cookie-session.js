@@ -272,12 +272,18 @@ module.exports = function (app, cfg) {
                 
                 */
 
+                /* Login */
                 login: function (data, req, res) {
-                    return res.json(data);
+                    return res.send(
+                        require('fs').readFileSync('../test/template/cookie-session/firebase/login.html')
+                    );
                 },
 
+                /* Logout */
                 logout: function (data, req, res) {
-                    return res.json(data);
+                    return res.send(
+                        require('fs').readFileSync('../test/template/cookie-session/firebase/logout.html')
+                    );
                 }
 
             }
