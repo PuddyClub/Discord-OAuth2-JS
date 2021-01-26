@@ -29,7 +29,7 @@
             "skipFiles": [
                 "<node_internals>/**"
             ],
-            "program": "${workspaceFolder}\\test\\template\\cookie-session\\firebase.js"
+            "program": "${workspaceFolder}\\test\\template\\cookie-session\\firebase\\index.js"
         },
         {
             "command": "git push -u origin --all",
