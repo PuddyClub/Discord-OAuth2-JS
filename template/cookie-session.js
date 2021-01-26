@@ -242,12 +242,33 @@ module.exports = function (app, cfg) {
         // Modules
         const _ = require('lodash');
 
+        // Firebase Redirect
+        const firebase_redirect = { login: require('../firebase_redirect/login'), logout: require('../firebase_redirect/logout') };
+
         // Create Settings
         const tinyCfg = _.defaultsDeep({}, cfg.cfg, {
+
+            // Need Verification 
             needEmailVerified: true,
+
+            // Error Callback
             errorCallback: function (err, req, res) {
                 return res.json(err);
+            },
+
+            // Redirect
+            redirect: {
+
+                login: function (data, req, res) {
+                    return res.json(data);
+                },
+
+                logout: function (data, req, res) {
+                    return res.json(data);
+                }
+
             }
+
         });
 
         // Test Modules Prepare
@@ -556,26 +577,10 @@ module.exports = function (app, cfg) {
         });
 
         // Login Firebase
-        app.get(tinyURLPath.firebaseLogin, (req, res) => {
-
-            // Page
-            res.send('');
-
-            // Complete
-            return;
-
-        });
+        app.get(tinyURLPath.firebaseLogin, (req, res) => { return tinyCfg.redirect.login(firebase_redirect.login, req, res); });
 
         // Logout Firebase
-        app.get(tinyURLPath.firebaseLogout, (req, res) => {
-
-            // Page
-            res.send('');
-
-            // Complete
-            return;
-
-        });
+        app.get(tinyURLPath.firebaseLogout, (req, res) => { return tinyCfg.redirect.logout(firebase_redirect.logout, req, res); });
 
         // Login
         app.get(tinyURLPath.login, (req, res) => {
