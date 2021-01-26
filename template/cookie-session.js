@@ -264,6 +264,14 @@ module.exports = function (app, cfg) {
             // Redirect
             redirect: {
 
+                /* 
+                
+                    data.functions
+                    data.token
+                    data.redirect
+                
+                */
+
                 login: function (data, req, res) {
                     return res.json(data);
                 },
