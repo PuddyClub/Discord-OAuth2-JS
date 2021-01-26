@@ -598,65 +598,60 @@ module.exports = function (app, cfg) {
         // Login Firebase
         app.get(tinyURLPath.firebaseLogin, (req, res) => {
 
+            // Final Data
+            const final_data = {};
+
+            // Exist Redirect
+            if (typeof req.query.redirect === "string") {
+                final_data.redirect = '/' + req.query.redirect;
+            } else {
+                final_data.redirect = '/';
+            }
+
             // Auth Token
             if (typeof req.session[sessionVars.firebase_auth_token] === "string") {
 
-                // Final Data
-                const final_data = {
-                    functions: firebase_redirect.login,
-                    token: req.session[sessionVars.firebase_auth_token]
-                };
-
-                // Exist Redirect
-                if (typeof req.query.redirect === "string") {
-                    final_data.redirect = '/' + req.query.redirect;
-                } else {
-                    final_data.redirect = '/';
-                }
+                // Insert Data
+                final_data.functions = firebase_redirect.login;
+                final_data.token = req.session[sessionVars.firebase_auth_token];
 
                 // Complete
                 return tinyCfg.redirect.login(final_data, req, res);
 
             }
 
-            // Exist Redirect
-            else if (typeof req.query.redirect === "string") {
-                return res.redirect('/' + req.query.redirect);
-            }
-
             // Nope
-            else { return res.redirect('/'); }
+            else { return res.redirect(final_data.redirect); }
 
         });
 
         // Logout Firebase
         app.get(tinyURLPath.firebaseLogout, (req, res) => {
 
+            // Final Data
+            const final_data = {};
+
+            // Exist Redirect
+            if (typeof req.query.redirect === "string") {
+                final_data.redirect = '/' + req.query.redirect;
+            } else {
+                final_data.redirect = '/';
+            }
+
             // Exist Token
             if (typeof req.query.firebase_auth === "string") {
 
-                // Final Data
-                const final_data = { functions: firebase_redirect.logout, token: req.query.firebase_auth };
-
-                // Exist Redirect
-                if (typeof req.query.redirect === "string") {
-                    final_data.redirect = '/' + req.query.redirect;
-                } else {
-                    final_data.redirect = '/';
-                }
+                // Insert Data
+                final_data.functions = firebase_redirect.logout;
+                final_data.token = req.query.firebase_auth;
 
                 // Complete
                 return tinyCfg.redirect.logout(final_data, req, res);
 
             }
 
-            // Exist Redirect
-            else if (typeof req.query.redirect === "string") {
-                return res.redirect('/' + req.query.redirect);
-            }
-
             // Nope
-            else { return res.redirect('/'); }
+            else { return res.redirect(final_data.redirect); }
 
         });
 
