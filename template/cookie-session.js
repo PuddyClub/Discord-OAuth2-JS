@@ -250,8 +250,6 @@ module.exports = function (app, cfg) {
             }
         }
 
-        console.log(firebase_redirect);
-
         // Create Settings
         const tinyCfg = _.defaultsDeep({}, cfg.cfg, {
 
