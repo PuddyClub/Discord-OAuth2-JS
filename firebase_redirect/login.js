@@ -9,6 +9,7 @@ module.exports = {
             // Success
             .then((userCredential) => {
                 // Signed in
+                userCredential.getIdToken();
                 var user = userCredential.user;
                 // ...
             })

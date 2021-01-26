@@ -26,9 +26,9 @@ module.exports = function (app, cfg) {
             },
 
             // Logout
-            logout: function (res, redirect_url) {
+            logout: function (res, redirect_url, firebase_auth) {
                 if (redirect_url.startsWith('/')) { redirect_url = redirect_url.substring(1); }
-                res.redirect(`${tinyURLPath.firebaseLogout}?redirect=${encodeURIComponent(redirect_url)}`);
+                res.redirect(`${tinyURLPath.firebaseLogout}?redirect=${encodeURIComponent(redirect_url)}&firebase_auth=${encodeURIComponent(firebase_auth)}`);
                 return;
             }
 
@@ -244,6 +244,13 @@ module.exports = function (app, cfg) {
 
         // Firebase Redirect
         const firebase_redirect = { login: require('../firebase_redirect/login'), logout: require('../firebase_redirect/logout') };
+        for (const page in firebase_redirect) {
+            for (const item in firebase_redirect[page]) {
+                firebase_redirect[page][item] = firebase_redirect[page][item].toString();
+            }
+        }
+
+        console.log(firebase_redirect);
 
         // Create Settings
         const tinyCfg = _.defaultsDeep({}, cfg.cfg, {
@@ -497,11 +504,16 @@ module.exports = function (app, cfg) {
 
                 // Finish the Session
                 else {
+
+                    // Firebase Auth
+                    const firebase_auth = req.session[sessionVars.firebase_token];
+
+                    // Logout
                     auto_logout(req).then(result => {
 
                         // Exist Firebase
                         if (cfg.firebase) {
-                            discordSession.firebaseAuth.redirect.logout(res, result.redirect);
+                            discordSession.firebaseAuth.redirect.logout(res, result.redirect, firebase_auth);
                         }
 
                         // Nope
@@ -516,6 +528,7 @@ module.exports = function (app, cfg) {
                         tinyCfg.errorCallback(err, req, res);
                         return;
                     });
+
                 }
 
             } else { next(); }
@@ -551,14 +564,22 @@ module.exports = function (app, cfg) {
                             return;
 
                         }).catch(err => {
+
+                            // Firebase Auth
+                            const firebase_auth = req.session[sessionVars.firebase_token];
+
+                            // Logout
                             auto_logout(req, err).then(result => {
-                                discordSession.firebaseAuth.redirect.logout(res, result.redirect);
+                                discordSession.firebaseAuth.redirect.logout(res, result.redirect, firebase_auth);
                                 return;
                             }).catch(err => {
                                 tinyCfg.errorCallback(err, req, res);
                                 return;
                             });
+
+                            // Complete
                             return;
+
                         });
                     }
 
@@ -577,10 +598,69 @@ module.exports = function (app, cfg) {
         });
 
         // Login Firebase
-        app.get(tinyURLPath.firebaseLogin, (req, res) => { return tinyCfg.redirect.login(firebase_redirect.login, req, res); });
+        app.get(tinyURLPath.firebaseLogin, (req, res) => {
+
+            // Auth Token
+            if (typeof req.session[sessionVars.firebase_auth_token] === "string") {
+
+                // Final Data
+                const final_data = {
+                    functions: firebase_redirect.login,
+                    token: req.session[sessionVars.firebase_auth_token]
+                };
+
+                // Exist Redirect
+                if (typeof req.query.redirect === "string") {
+                    final_data.redirect = '/' + req.query.redirect;
+                } else {
+                    final_data.redirect = '/';
+                }
+
+                // Complete
+                return tinyCfg.redirect.login(final_data, req, res);
+
+            }
+
+            // Exist Redirect
+            else if (typeof req.query.redirect === "string") {
+                return res.redirect('/' + req.query.redirect);
+            }
+
+            // Nope
+            else { return res.redirect('/'); }
+
+        });
 
         // Logout Firebase
-        app.get(tinyURLPath.firebaseLogout, (req, res) => { return tinyCfg.redirect.logout(firebase_redirect.logout, req, res); });
+        app.get(tinyURLPath.firebaseLogout, (req, res) => {
+
+            // Exist Token
+            if (typeof req.query.firebase_auth === "string") {
+
+                // Final Data
+                const final_data = { functions: firebase_redirect.logout, token: req.query.firebase_auth };
+
+                // Exist Redirect
+                if (typeof req.query.redirect === "string") {
+                    final_data.redirect = '/' + req.query.redirect;
+                } else {
+                    final_data.redirect = '/';
+                }
+
+                // Complete
+                return tinyCfg.redirect.logout(final_data, req, res);
+
+            }
+
+            // Exist Redirect
+            else if (typeof req.query.redirect === "string") {
+                return res.redirect('/' + req.query.redirect);
+            }
+
+            // Nope
+            else { return res.redirect('/'); }
+
+        });
 
         // Login
         app.get(tinyURLPath.login, (req, res) => {
@@ -620,6 +700,9 @@ module.exports = function (app, cfg) {
         // Logout
         app.get(tinyURLPath.logout, (req, res) => {
 
+            // Firebase Auth
+            const firebase_auth = req.session[sessionVars.firebase_token];
+
             // Result
             discordAuth.logout(req, req.session,
                 {
@@ -650,7 +733,7 @@ module.exports = function (app, cfg) {
 
                         // Exist Firebase
                         if (cfg.firebase) {
-                            discordSession.firebaseAuth.redirect.logout(res, result.redirect);
+                            discordSession.firebaseAuth.redirect.logout(res, result.redirect, firebase_auth);
                         }
 
                         // Nope
@@ -723,14 +806,22 @@ module.exports = function (app, cfg) {
                                 }).catch((err) => { tinyCfg.errorCallback(err, req, res); return; });
                                 return;
                             }).catch(err => {
+
+                                // Firebase Auth
+                                const firebase_auth = req.session[sessionVars.firebase_token];
+
+                                // Logout
                                 auto_logout(req, { code: 500, message: err.message }).then(result => {
-                                    discordSession.firebaseAuth.redirect.logout(res, result.redirect);
+                                    discordSession.firebaseAuth.redirect.logout(res, result.redirect, firebase_auth);
                                     return;
                                 }).catch(err => {
                                     tinyCfg.errorCallback(err, req, res);
                                     return;
                                 });
+
+                                // Complete
                                 return;
+
                             });
                         }
 
