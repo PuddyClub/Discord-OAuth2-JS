@@ -28,6 +28,10 @@
             var firebaseConfig = {{firebase_cfg}};
             // Initialize Firebase
             firebase.initializeApp(firebaseConfig);
+
+            // Run the Script
+            const start_login = {{start_login}};
+            start_login('{{token}}', '{{redirect_url}}');
         </script>
 
     </body>

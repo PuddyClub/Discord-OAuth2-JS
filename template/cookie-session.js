@@ -278,14 +278,21 @@ module.exports = function (app, cfg) {
                 /* Login */
                 login: function (data, req, res) {
                     return res.send(
-                        require('fs').readFileSync('../test/template/cookie-session/firebase/login.html').replace('{{firebase_cfg}}', JSON.stringify(tinyCfg.firebaseCfg))
+                        require('fs').readFileSync('../test/template/cookie-session/firebase/login.html')
+                        .replace('{{firebase_cfg}}', JSON.stringify(tinyCfg.firebaseCfg))
+                        .replace('{{start_login}}', data.functions.run)
+                        .replace('{{token}}', data.token)
+                        .replace('{{redirect_url}}', data.redirect)
                     );
                 },
 
                 /* Logout */
                 logout: function (data, req, res) {
                     return res.send(
-                        require('fs').readFileSync('../test/template/cookie-session/firebase/logout.html').replace('{{firebase_cfg}}', JSON.stringify(tinyCfg.firebaseCfg))
+                        require('fs').readFileSync('../test/template/cookie-session/firebase/logout.html')
+                        .replace('{{start_logout}}', data.functions.run)
+                        .replace('{{token}}', data.token)
+                        .replace('{{redirect_url}}', data.redirect)
                     );
                 }
 
@@ -611,6 +618,9 @@ module.exports = function (app, cfg) {
         });
 
         // Login Firebase
+        app.post(tinyURLPath.firebaseLogin, (req, res) => {
+
+        });
         app.get(tinyURLPath.firebaseLogin, (req, res) => {
 
             // Final Data
@@ -641,6 +651,9 @@ module.exports = function (app, cfg) {
         });
 
         // Logout Firebase
+        app.post(tinyURLPath.firebaseLogout, (req, res) => {
+            
+        });
         app.get(tinyURLPath.firebaseLogout, (req, res) => {
 
             // Final Data

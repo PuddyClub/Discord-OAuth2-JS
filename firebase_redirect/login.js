@@ -1,26 +1,65 @@
 module.exports = {
 
     // Run Function
-    run: function (auth, token) {
+    run: function (token, redirect_url, callback) {
+
+        // Prepare Redirect
+        const final_redirect = function (error) {
+
+            // The Redirect
+            const start_redirect = function () {
+                window.location.href = window.location.origin + '/' + redirect_url;
+                return;
+            };
+
+            if (typeof callback !== "function") { start_redirect(); }
+            else { callback(start_redirect, error); }
+
+            // Complete
+            return;
+
+        };
 
         // Sign In
         auth.signInWithCustomToken(token)
-    
+
             // Success
             .then((userCredential) => {
-                // Signed in
-                userCredential.getIdToken();
-                var user = userCredential.user;
-                // ...
+
+                fetch(window.location.pathname, {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ token: userCredential.getIdToken() })
+                }).then(response => {
+                    response.json().then(() => {
+                        final_redirect();
+                        return;
+                    }).catch(err => {
+                        alert(`Error ${error.code}: ${error.message}`);
+                        final_redirect(error);
+                        return;
+                    });
+                }).catch(err => {
+                    alert(`Error ${error.code}: ${error.message}`);
+                    final_redirect(error);
+                    return;
+                });
+
             })
-    
+
             // Fail
             .catch((error) => {
-                var errorCode = error.code;
-                var errorMessage = error.message;
-                // ...
+                alert(`Error ${error.code}: ${error.message}`);
+                final_redirect(error);
+                return;
             });
-    
+
+        // Complete
+        return;
+
     }
 
 };
