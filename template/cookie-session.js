@@ -539,7 +539,10 @@ module.exports = function (app, cfg) {
             const existDiscordSession = (typeof req.session[sessionVars.token_expires_in] === "string" && typeof req.session[sessionVars.access_token] === "string" && typeof req.session[sessionVars.refresh_token] === "string");
 
             // Exist Session
-            if (existDiscordSession && req.url !== tinyURLPath.firebaseLogin && req.url !== tinyURLPath.firebaseLogout) {
+            if (existDiscordSession &&
+                !req.url.startsWith(tinyURLPath.firebaseLogin + '?') && req.url !== tinyURLPath.firebaseLogin &&
+                !req.url.startsWith(tinyURLPath.firebaseLogout + '?') && req.url !== tinyURLPath.firebaseLogout
+            ) {
 
                 // Exist Firebase
                 if (cfg.firebase) {
