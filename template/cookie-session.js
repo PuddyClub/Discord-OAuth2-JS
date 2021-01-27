@@ -937,7 +937,7 @@ module.exports = function (app, cfg) {
                             if (!req.discord_session) { req.discord_session = {}; }
                             if (!req.discord_session.errors) { req.discord_session.errors = {}; }
                             req.discord_session.errors.user = err;
-                            if (req.discord_session) { delete req.discord_session.user; } next();
+                            delete req.discord_session.user; next();
                             return;
                         });
                     } else { next(); }
@@ -966,7 +966,7 @@ module.exports = function (app, cfg) {
                             if (!req.discord_session) { req.discord_session = {}; }
                             if (!req.discord_session.errors) { req.discord_session.errors = {}; }
                             req.discord_session.errors.connections = err;
-                            if (req.discord_session) { delete req.discord_session.connections; } next();
+                            delete req.discord_session.connections; next();
                             return;
                         });
                     } else { next(); }
@@ -995,7 +995,7 @@ module.exports = function (app, cfg) {
                             if (!req.discord_session) { req.discord_session = {}; }
                             if (!req.discord_session.errors) { req.discord_session.errors = {}; }
                             req.discord_session.errors.guilds = err;
-                            if (req.discord_session) { delete req.discord_session.guilds; } next();
+                            delete req.discord_session.guilds; next();
                             return;
                         });
                     } else { next(); }
