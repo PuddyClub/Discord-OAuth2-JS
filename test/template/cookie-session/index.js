@@ -57,15 +57,23 @@ module.exports = function (webItem = { type: 'default' }) {
         // User Page
         app.get('/user', dsFunctions.sessionPlugins.getUser, (req, res) => {
 
-            // Result
-            if (req.discord_session && req.discord_session.user) {
-                res.json(req.discord_session.user);
+            // Not Errors
+            if (!req.discord_session.errors) {
+
+                // Result
+                if (req.discord_session && req.discord_session.user) {
+                    res.json(req.discord_session.user);
+                }
+
+                // Nope
+                else {
+                    res.send('No Account Detect');
+                }
+
             }
 
-            // Nope
-            else {
-                res.send('No Account Detect');
-            }
+            // Yes
+            else { res.json(req.discord_session.errors); }
 
             // Complete
             return;
@@ -74,15 +82,23 @@ module.exports = function (webItem = { type: 'default' }) {
 
         app.get('/user/connections', dsFunctions.sessionPlugins.getUserConnections, (req, res) => {
 
-            // Result
-            if (req.discord_session && req.discord_session.connections) {
-                res.json(req.discord_session.connections);
+            // Not Errors
+            if (!req.discord_session.errors) {
+
+                // Result
+                if (req.discord_session && req.discord_session.connections) {
+                    res.json(req.discord_session.connections);
+                }
+
+                // Nope
+                else {
+                    res.send('No Account User Detect');
+                }
+
             }
 
-            // Nope
-            else {
-                res.send('No Account User Detect');
-            }
+            // Yes
+            else { res.json(req.discord_session.errors); }
 
             // Complete
             return;
@@ -91,15 +107,23 @@ module.exports = function (webItem = { type: 'default' }) {
 
         app.get('/user/guilds', dsFunctions.sessionPlugins.getUserGuilds, (req, res) => {
 
-            // Result
-            if (req.discord_session && req.discord_session.guilds) {
-                res.json(req.discord_session.guilds);
+            // Not Errors
+            if (!req.discord_session.errors) {
+
+                // Result
+                if (req.discord_session && req.discord_session.guilds) {
+                    res.json(req.discord_session.guilds);
+                }
+
+                // Nope
+                else {
+                    res.send('No Account Guilds Detect');
+                }
+
             }
 
-            // Nope
-            else {
-                res.send('No Account Guilds Detect');
-            }
+            // Yes
+            else { res.json(req.discord_session.errors); }
 
             // Complete
             return;
@@ -108,16 +132,24 @@ module.exports = function (webItem = { type: 'default' }) {
 
         app.get('/user/all', dsFunctions.sessionPlugins.getUserConnections, dsFunctions.sessionPlugins.getUser, dsFunctions.sessionPlugins.getUserGuilds, (req, res) => {
 
-            // Result
-            if (req.discord_session) {
-                req.discord_session.uid = dsFunctions.uidGenerator(req.discord_session.user.id);
-                res.json(req.discord_session);
+            // Not Errors
+            if (!req.discord_session.errors) {
+
+                // Result
+                if (req.discord_session) {
+                    req.discord_session.uid = dsFunctions.uidGenerator(req.discord_session.user.id);
+                    res.json(req.discord_session);
+                }
+
+                // Nope
+                else {
+                    res.send('No Account Connections Detect');
+                }
+
             }
 
-            // Nope
-            else {
-                res.send('No Account Connections Detect');
-            }
+            // Yes
+            else { res.json(req.discord_session.errors); }
 
             // Complete
             return;
