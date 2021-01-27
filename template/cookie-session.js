@@ -617,11 +617,21 @@ module.exports = function (app, cfg) {
 
         });
 
+        // Prepare Body Parser
+        let bodyParser = {};
+        if (cfg.bodyParser) {
+            bodyParser.json = cfg.bodyParser.json();
+            bodyParser.urlencoded = cfg.bodyParser.urlencoded({ extended: true });
+        }
+
         // Login Firebase
-        app.post(tinyURLPath.firebaseLogin, (req, res) => {
+        const firebaseLoginCallback = (req, res) => {
             if (objType(req.body, 'object') && typeof req.body.token === "string") { req.session[sessionVars.firebase_token] = req.body.token; }
             return res.json({ success: true });
-        });
+        };
+
+        if (cfg.bodyParser) { app.post(tinyURLPath.firebaseLogin, bodyParser.json, bodyParser.urlencoded, firebaseLoginCallback); }
+        else { app.post(tinyURLPath.firebaseLogin, firebaseLoginCallback); }
         app.get(tinyURLPath.firebaseLogin, (req, res) => {
 
             // Final Data
@@ -652,10 +662,13 @@ module.exports = function (app, cfg) {
         });
 
         // Logout Firebase
-        app.post(tinyURLPath.firebaseLogout, (req, res) => {
+        const firebaseLoginCallback = (req, res) => {
             req.session[sessionVars.firebase_token] = null;
             return res.json({ success: true });
-        });
+        };
+
+        if (cfg.bodyParser) { app.post(tinyURLPath.firebaseLogout, bodyParser.json, bodyParser.urlencoded, firebaseLoginCallback); }
+        else { app.post(tinyURLPath.firebaseLogout, firebaseLoginCallback); }
         app.get(tinyURLPath.firebaseLogout, (req, res) => {
 
             // Final Data
