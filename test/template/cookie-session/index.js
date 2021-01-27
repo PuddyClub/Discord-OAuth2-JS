@@ -27,9 +27,6 @@ module.exports = function (webItem = { type: 'default' }) {
 
         app.use(tinySession);
 
-        // Body Parser
-        const bodyParser = require('body-parser');
-
         // Port
         const port = 3000;
 
@@ -38,7 +35,7 @@ module.exports = function (webItem = { type: 'default' }) {
         tinyAuth.discordScope = ["identify", "email", "guilds", "guilds.join", "connections", "gdm.join"];
 
         // Result
-        const authOptions = { auth: tinyAuth, vars: sessionVars, bodyParser: bodyParser };
+        const authOptions = { auth: tinyAuth, vars: sessionVars, bodyParser: require('body-parser') };
 
         // Firebase
         if (webItem.type === "firebase") { authOptions.firebase = webItem.app; authOptions.cfg = webItem.cfg; }
