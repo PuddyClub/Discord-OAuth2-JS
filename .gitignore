@@ -2,6 +2,7 @@
 test/auth.json
 test/firebase.json
 test/firebase_config.json
+test/template/cookie-session/firebase/html_values.json
 
 # Logs
 logs

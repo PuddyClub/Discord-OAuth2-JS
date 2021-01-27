@@ -17,4 +17,9 @@ if (tinyCfg.firebase) {
 const app = firebase.get(tinyCfg.options.id);
 
 // Start Firebase
-require('../index')({ type: 'firebase', app: app, cfg: {} });
+require('../index')({ type: 'firebase', app: app, cfg: {
+
+    // Firebase Config
+    firebaseCfg: require('./html_values.json')
+
+} });

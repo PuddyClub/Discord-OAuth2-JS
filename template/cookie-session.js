@@ -253,6 +253,9 @@ module.exports = function (app, cfg) {
         // Create Settings
         const tinyCfg = _.defaultsDeep({}, cfg.cfg, {
 
+            // Firebase Cfg
+            firebaseCfg: {},
+
             // Need Verification 
             needEmailVerified: true,
 
@@ -275,14 +278,14 @@ module.exports = function (app, cfg) {
                 /* Login */
                 login: function (data, req, res) {
                     return res.send(
-                        require('fs').readFileSync('../test/template/cookie-session/firebase/login.html')
+                        require('fs').readFileSync('../test/template/cookie-session/firebase/login.html').replace('{{firebase_cfg}}', JSON.stringify(tinyCfg.firebaseCfg))
                     );
                 },
 
                 /* Logout */
                 logout: function (data, req, res) {
                     return res.send(
-                        require('fs').readFileSync('../test/template/cookie-session/firebase/logout.html')
+                        require('fs').readFileSync('../test/template/cookie-session/firebase/logout.html').replace('{{firebase_cfg}}', JSON.stringify(tinyCfg.firebaseCfg))
                     );
                 }
 
