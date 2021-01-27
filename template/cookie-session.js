@@ -238,7 +238,11 @@ module.exports = function (app, cfg) {
 
             // Error Callback
             errorCallback: function (err, req, res) {
-                return res.json(err);
+                if (res) {
+                    return res.json(err);
+                } else {
+                    console.error(err);
+                }
             },
 
             // Redirect
@@ -255,7 +259,7 @@ module.exports = function (app, cfg) {
                 /* Login */
                 login: function (data, req, res) {
                     return res.send(
-                        require('fs').readFileSync(require('path').join(__dirname, '../test/template/cookie-session/firebase/login.html'))
+                        require('fs').readFileSync(require('path').join(__dirname, '../test/template/cookie-session/firebase/login.html'), "utf8")
                             .replace('{{firebase_cfg}}', JSON.stringify(tinyCfg.firebaseCfg))
                             .replace('{{start_login}}', data.functions.run)
                             .replace('{{token}}', data.token)
@@ -266,7 +270,8 @@ module.exports = function (app, cfg) {
                 /* Logout */
                 logout: function (data, req, res) {
                     return res.send(
-                        require('fs').readFileSync(require('path').join(__dirname, '../test/template/cookie-session/firebase/logout.html'))
+                        require('fs').readFileSync(require('path').join(__dirname, '../test/template/cookie-session/firebase/logout.html'), "utf8")
+                            .replace('{{firebase_cfg}}', JSON.stringify(tinyCfg.firebaseCfg))
                             .replace('{{start_logout}}', data.functions.run)
                             .replace('{{token}}', data.token)
                             .replace('{{redirect_url}}', data.redirect)
@@ -332,7 +337,7 @@ module.exports = function (app, cfg) {
 
         // Logout Result
         const logout_result = (req, user) => {
-            return new Promise(function (resolve, reject) {
+            return new Promise(function (resolve) {
 
                 // Firebase Logout
                 if (cfg.firebase) {
@@ -411,10 +416,11 @@ module.exports = function (app, cfg) {
         };
 
         // Prepare Final Session
-        const prepare_final_session = function (req, res) {
+        const prepare_final_session = function (req, res, err) {
 
             // Firebase Auth
             const firebase_auth = req.session[sessionVars.firebase_token];
+            tinyCfg.errorCallback(err);
 
             // Logout
             auto_logout(req).then(result => {

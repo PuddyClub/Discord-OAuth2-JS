@@ -11,7 +11,13 @@ module.exports = function (webItem = { type: 'default' }) {
 
         // Add Helmet
         const helmet = require('helmet');
-        app.use(helmet());
+        app.use(helmet({
+            contentSecurityPolicy: {
+                directives: {
+                    defaultSrc: ["'self'", "'unsafe-inline'", 'https://www.googleapis.com/', "https://www.gstatic.com/firebasejs/", "https://cdnjs.cloudflare.com/ajax/libs/jquery/", "https://cdnjs.cloudflare.com/ajax/libs/jquery-loading-overlay/"]
+                }
+            }
+        }));
 
         // Prepare Cookie Session
         const cookieSession = require('cookie-session');
