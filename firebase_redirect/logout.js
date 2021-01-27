@@ -21,7 +21,7 @@ module.exports = {
         };
 
         // Sign Out
-        auth.signOut()
+        firebase.auth().signOut()
 
             // Success
             .then(() => {

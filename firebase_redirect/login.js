@@ -21,7 +21,7 @@ module.exports = {
         };
 
         // Sign In
-        auth.signInWithCustomToken(token)
+        firebase.auth().signInWithCustomToken(token)
 
             // Success
             .then((userCredential) => {
