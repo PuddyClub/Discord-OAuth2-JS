@@ -20,7 +20,7 @@ module.exports = {
 
             // The Redirect
             const start_redirect = function () {
-                window.location.href = window.location.origin + '/' + redirect_url;
+                //window.location.href = window.location.origin + '/' + redirect_url;
                 return;
             };
 

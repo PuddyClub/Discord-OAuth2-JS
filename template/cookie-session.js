@@ -609,7 +609,6 @@ module.exports = function (app, cfg) {
         else { app.post(tinyURLPath.firebaseLogin, firebaseLoginCallback); }
         app.get(tinyURLPath.firebaseLogin, (req, res) => {
 
-            console.log('mio 3');
             // Final Data
             const final_data = {};
 
