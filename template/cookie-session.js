@@ -131,7 +131,6 @@ module.exports = function (app, cfg) {
                 // UID
                 const uid = discordSession.uidGenerator(user.id);
                 const claims = prepare_fire_auth_discord(req);
-                console.log(uid, claims, user);
 
                 // Prepare Auth
                 cfg.firebase.auth.createCustomToken(uid, claims)
@@ -139,49 +138,14 @@ module.exports = function (app, cfg) {
                     // Complete
                     .then((customToken) => {
                         req.session[sessionVars.firebase_auth_token] = customToken;
-                        resolve();
+                        resolve(customToken);
                         return;
                     })
 
                     // Error
                     .catch((err) => {
-
-                        /* // Prepare New User Data
-                        console.log(req.session[sessionVars.access_token], user);
-                        const newUserData = discordSession.firebase.createAccountData(req.session[sessionVars.access_token], user);
-                        console.log(newUserData);
-
-                        cfg.firebase.auth.createUser(newUserData)
-                            .then(function () {
-
-                                // Prepare Auth
-                                cfg.firebase.auth.createCustomToken(uid, claims)
-
-                                    // Complete
-                                    .then((customToken) => {
-                                        req.session[sessionVars.firebase_auth_token] = customToken;
-                                        resolve();
-                                        return;
-                                    })
-
-                                    // Error
-                                    .catch((err) => {
-                                        reject(err);
-                                        return;
-                                    });
-
-                                    // Complete
-                                    return;
-
-                            })
-                            .catch(function (error) {
-                                reject(err);
-                                return;
-                            }); */
-
-                        reject(err);
+                        reject({ code: 500, message: err.message });
                         return;
-
                     });
 
                 // Complete
@@ -290,6 +254,7 @@ module.exports = function (app, cfg) {
 
                 /* Login */
                 login: function (data, req, res) {
+                    console.log(data);
                     return res.send(
                         require('fs').readFileSync('../test/template/cookie-session/firebase/login.html')
                             .replace('{{firebase_cfg}}', JSON.stringify(tinyCfg.firebaseCfg))
@@ -574,7 +539,7 @@ module.exports = function (app, cfg) {
             const existDiscordSession = (typeof req.session[sessionVars.token_expires_in] === "string" && typeof req.session[sessionVars.access_token] === "string" && typeof req.session[sessionVars.refresh_token] === "string");
 
             // Exist Session
-            if (existDiscordSession) {
+            if (existDiscordSession && req.url !== tinyURLPath.firebaseLogin && req.url !== tinyURLPath.firebaseLogout) {
 
                 // Exist Firebase
                 if (cfg.firebase) {
@@ -627,6 +592,7 @@ module.exports = function (app, cfg) {
 
         // Login Firebase
         const firebaseLoginCallback = (req, res) => {
+            console.log('mio 4');
             if (objType(req.body, 'object') && typeof req.body.token === "string") { req.session[sessionVars.firebase_token] = req.body.token; }
             return res.json({ success: true });
         };
@@ -635,6 +601,7 @@ module.exports = function (app, cfg) {
         else { app.post(tinyURLPath.firebaseLogin, firebaseLoginCallback); }
         app.get(tinyURLPath.firebaseLogin, (req, res) => {
 
+            console.log('mio 3');
             // Final Data
             const final_data = {};
 
