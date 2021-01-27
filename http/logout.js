@@ -1,5 +1,5 @@
 
-module.exports = async function (req, session, cfg, existSession, access_token) {
+module.exports = async function (req, access_token, cfg, existSession) {
     return new Promise(function (resolve, reject) {
 
         // Prepare Modules
@@ -63,8 +63,8 @@ module.exports = async function (req, session, cfg, existSession, access_token) 
 
                         // Exist Token
                         if (
-                            (typeof session.access_token === "string" && session.access_token.length > 0) ||
-                            (typeof session.access_token === "number" && !isNaN(session.access_token))
+                            (typeof access_token === "string" && access_token.length > 0) ||
+                            (typeof access_token === "number" && !isNaN(access_token))
                         ) {
 
                             // Prepare Auth
@@ -91,7 +91,7 @@ module.exports = async function (req, session, cfg, existSession, access_token) 
 
                                         // Get API HTTP and Revoke the Token
                                         const revokeToken = require('../api/revokeToken');
-                                        revokeToken(session, tinyAuth).then((data) => {
+                                        revokeToken(access_token, tinyAuth).then((data) => {
                                             result.complete = true;
                                             result.data = data;
                                             resolve(result);

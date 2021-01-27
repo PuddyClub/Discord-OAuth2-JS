@@ -87,25 +87,16 @@ module.exports = function (app, cfg) {
         // Firebase Discord Auth
         discordSession.firebase = {};
 
-        // Update Session
-        discordSession.firebase.updateSession = function (result) {
-            if (result.updated) {
-                console.log(result.data);
-            }
-        };
+        discordSession.firebase.createAccountData = function (access_token, userData, oldData) {
 
-        // Set Firebase Account
-        discordSession.firebase.setAccount = function (access_token, userData, oldData) {
-            return new Promise(function (resolve, reject) {
+            if (typeof access_token === "string" && access_token.length > 0) {
 
                 // Prepare New User Data
                 const newUserData = {};
                 const existOLD = (objType(oldData, 'object'));
 
                 // Password
-                if (typeof access_token === "string" && access_token.length > 0) {
-                    newUserData.password = access_token;
-                }
+                newUserData.password = access_token;
 
                 // Main Data
                 const newUsername = userData.username + '#' + userData.discriminator;
@@ -123,40 +114,27 @@ module.exports = function (app, cfg) {
                     }
                 }
 
-                // Final Result
-                const finalResult = { updated: false };
-
-                // Update User
-                if (Object.keys(newUserData).length > 0) {
-                    cfg.firebase.auth.updateUser(userData.id, newUserData)
-                        .then((userRecord) => {
-                            finalResult.data = userRecord.toJSON();
-                            finalResult.updated = true;
-                            resolve(finalResult);
-                            return;
-                        })
-                        .catch((err) => {
-                            reject({ code: 500, message: err.message });
-                        });
-                }
-
-                // Nope
-                else {
-                    resolve(finalResult);
-                }
-
                 // Complete
-                return;
+                return newUserData;
 
-            });
+            }
+
+            // Nope
+            else { return null; }
+
         };
 
         // Set User
-        discordSession.firebase.set = function (req, userID) {
+        discordSession.firebase.set = function (req, user) {
             return new Promise(function (resolve, reject) {
 
+                // UID
+                const uid = discordSession.uidGenerator(user.id);
+                const claims = prepare_fire_auth_discord(req);
+                console.log(uid, claims, user);
+
                 // Prepare Auth
-                cfg.firebase.auth.createCustomToken(discordSession.uidGenerator(userID), prepare_fire_auth_discord(req))
+                cfg.firebase.auth.createCustomToken(uid, claims)
 
                     // Complete
                     .then((customToken) => {
@@ -167,8 +145,43 @@ module.exports = function (app, cfg) {
 
                     // Error
                     .catch((err) => {
+
+                        /* // Prepare New User Data
+                        console.log(req.session[sessionVars.access_token], user);
+                        const newUserData = discordSession.firebase.createAccountData(req.session[sessionVars.access_token], user);
+                        console.log(newUserData);
+
+                        cfg.firebase.auth.createUser(newUserData)
+                            .then(function () {
+
+                                // Prepare Auth
+                                cfg.firebase.auth.createCustomToken(uid, claims)
+
+                                    // Complete
+                                    .then((customToken) => {
+                                        req.session[sessionVars.firebase_auth_token] = customToken;
+                                        resolve();
+                                        return;
+                                    })
+
+                                    // Error
+                                    .catch((err) => {
+                                        reject(err);
+                                        return;
+                                    });
+
+                                    // Complete
+                                    return;
+
+                            })
+                            .catch(function (error) {
+                                reject(err);
+                                return;
+                            }); */
+
                         reject(err);
                         return;
+
                     });
 
                 // Complete
@@ -360,29 +373,18 @@ module.exports = function (app, cfg) {
                 // Firebase Logout
                 if (cfg.firebase) {
 
-                    // Set New Firebase Session Data
-                    getDiscordUser(req.session[sessionVars.access_token]).then(user => {
-
-                        // Revoke Refresh
-                        cfg.firebase.auth
-                            .revokeRefreshTokens(discordSession.uidGenerator(user.id))
-                            .then(() => {
-                                req.session = null;
-                                resolve(user);
-                                return;
-                            }).catch(err => {
-                                req.session = null;
-                                resolve(user);
-                                return;
-                            });
-
-                        // Complete
-                        return;
-
-                    }).catch(err => {
-                        reject(err); return;
-                    });
-
+                    // Revoke Refresh
+                    cfg.firebase.auth
+                        .revokeRefreshTokens(discordSession.uidGenerator(user.id))
+                        .then(() => {
+                            req.session = null;
+                            resolve(user);
+                            return;
+                        }).catch(err => {
+                            req.session = null;
+                            resolve(user);
+                            return;
+                        });
                 }
 
                 // Nope
@@ -399,7 +401,7 @@ module.exports = function (app, cfg) {
             return new Promise(function (resolve, reject) {
 
                 // Result
-                discordAuth.logout(req, req.session,
+                discordAuth.logout(req, req.session[sessionVars.access_token],
                     {
 
                         // Query
@@ -415,10 +417,7 @@ module.exports = function (app, cfg) {
                         },
 
                         // Auth
-                        auth: tinyAuth,
-
-                        // Access Token
-                        access_token: req.session[sessionVars.access_token]
+                        auth: tinyAuth
 
                     }, (getSessionFromCookie(req, sessionVars.access_token), req.session[sessionVars.access_token]),
                 ).then(result => {
@@ -523,12 +522,8 @@ module.exports = function (app, cfg) {
 
                                     cfg.firebase.auth.setCustomUserClaims(discordSession.uidGenerator(user.id), prepare_fire_auth_discord(req))
                                         .then(() => {
-                                            discordSession.firebase.setAccount(access_token, user).then(result => {
-                                                discordSession.firebase.updateSession(result);
-                                                next(); return;
-                                            }).catch((err) => { tinyCfg.errorCallback(err, req, res); return; });
-                                            return;
-                                        }).catch((err) => { tinyCfg.errorCallback(err, req, res); return; });
+                                            next(); return;
+                                        }).catch((err) => { prepare_final_session(req, res, err); return; });
 
                                     // Complete
                                     return;
@@ -746,7 +741,7 @@ module.exports = function (app, cfg) {
             const firebase_auth = req.session[sessionVars.firebase_token];
 
             // Result
-            discordAuth.logout(req, req.session,
+            discordAuth.logout(req, req.session[sessionVars.access_token],
                 {
 
                     // Query
@@ -761,10 +756,7 @@ module.exports = function (app, cfg) {
                     },
 
                     // Auth
-                    auth: tinyAuth,
-
-                    // Access Token
-                    access_token: req.session[sessionVars.access_token]
+                    auth: tinyAuth
 
                 }, (getSessionFromCookie(req, sessionVars.access_token), req.session[sessionVars.access_token]),
             ).then(result => {
@@ -840,12 +832,8 @@ module.exports = function (app, cfg) {
 
                         // Set Firebase Session
                         if (cfg.firebase) {
-                            discordSession.firebase.set(req, result.user.id).then(() => {
-                                discordSession.firebase.setAccount(result.tokenRequest.access_token, result.user).then(accountResult => {
-                                    discordSession.firebase.updateSession(accountResult);
-                                    discordSession.firebaseAuth.redirect.login(res, result.redirect);
-                                    return;
-                                }).catch((err) => { tinyCfg.errorCallback(err, req, res); return; });
+                            discordSession.firebase.set(req, result.user).then(() => {
+                                discordSession.firebaseAuth.redirect.login(res, result.redirect);
                                 return;
                             }).catch(err => {
 
@@ -927,24 +915,14 @@ module.exports = function (app, cfg) {
                             // Set Discord Data
                             req.discord_session.user = user;
 
-                            if (cfg.firebase) {
-                                let oldUser = null;
-                                discordSession.firebase.setAccount(access_token, user, oldUser).then(result => {
-                                    discordSession.firebase.updateSession(result);
-                                    next(); return;
-                                }).catch((err) => { tinyCfg.errorCallback(err, req, res); return; });
-                            }
-
-                            // Nope
-                            else { next(); }
-
                             // Complete
+                            next();
                             return;
 
                         }).catch(err => {
                             if (!req.discord_session.errors) { req.discord_session.errors = {}; }
                             req.discord_session.errors.user = err;
-                            delete req.discord_session.user; 
+                            delete req.discord_session.user;
                             prepare_final_session(req, res, err);
                             return;
                         });

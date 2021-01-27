@@ -11,3 +11,8 @@ checar discordSession.firebase.get
 
 
 Fazer o leitor de interaction
+
+
+
+
+
