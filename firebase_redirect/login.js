@@ -3,6 +3,18 @@ module.exports = {
     // Run Function
     run: function (token, redirect_url, callback) {
 
+        // Fix Redirect
+        if (typeof redirect_url === "string") {
+            if (redirect_url.startsWith('/')) {
+                redirect_url = redirect_url.substring(1);
+            }
+        }
+
+        // Nope
+        else {
+            redirect_url = '';
+        }
+
         // Prepare Redirect
         const final_redirect = function (error) {
 
