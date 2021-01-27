@@ -139,11 +139,6 @@ module.exports = function (webItem = { type: 'default' }) {
                 req.discord_session.uid = dsFunctions.uidGenerator(req.discord_session.user.id);
                 res.json(req.discord_session);
 
-                // Nope
-                else {
-                    res.send('No Account Connections Detect');
-                }
-
             }
 
             // Yes
