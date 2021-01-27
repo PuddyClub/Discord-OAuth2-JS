@@ -307,11 +307,9 @@ module.exports = function (app, cfg) {
             discordScope: ["identify", "email"]
         });
 
-        // Fix Need Email Verified
-        if (tinyCfg.needEmailVerified) {
-            if (tinyAuth.discordScope.indexOf('identify') < 0) { tinyAuth.discordScope.push('identify'); }
-            if (tinyAuth.discordScope.indexOf('email') < 0) { tinyAuth.discordScope.push('email'); }
-        }
+        // Need Identify
+        if (tinyAuth.discordScope.indexOf('identify') < 0) { tinyAuth.discordScope.push('identify'); }
+        if (tinyAuth.discordScope.indexOf('email') < 0) { tinyAuth.discordScope.push('email'); }
 
         // Firebase Mode
         if (objType(cfg.firebase, 'object')) {
