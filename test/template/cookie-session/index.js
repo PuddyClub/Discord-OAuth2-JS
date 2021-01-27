@@ -61,7 +61,7 @@ module.exports = function (webItem = { type: 'default' }) {
             if (!req.discord_session.errors) {
 
                 // Result
-                if (req.discord_session && req.discord_session.user) {
+                if (req.discord_session.user) {
                     res.json(req.discord_session.user);
                 }
 
@@ -86,7 +86,7 @@ module.exports = function (webItem = { type: 'default' }) {
             if (!req.discord_session.errors) {
 
                 // Result
-                if (req.discord_session && req.discord_session.connections) {
+                if (req.discord_session.connections) {
                     res.json(req.discord_session.connections);
                 }
 
@@ -111,7 +111,7 @@ module.exports = function (webItem = { type: 'default' }) {
             if (!req.discord_session.errors) {
 
                 // Result
-                if (req.discord_session && req.discord_session.guilds) {
+                if (req.discord_session.guilds) {
                     res.json(req.discord_session.guilds);
                 }
 
@@ -136,10 +136,8 @@ module.exports = function (webItem = { type: 'default' }) {
             if (!req.discord_session.errors) {
 
                 // Result
-                if (req.discord_session) {
-                    req.discord_session.uid = dsFunctions.uidGenerator(req.discord_session.user.id);
-                    res.json(req.discord_session);
-                }
+                req.discord_session.uid = dsFunctions.uidGenerator(req.discord_session.user.id);
+                res.json(req.discord_session);
 
                 // Nope
                 else {
@@ -174,7 +172,7 @@ module.exports = function (webItem = { type: 'default' }) {
         app.get('/user/uid', dsFunctions.sessionPlugins.getUser, (req, res) => {
 
             // Result
-            if (req.discord_session) {
+            if (req.discord_session.user) {
                 res.json({ result: dsFunctions.uidGenerator(req.discord_session.user.id) });
             }
 

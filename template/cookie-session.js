@@ -567,6 +567,9 @@ module.exports = function (app, cfg) {
         // Refresh Validator
         app.use(function (req, res, next) {
 
+            // Add Discord Session
+            if (!req.discord_session) { req.discord_session = {}; }
+
             // Preparing Clocks
             if (!req.utc_clock) {
                 req.utc_clock = { now: moment.tz('Universal') };
@@ -922,7 +925,6 @@ module.exports = function (app, cfg) {
                         getDiscordUser(access_token).then(user => {
 
                             // Set Discord Data
-                            if (!req.discord_session) { req.discord_session = {}; }
                             req.discord_session.user = user;
 
                             if (cfg.firebase) {
@@ -940,7 +942,6 @@ module.exports = function (app, cfg) {
                             return;
 
                         }).catch(err => {
-                            if (!req.discord_session) { req.discord_session = {}; }
                             if (!req.discord_session.errors) { req.discord_session.errors = {}; }
                             req.discord_session.errors.user = err;
                             delete req.discord_session.user; 
@@ -962,7 +963,6 @@ module.exports = function (app, cfg) {
                         require('../api/getUserConnections')(req.session[sessionVars.access_token]).then(connections => {
 
                             // Set Discord Data
-                            if (!req.discord_session) { req.discord_session = {}; }
                             req.discord_session.connections = connections;
 
                             // Complete
@@ -970,7 +970,6 @@ module.exports = function (app, cfg) {
                             return;
 
                         }).catch(err => {
-                            if (!req.discord_session) { req.discord_session = {}; }
                             if (!req.discord_session.errors) { req.discord_session.errors = {}; }
                             req.discord_session.errors.connections = err;
                             delete req.discord_session.connections;
@@ -992,7 +991,6 @@ module.exports = function (app, cfg) {
                         require('../api/getUserGuilds')(req.session[sessionVars.access_token]).then(guilds => {
 
                             // Set Discord Data
-                            if (!req.discord_session) { req.discord_session = {}; }
                             req.discord_session.guilds = guilds;
 
                             // Complete
@@ -1000,7 +998,6 @@ module.exports = function (app, cfg) {
                             return;
 
                         }).catch(err => {
-                            if (!req.discord_session) { req.discord_session = {}; }
                             if (!req.discord_session.errors) { req.discord_session.errors = {}; }
                             req.discord_session.errors.guilds = err;
                             delete req.discord_session.guilds;
