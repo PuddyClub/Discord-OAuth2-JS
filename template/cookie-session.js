@@ -575,33 +575,30 @@ module.exports = function (app, cfg) {
                 // Exist Firebase
                 if (cfg.firebase) {
 
-                    // Exist Firebase
-                    if (cfg.firebase) {
-                        discordSession.firebase.get().then((userFiredata) => {
+                    discordSession.firebase.get().then((userFiredata) => {
 
-                            // Complete
-                            checkDiscordSession(req, res, next, userFiredata);
+                        // Complete
+                        checkDiscordSession(req, res, next, userFiredata);
+                        return;
+
+                    }).catch(err => {
+
+                        // Firebase Auth
+                        const firebase_auth = req.session[sessionVars.firebase_token];
+
+                        // Logout
+                        auto_logout(req, err).then(result => {
+                            discordSession.firebaseAuth.redirect.logout(res, result.redirect, firebase_auth);
                             return;
-
                         }).catch(err => {
-
-                            // Firebase Auth
-                            const firebase_auth = req.session[sessionVars.firebase_token];
-
-                            // Logout
-                            auto_logout(req, err).then(result => {
-                                discordSession.firebaseAuth.redirect.logout(res, result.redirect, firebase_auth);
-                                return;
-                            }).catch(err => {
-                                tinyCfg.errorCallback(err, req, res);
-                                return;
-                            });
-
-                            // Complete
+                            tinyCfg.errorCallback(err, req, res);
                             return;
-
                         });
-                    }
+
+                        // Complete
+                        return;
+
+                    });
 
                 }
 
@@ -937,6 +934,9 @@ module.exports = function (app, cfg) {
                             return;
 
                         }).catch(err => {
+                            if (!req.discord_session) { req.discord_session = {}; }
+                            if (!req.discord_session.errors) { req.discord_session.errors = {}; }
+                            req.discord_session.errors.user = err;
                             if (req.discord_session) { delete req.discord_session.user; } next();
                             return;
                         });
@@ -963,6 +963,9 @@ module.exports = function (app, cfg) {
                             return;
 
                         }).catch(err => {
+                            if (!req.discord_session) { req.discord_session = {}; }
+                            if (!req.discord_session.errors) { req.discord_session.errors = {}; }
+                            req.discord_session.errors.connections = err;
                             if (req.discord_session) { delete req.discord_session.connections; } next();
                             return;
                         });
@@ -989,6 +992,9 @@ module.exports = function (app, cfg) {
                             return;
 
                         }).catch(err => {
+                            if (!req.discord_session) { req.discord_session = {}; }
+                            if (!req.discord_session.errors) { req.discord_session.errors = {}; }
+                            req.discord_session.errors.guilds = err;
                             if (req.discord_session) { delete req.discord_session.guilds; } next();
                             return;
                         });
