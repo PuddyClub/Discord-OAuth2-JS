@@ -452,11 +452,44 @@ module.exports = function (app, cfg) {
 
             // GET USER DATA TO TEST
             console.log(userFiredata);
+            console.log(req.session);
 
             req.utc_clock.ds_token_expires_in = moment.tz(req.session[sessionVars.token_expires_in], 'Universal');
 
             // Time Left
             req.utc_clock.ds_token_time_left = req.utc_clock.ds_token_expires_in.diff(req.utc_clock.now, 'minutes');
+
+            // Prepare Final Session
+            const prepare_final_session = function () {
+
+                // Firebase Auth
+                const firebase_auth = req.session[sessionVars.firebase_token];
+
+                // Logout
+                auto_logout(req).then(result => {
+
+                    // Exist Firebase
+                    if (cfg.firebase) {
+                        discordSession.firebaseAuth.redirect.logout(res, result.redirect, firebase_auth);
+                    }
+
+                    // Nope
+                    else {
+                        res.redirect(result.redirect);
+                    }
+
+                    // Complete
+                    return;
+
+                }).catch(err => {
+                    tinyCfg.errorCallback(err, req, res);
+                    return;
+                });
+
+                // Complete
+                return;
+
+            };
 
             // Need Refresh
             if (req.utc_clock.ds_token_time_left < 1440) {
@@ -502,7 +535,7 @@ module.exports = function (app, cfg) {
                                     return;
 
                                 }).catch(err => {
-                                    tinyCfg.errorCallback(err, req, res); return;
+                                    prepare_final_session(); return;
                                 });
 
                             }
@@ -518,38 +551,12 @@ module.exports = function (app, cfg) {
                         // Complete
                         return;
 
-                    }).catch((err) => { tinyCfg.errorCallback(err, req, res); return; });
+                    }).catch((err) => { prepare_final_session(); return; });
 
                 }
 
                 // Finish the Session
-                else {
-
-                    // Firebase Auth
-                    const firebase_auth = req.session[sessionVars.firebase_token];
-
-                    // Logout
-                    auto_logout(req).then(result => {
-
-                        // Exist Firebase
-                        if (cfg.firebase) {
-                            discordSession.firebaseAuth.redirect.logout(res, result.redirect, firebase_auth);
-                        }
-
-                        // Nope
-                        else {
-                            res.redirect(result.redirect);
-                        }
-
-                        // Complete
-                        return;
-
-                    }).catch(err => {
-                        tinyCfg.errorCallback(err, req, res);
-                        return;
-                    });
-
-                }
+                else { prepare_final_session(); }
 
             } else { next(); }
 
