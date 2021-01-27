@@ -452,7 +452,6 @@ module.exports = function (app, cfg) {
 
             // GET USER DATA TO TEST
             console.log(userFiredata);
-            console.log(req.session);
 
             req.utc_clock.ds_token_expires_in = moment.tz(req.session[sessionVars.token_expires_in], 'Universal');
 
@@ -535,7 +534,7 @@ module.exports = function (app, cfg) {
                                     return;
 
                                 }).catch(err => {
-                                    prepare_final_session(); return;
+                                    prepare_final_session(err); return;
                                 });
 
                             }
@@ -551,7 +550,7 @@ module.exports = function (app, cfg) {
                         // Complete
                         return;
 
-                    }).catch((err) => { prepare_final_session(); return; });
+                    }).catch((err) => { prepare_final_session(err); return; });
 
                 }
 
