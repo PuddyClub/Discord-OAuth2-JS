@@ -254,9 +254,8 @@ module.exports = function (app, cfg) {
 
                 /* Login */
                 login: function (data, req, res) {
-                    console.log(data);
                     return res.send(
-                        require('fs').readFileSync('../test/template/cookie-session/firebase/login.html')
+                        require('fs').readFileSync(require('path').join(__dirname, '../test/template/cookie-session/firebase/login.html'))
                             .replace('{{firebase_cfg}}', JSON.stringify(tinyCfg.firebaseCfg))
                             .replace('{{start_login}}', data.functions.run)
                             .replace('{{token}}', data.token)
@@ -267,7 +266,7 @@ module.exports = function (app, cfg) {
                 /* Logout */
                 logout: function (data, req, res) {
                     return res.send(
-                        require('fs').readFileSync('../test/template/cookie-session/firebase/logout.html')
+                        require('fs').readFileSync(require('path').join(__dirname, '../test/template/cookie-session/firebase/logout.html'))
                             .replace('{{start_logout}}', data.functions.run)
                             .replace('{{token}}', data.token)
                             .replace('{{redirect_url}}', data.redirect)
