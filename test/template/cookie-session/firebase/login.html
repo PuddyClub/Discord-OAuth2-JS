@@ -10,19 +10,25 @@
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8 X-Content-Type-Options=nosniff">
         <meta http-equiv="Content-Script-Type" content="text/javascript">
 
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-loading-overlay/2.1.7/loadingoverlay.min.js" integrity="sha512-hktawXAt9BdIaDoaO9DlLp6LYhbHMi5A36LcXQeHgVKUH6kJMOQsAtIw2kmQ9RERDpnSTlafajo6USh9JUXckw==" crossorigin="anonymous"></script>
         <script src="https://www.gstatic.com/firebasejs/8.2.4/firebase-app.js"></script>
         <script src="https://www.gstatic.com/firebasejs/8.2.4/firebase-auth.js"></script>
+
+    </head>
+
+    <body>
+
         <script>
+
+            // Start Loading
+            $.LoadingOverlay("show", {background: "rgba(0,0,0, 0.5)"});
+
             // Your web app's Firebase configuration
             var firebaseConfig = {{firebase_cfg}};
             // Initialize Firebase
             firebase.initializeApp(firebaseConfig);
         </script>
-
-    </head>
-
-    <body>
-}
 
     </body>
 
