@@ -25,8 +25,32 @@ module.exports = {
 
             // Success
             .then(() => {
-                final_redirect();
+
+                fetch(window.location.pathname, {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ token: token })
+                }).then(response => {
+                    response.json().then(() => {
+                        final_redirect();
+                        return;
+                    }).catch(err => {
+                        alert(`Error ${error.code}: ${error.message}`);
+                        final_redirect(error);
+                        return;
+                    });
+                }).catch(err => {
+                    alert(`Error ${error.code}: ${error.message}`);
+                    final_redirect(error);
+                    return;
+                });
+
+                // Complete
                 return;
+
             })
 
             // Fail
