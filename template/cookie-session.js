@@ -662,13 +662,13 @@ module.exports = function (app, cfg) {
         });
 
         // Logout Firebase
-        const firebaseLoginCallback = (req, res) => {
+        const firebaseLogoutCallback = (req, res) => {
             req.session[sessionVars.firebase_token] = null;
             return res.json({ success: true });
         };
 
-        if (cfg.bodyParser) { app.post(tinyURLPath.firebaseLogout, bodyParser.json, bodyParser.urlencoded, firebaseLoginCallback); }
-        else { app.post(tinyURLPath.firebaseLogout, firebaseLoginCallback); }
+        if (cfg.bodyParser) { app.post(tinyURLPath.firebaseLogout, bodyParser.json, bodyParser.urlencoded, firebaseLogoutCallback); }
+        else { app.post(tinyURLPath.firebaseLogout, firebaseLogoutCallback); }
         app.get(tinyURLPath.firebaseLogout, (req, res) => {
 
             // Final Data
