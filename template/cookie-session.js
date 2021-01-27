@@ -447,6 +447,38 @@ module.exports = function (app, cfg) {
             });
         };
 
+        // Prepare Final Session
+        const prepare_final_session = function (req, res) {
+
+            // Firebase Auth
+            const firebase_auth = req.session[sessionVars.firebase_token];
+
+            // Logout
+            auto_logout(req).then(result => {
+
+                // Exist Firebase
+                if (cfg.firebase) {
+                    discordSession.firebaseAuth.redirect.logout(res, result.redirect, firebase_auth);
+                }
+
+                // Nope
+                else {
+                    res.redirect(result.redirect);
+                }
+
+                // Complete
+                return;
+
+            }).catch(err => {
+                tinyCfg.errorCallback(err, req, res);
+                return;
+            });
+
+            // Complete
+            return;
+
+        };
+
         // Check Discord Session
         const checkDiscordSession = function (req, res, next, userFiredata) {
 
@@ -457,38 +489,6 @@ module.exports = function (app, cfg) {
 
             // Time Left
             req.utc_clock.ds_token_time_left = req.utc_clock.ds_token_expires_in.diff(req.utc_clock.now, 'minutes');
-
-            // Prepare Final Session
-            const prepare_final_session = function () {
-
-                // Firebase Auth
-                const firebase_auth = req.session[sessionVars.firebase_token];
-
-                // Logout
-                auto_logout(req).then(result => {
-
-                    // Exist Firebase
-                    if (cfg.firebase) {
-                        discordSession.firebaseAuth.redirect.logout(res, result.redirect, firebase_auth);
-                    }
-
-                    // Nope
-                    else {
-                        res.redirect(result.redirect);
-                    }
-
-                    // Complete
-                    return;
-
-                }).catch(err => {
-                    tinyCfg.errorCallback(err, req, res);
-                    return;
-                });
-
-                // Complete
-                return;
-
-            };
 
             // Need Refresh
             if (req.utc_clock.ds_token_time_left < 1440) {
@@ -534,7 +534,7 @@ module.exports = function (app, cfg) {
                                     return;
 
                                 }).catch(err => {
-                                    prepare_final_session(err); return;
+                                    prepare_final_session(req, res, err); return;
                                 });
 
                             }
@@ -550,12 +550,12 @@ module.exports = function (app, cfg) {
                         // Complete
                         return;
 
-                    }).catch((err) => { prepare_final_session(err); return; });
+                    }).catch((err) => { prepare_final_session(req, res, err); return; });
 
                 }
 
                 // Finish the Session
-                else { prepare_final_session(); }
+                else { prepare_final_session(req, res); }
 
             } else { next(); }
 
@@ -943,7 +943,8 @@ module.exports = function (app, cfg) {
                             if (!req.discord_session) { req.discord_session = {}; }
                             if (!req.discord_session.errors) { req.discord_session.errors = {}; }
                             req.discord_session.errors.user = err;
-                            delete req.discord_session.user; next();
+                            delete req.discord_session.user; 
+                            prepare_final_session(req, res, err);
                             return;
                         });
                     } else { next(); }
@@ -972,7 +973,8 @@ module.exports = function (app, cfg) {
                             if (!req.discord_session) { req.discord_session = {}; }
                             if (!req.discord_session.errors) { req.discord_session.errors = {}; }
                             req.discord_session.errors.connections = err;
-                            delete req.discord_session.connections; next();
+                            delete req.discord_session.connections;
+                            prepare_final_session(req, res, err);
                             return;
                         });
                     } else { next(); }
@@ -1001,7 +1003,8 @@ module.exports = function (app, cfg) {
                             if (!req.discord_session) { req.discord_session = {}; }
                             if (!req.discord_session.errors) { req.discord_session.errors = {}; }
                             req.discord_session.errors.guilds = err;
-                            delete req.discord_session.guilds; next();
+                            delete req.discord_session.guilds;
+                            prepare_final_session(req, res, err);
                             return;
                         });
                     } else { next(); }
