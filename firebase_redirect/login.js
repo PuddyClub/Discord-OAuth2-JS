@@ -32,6 +32,8 @@ module.exports = {
 
         };
 
+        console.log(token);
+
         // Sign In
         firebase.auth().signInWithCustomToken(token)
 

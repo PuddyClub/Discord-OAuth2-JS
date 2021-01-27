@@ -31,7 +31,7 @@ module.exports = async function (req, access_token, cfg, existSession) {
                 )) {
 
                     // Result
-                    const result = { data: null, existSession: (existSession), complete: false };
+                    const result = { data: null, existSession: (existSession), complete: false, state: { csrfToken: req.query[tinyQuery.csrfToken] } };
 
                     // Prepare Final Redirect
                     result.redirect = '/';
@@ -107,7 +107,7 @@ module.exports = async function (req, access_token, cfg, existSession) {
 
                                     // Don't need user info
                                     if (typeof access_token !== "string" || access_token.length < 1) { end_discord_session(); }
-                                    
+
                                     // Yes
                                     else {
 

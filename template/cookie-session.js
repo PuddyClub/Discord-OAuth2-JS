@@ -18,18 +18,30 @@ module.exports = function (app, cfg) {
         // Redirect
         discordSession.firebaseAuth.redirect = {
 
-            // Login
-            login: function (res, redirect_url) {
+            template: function (type, res, redirect_url, csrfToken, firebase_auth) {
+                
+                // Fix URL
                 if (redirect_url.startsWith('/')) { redirect_url = redirect_url.substring(1); }
-                res.redirect(`${tinyURLPath.firebaseLogin}?redirect=${encodeURIComponent(redirect_url)}`);
+                
+                // New URL
+                redirect_url = `${tinyURLPath[type]}?redirect=${encodeURIComponent(redirect_url)}`;
+                if(typeof csrfToken === "string") {redirect_url += `&key=${csrfToken}`;}
+                if(typeof firebase_auth === "string") {redirect_url += `&token=${firebase_auth}`;}
+
+                // Complete
+                res.redirect(redirect_url);
                 return;
+
+            },
+
+            // Login
+            login: function (res, redirect_url, csrfToken) {
+                return discordSession.firebaseAuth.redirect.template('firebaseLogin', res, redirect_url, csrfToken);
             },
 
             // Logout
-            logout: function (res, redirect_url, firebase_auth) {
-                if (redirect_url.startsWith('/')) { redirect_url = redirect_url.substring(1); }
-                res.redirect(`${tinyURLPath.firebaseLogout}?redirect=${encodeURIComponent(redirect_url)}&firebase_auth=${encodeURIComponent(firebase_auth)}`);
-                return;
+            logout: function (res, redirect_url, csrfToken, firebase_auth) {
+                return discordSession.firebaseAuth.redirect.template('firebaseLogout', res, redirect_url, csrfToken, firebase_auth);
             }
 
         };
@@ -427,7 +439,7 @@ module.exports = function (app, cfg) {
 
                 // Exist Firebase
                 if (cfg.firebase) {
-                    discordSession.firebaseAuth.redirect.logout(res, result.redirect, firebase_auth);
+                    discordSession.firebaseAuth.redirect.logout(res, result.redirect, req.session[sessionVars.csrfToken], firebase_auth);
                 }
 
                 // Nope
@@ -565,7 +577,7 @@ module.exports = function (app, cfg) {
 
                         // Logout
                         auto_logout(req, err).then(result => {
-                            discordSession.firebaseAuth.redirect.logout(res, result.redirect, firebase_auth);
+                            discordSession.firebaseAuth.redirect.logout(res, result.redirect, req.session[sessionVars.csrfToken], firebase_auth);
                             return;
                         }).catch(err => {
                             tinyCfg.errorCallback(err, req, res);
@@ -807,7 +819,7 @@ module.exports = function (app, cfg) {
                         // Set Firebase Session
                         if (cfg.firebase) {
                             discordSession.firebase.set(req, result.user).then(() => {
-                                discordSession.firebaseAuth.redirect.login(res, result.redirect);
+                                discordSession.firebaseAuth.redirect.login(res, result.redirect, result.state.csrfToken);
                                 return;
                             }).catch(err => {
 
@@ -816,7 +828,7 @@ module.exports = function (app, cfg) {
 
                                 // Logout
                                 auto_logout(req, { code: 500, message: err.message }).then(result => {
-                                    discordSession.firebaseAuth.redirect.logout(res, result.redirect, firebase_auth);
+                                    discordSession.firebaseAuth.redirect.logout(res, result.redirect, result.state.csrfToken, firebase_auth);
                                     return;
                                 }).catch(err => {
                                     tinyCfg.errorCallback(err, req, res);
