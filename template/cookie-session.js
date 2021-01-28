@@ -440,6 +440,21 @@ module.exports = function (app, cfg) {
             firebaseLogout: '/firebase/logout'
         });
 
+        // Logout Firebase
+        const logout_firebase = (res, req, redirect, firebase_auth) => {
+
+            // Firebase Logout
+            if (cfg.firebase) {
+                return discordSession.firebaseAuth.redirect.logout(res, redirect, req.csrfToken.now.value, firebase_auth);
+            }
+
+            // Normal
+            else {
+                return res.redirect(redirect);
+            }
+
+        };
+
         // Logout Result
         const logout_result = (req, user) => {
             return new Promise(function (resolve) {
@@ -532,20 +547,8 @@ module.exports = function (app, cfg) {
 
             // Logout
             auto_logout(req).then(result => {
-
-                // Exist Firebase
-                if (cfg.firebase) {
-                    discordSession.firebaseAuth.redirect.logout(res, result.redirect, req.csrfToken.now.value, firebase_auth);
-                }
-
-                // Nope
-                else {
-                    res.redirect(result.redirect);
-                }
-
-                // Complete
+                logout_firebase(res, req, result.redirect, firebase_auth);
                 return;
-
             }).catch(err => {
                 tinyCfg.errorCallback(err, req, res);
                 return;
@@ -676,7 +679,7 @@ module.exports = function (app, cfg) {
 
                         // Logout
                         auto_logout(req, err).then(result => {
-                            discordSession.firebaseAuth.redirect.logout(res, result.redirect, req.csrfToken.now.value, firebase_auth);
+                            logout_firebase(res, req, result.redirect, firebase_auth);
                             return;
                         }).catch(err => {
                             tinyCfg.errorCallback(err, req, res);
@@ -712,6 +715,8 @@ module.exports = function (app, cfg) {
         // Login Firebase
         const firebaseLoginCallback = (req, res) => {
 
+            console.log(req);
+
             // Exist Body
             if (objType(req.body, 'object') && typeof req.body.token === "string") {
 
@@ -725,6 +730,8 @@ module.exports = function (app, cfg) {
                     req.session[sessionVars.firebase_token] = req.body.token;
                     const uid = discordSession.uidGenerator(req.discord_session.id);
                     const firebaseAccount = discordSession.firebase.createAccountData(req.session[sessionVars.access_token], req.discord_session);
+
+                    console.log(uid, firebaseAccount);
 
                     // Update User
                     cfg.firebase.auth
@@ -894,20 +901,8 @@ module.exports = function (app, cfg) {
                 // Discord Logout Complete
                 if (result.complete) {
                     logout_result(req, result.user).then(() => {
-
-                        // Exist Firebase
-                        if (cfg.firebase) {
-                            discordSession.firebaseAuth.redirect.logout(res, result.redirect, firebase_auth);
-                        }
-
-                        // Nope
-                        else {
-                            res.redirect(result.redirect);
-                        }
-
-                        // Complete
+                        logout_firebase(res, req, result.redirect, firebase_auth);
                         return;
-
                     }).catch(err => {
                         tinyCfg.errorCallback(err, req, res); return;
                     });
@@ -972,7 +967,7 @@ module.exports = function (app, cfg) {
 
                                 // Logout
                                 auto_logout(req, { code: 500, message: err.message }).then(result => {
-                                    discordSession.firebaseAuth.redirect.logout(res, result.redirect, result.state.csrfToken, firebase_auth);
+                                    logout_firebase(res, req, result.redirect, firebase_auth);
                                     return;
                                 }).catch(err => {
                                     tinyCfg.errorCallback(err, req, res);
