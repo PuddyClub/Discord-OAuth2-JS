@@ -24,7 +24,18 @@ module.exports = {
                 return;
             };
 
-            if (typeof callback !== "function") { start_redirect(); }
+            // Default Redirect
+            if (typeof callback !== "function") {
+
+                // Show Error
+                if (error) { alert(JSON.stringify(error)); }
+
+                // Redirect Now
+                //start_redirect();
+
+            }
+
+            // Custom Redirect
             else { callback(start_redirect, error); }
 
             // Complete
@@ -36,9 +47,6 @@ module.exports = {
         firebase.auth().onAuthStateChanged(function (user) {
             if (user) {
                 user.getIdToken().then(function (idToken) {
-
-                    // Show ID Token
-                    console.log(idToken);
 
                     // Fetch
                     fetch(window.location.pathname, {
@@ -52,20 +60,24 @@ module.exports = {
                         response.json().then((data) => {
 
                             // Show Error Message
-                            if (!data.success) { alert(data.error); }
+                            if (!data.success) {
+                                final_redirect(new Error(data.error));
+                            }
 
                             // Complete
-                            //final_redirect();
+                            else {
+                                final_redirect();
+                            }
+
+                            // Return
                             return;
 
                         }).catch(err => {
-                            alert(`Error ${error.code}: ${error.message}`);
                             final_redirect(error);
                             return;
                         });
                     }).catch(err => {
-                        alert(`Error ${error.code}: ${error.message}`);
-                        final_redirect(error);
+                        final_redirect(err);
                         return;
                     });
 
@@ -78,7 +90,6 @@ module.exports = {
 
             // Fail
             .catch((error) => {
-                alert(`Error ${error.code}: ${error.message}`);
                 final_redirect(error);
                 return;
             });
