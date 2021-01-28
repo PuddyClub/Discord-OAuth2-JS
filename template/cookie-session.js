@@ -146,6 +146,29 @@ module.exports = function (app, cfg) {
 
         };
 
+        discordSession.firebase.updateUser = function (user, oldUser) {
+            return new Promise(function (resolve, reject) {
+
+                // Get UID
+                const uid = discordSession.uidGenerator(req.discord_session.user.id);
+                const firebaseAccount = discordSession.firebase.createAccountData(req.session[sessionVars.access_token], req.discord_session.user);
+
+                // Update User
+                cfg.firebase.auth
+                    .updateUser(uid, firebaseAccount)
+                    .then(() => {
+                        resolve(); return;
+                    })
+                    .catch((error) => {
+                        reject(error); return;
+                    });
+
+                // Complete
+                return;
+
+            });
+        };
+
         // Set User
         discordSession.firebase.set = function (req, user) {
             return new Promise(function (resolve, reject) {
@@ -185,7 +208,7 @@ module.exports = function (app, cfg) {
 
                     // Complete
                     .then((decodedToken) => {
-                        
+
                         const requestIpAddress = getUserIP(req, { isFirebase: true });
                         console.log(requestIpAddress);
 
@@ -738,19 +761,14 @@ module.exports = function (app, cfg) {
 
                         // Get Session
                         req.session[sessionVars.firebase_token] = req.body.token;
-                        const uid = discordSession.uidGenerator(req.discord_session.user.id);
-                        const firebaseAccount = discordSession.firebase.createAccountData(req.session[sessionVars.access_token], req.discord_session.user);
-
-                        // Update User
-                        cfg.firebase.auth
-                            .updateUser(uid, firebaseAccount)
-                            .then(() => {
-                                return res.json({ success: true });
-                            })
-                            .catch((error) => {
-                                logger.error(error);
-                                return res.json({ success: false, error: 'Error updating user' });
-                            });
+                        discordSession.firebase.updateUser(req.discord_session.user).then(function () {
+                            res.json({ success: true });
+                            return;
+                        }).catch(error => {
+                            logger.error(error);
+                            res.json({ success: false, error: 'Error updating user' });
+                            return;
+                        });
 
                         // Complete
                         return;
