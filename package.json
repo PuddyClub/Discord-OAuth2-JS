@@ -26,6 +26,7 @@
     "node-fetch": "^2.6.1"
   },
   "devDependencies": {
+    "@tinypudding/csrftoken-lib": "^1.0.1",
     "@tinypudding/firebase-lib": "^1.0.1",
     "body-parser": "^1.19.0",
     "cookie-session": "^1.4.0",

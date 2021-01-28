@@ -19,14 +19,14 @@ module.exports = function (app, cfg) {
         discordSession.firebaseAuth.redirect = {
 
             template: function (type, res, redirect_url, csrfToken, firebase_auth) {
-                
+
                 // Fix URL
                 if (redirect_url.startsWith('/')) { redirect_url = redirect_url.substring(1); }
-                
+
                 // New URL
                 redirect_url = `${tinyURLPath[type]}?redirect=${encodeURIComponent(redirect_url)}`;
-                if(typeof csrfToken === "string") {redirect_url += `&key=${csrfToken}`;}
-                if(typeof firebase_auth === "string") {redirect_url += `&token=${firebase_auth}`;}
+                if (typeof csrfToken === "string") { redirect_url += `&key=${csrfToken}`; }
+                if (typeof firebase_auth === "string") { redirect_url += `&token=${firebase_auth}`; }
 
                 // Complete
                 res.redirect(redirect_url);
@@ -329,7 +329,6 @@ module.exports = function (app, cfg) {
             refresh_token: 'refresh_token',
             token_type: 'token_type',
             scope: 'scope',
-            csrfToken: 'csrfToken',
             token_expires_in: 'token_expires_in',
             firebase_token: 'firebase_token',
             firebase_auth_token: 'firebase_auth_token'
@@ -393,7 +392,7 @@ module.exports = function (app, cfg) {
 
                         // State
                         state: {
-                            csrfToken: req.session[sessionVars.csrfToken],
+                            csrfToken: req.csrfToken.old.value,
                             redirect: req.url
                         },
 
@@ -439,7 +438,7 @@ module.exports = function (app, cfg) {
 
                 // Exist Firebase
                 if (cfg.firebase) {
-                    discordSession.firebaseAuth.redirect.logout(res, result.redirect, req.session[sessionVars.csrfToken], firebase_auth);
+                    discordSession.firebaseAuth.redirect.logout(res, result.redirect, req.csrfToken.old.value, firebase_auth);
                 }
 
                 // Nope
@@ -547,6 +546,9 @@ module.exports = function (app, cfg) {
             // Add Discord Session
             if (!req.discord_session) { req.discord_session = {}; }
 
+            // Empty CSRF Token
+            if (!req.csrfToken) { req.csrfToken = { new: {}, old: {} }; }
+
             // Preparing Clocks
             if (!req.utc_clock) {
                 req.utc_clock = { now: moment.tz('Universal') };
@@ -577,7 +579,7 @@ module.exports = function (app, cfg) {
 
                         // Logout
                         auto_logout(req, err).then(result => {
-                            discordSession.firebaseAuth.redirect.logout(res, result.redirect, req.session[sessionVars.csrfToken], firebase_auth);
+                            discordSession.firebaseAuth.redirect.logout(res, result.redirect, req.csrfToken.old.value, firebase_auth);
                             return;
                         }).catch(err => {
                             tinyCfg.errorCallback(err, req, res);
@@ -709,7 +711,7 @@ module.exports = function (app, cfg) {
 
                     // State
                     state: {
-                        csrfToken: req.session[sessionVars.csrfToken]
+                        csrfToken: req.csrfToken.old.value
                     }
 
                 }, (getSessionFromCookie(req, sessionVars.access_token)),
@@ -738,7 +740,7 @@ module.exports = function (app, cfg) {
 
                     // State
                     state: {
-                        csrfToken: req.session[sessionVars.csrfToken]
+                        csrfToken: req.csrfToken.old.value
                     },
 
                     // Auth
@@ -802,7 +804,7 @@ module.exports = function (app, cfg) {
 
                     // State
                     state: {
-                        csrfToken: req.session[sessionVars.csrfToken]
+                        csrfToken: req.csrfToken.old.value
                     }
 
                 }, (getSessionFromCookie(req, sessionVars.access_token)),

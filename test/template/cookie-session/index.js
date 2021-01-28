@@ -33,6 +33,10 @@ module.exports = function (webItem = { type: 'default' }) {
 
         app.use(tinySession);
 
+        // Add CSRF Token Session Cookie
+        const csrfTokenSessionCookie = require('@tinypudding/csrftoken-lib/template/cookie-session');
+        app.use(csrfTokenSessionCookie());
+
         // Port
         const port = 3000;
 
@@ -52,6 +56,12 @@ module.exports = function (webItem = { type: 'default' }) {
         // Homepage
         app.get('/', (req, res) => {
             res.send('Tiny Homepage :3');
+            return;
+        });
+
+        // CSRF Token
+        app.get('/csrfToken', (req, res) => {
+            res.json(req.csrfToken);
             return;
         });
 
