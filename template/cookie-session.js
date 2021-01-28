@@ -275,6 +275,118 @@ module.exports = function (app, cfg) {
 
         });
 
+
+        // Final Result
+        const final_functions = {
+
+            // API
+            addGuildMember: function (data) {
+                const addGuildMember = require('../api/addGuildMember');
+                return addGuildMember(tinyAuth.bot_token, data);
+            },
+
+            getGuildWidget: function (guildID) {
+                const getGuildWidget = require('../api/getGuildWidget');
+                return getGuildWidget(guildID);
+            },
+
+            // UID Generator
+            uidGenerator: function (userID) {
+                return discordSession.uidGenerator(userID);
+            },
+
+            // Session Plugins
+            sessionPlugins: {
+
+                // Get User Module
+                getUser: function (req, res, next) {
+
+                    // Get User Discord Data
+                    const access_token = req.session[sessionVars.access_token];
+                    if (typeof access_token === "string") {
+                        getDiscordUser(access_token).then(user => {
+
+                            // Set Discord Data
+                            req.discord_session.user = user;
+
+                            // Complete
+                            next();
+                            return;
+
+                        }).catch(err => {
+                            if (!req.discord_session.errors) { req.discord_session.errors = {}; }
+                            req.discord_session.errors.user = err;
+                            delete req.discord_session.user;
+                            prepare_final_session(req, res, err);
+                            return;
+                        });
+                    } else { next(); }
+
+                    // Complete
+                    return;
+
+                },
+
+                // Get User Module
+                getUserConnections: function (req, res, next) {
+
+                    // Get User Discord Data
+                    if (typeof req.session[sessionVars.access_token] === "string") {
+                        require('../api/getUserConnections')(req.session[sessionVars.access_token]).then(connections => {
+
+                            // Set Discord Data
+                            req.discord_session.connections = connections;
+
+                            // Complete
+                            next();
+                            return;
+
+                        }).catch(err => {
+                            if (!req.discord_session.errors) { req.discord_session.errors = {}; }
+                            req.discord_session.errors.connections = err;
+                            delete req.discord_session.connections;
+                            prepare_final_session(req, res, err);
+                            return;
+                        });
+                    } else { next(); }
+
+                    // Complete
+                    return;
+
+                },
+
+                // Get User Module
+                getUserGuilds: function (req, res, next) {
+
+                    // Get User Discord Data
+                    if (typeof req.session[sessionVars.access_token] === "string") {
+                        require('../api/getUserGuilds')(req.session[sessionVars.access_token]).then(guilds => {
+
+                            // Set Discord Data
+                            req.discord_session.guilds = guilds;
+
+                            // Complete
+                            next();
+                            return;
+
+                        }).catch(err => {
+                            if (!req.discord_session.errors) { req.discord_session.errors = {}; }
+                            req.discord_session.errors.guilds = err;
+                            delete req.discord_session.guilds;
+                            prepare_final_session(req, res, err);
+                            return;
+                        });
+                    } else { next(); }
+
+                    // Complete
+                    return;
+
+                }
+
+            }
+
+        };
+
         // Test Modules Prepare
         const discordAuth = require('../index');
         const getSessionFromCookie = require('../get/cookie-session');
@@ -886,117 +998,6 @@ module.exports = function (app, cfg) {
             return;
 
         });
-
-        // Final Result
-        const final_functions = {
-
-            // API
-            addGuildMember: function (data) {
-                const addGuildMember = require('../api/addGuildMember');
-                return addGuildMember(tinyAuth.bot_token, data);
-            },
-
-            getGuildWidget: function (guildID) {
-                const getGuildWidget = require('../api/getGuildWidget');
-                return getGuildWidget(guildID);
-            },
-
-            // UID Generator
-            uidGenerator: function (userID) {
-                return discordSession.uidGenerator(userID);
-            },
-
-            // Session Plugins
-            sessionPlugins: {
-
-                // Get User Module
-                getUser: function (req, res, next) {
-
-                    // Get User Discord Data
-                    const access_token = req.session[sessionVars.access_token];
-                    if (typeof access_token === "string") {
-                        getDiscordUser(access_token).then(user => {
-
-                            // Set Discord Data
-                            req.discord_session.user = user;
-
-                            // Complete
-                            next();
-                            return;
-
-                        }).catch(err => {
-                            if (!req.discord_session.errors) { req.discord_session.errors = {}; }
-                            req.discord_session.errors.user = err;
-                            delete req.discord_session.user;
-                            prepare_final_session(req, res, err);
-                            return;
-                        });
-                    } else { next(); }
-
-                    // Complete
-                    return;
-
-                },
-
-                // Get User Module
-                getUserConnections: function (req, res, next) {
-
-                    // Get User Discord Data
-                    if (typeof req.session[sessionVars.access_token] === "string") {
-                        require('../api/getUserConnections')(req.session[sessionVars.access_token]).then(connections => {
-
-                            // Set Discord Data
-                            req.discord_session.connections = connections;
-
-                            // Complete
-                            next();
-                            return;
-
-                        }).catch(err => {
-                            if (!req.discord_session.errors) { req.discord_session.errors = {}; }
-                            req.discord_session.errors.connections = err;
-                            delete req.discord_session.connections;
-                            prepare_final_session(req, res, err);
-                            return;
-                        });
-                    } else { next(); }
-
-                    // Complete
-                    return;
-
-                },
-
-                // Get User Module
-                getUserGuilds: function (req, res, next) {
-
-                    // Get User Discord Data
-                    if (typeof req.session[sessionVars.access_token] === "string") {
-                        require('../api/getUserGuilds')(req.session[sessionVars.access_token]).then(guilds => {
-
-                            // Set Discord Data
-                            req.discord_session.guilds = guilds;
-
-                            // Complete
-                            next();
-                            return;
-
-                        }).catch(err => {
-                            if (!req.discord_session.errors) { req.discord_session.errors = {}; }
-                            req.discord_session.errors.guilds = err;
-                            delete req.discord_session.guilds;
-                            prepare_final_session(req, res, err);
-                            return;
-                        });
-                    } else { next(); }
-
-                    // Complete
-                    return;
-
-                }
-
-            }
-
-        };
 
         // Complete
         return final_functions;
