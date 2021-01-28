@@ -362,6 +362,71 @@ module.exports = function (app, cfg) {
             // Session Plugins
             sessionPlugins: {
 
+                // Session Validator
+                validator: function (req, res, next) {
+
+                    // Add Discord Session
+                    if (!req.discord_session) { req.discord_session = {}; }
+        
+                    // Empty CSRF Token
+                    if (!req.csrfToken) { req.csrfToken = { new: {}, now: {} }; }
+        
+                    // Preparing Clocks
+                    if (!req.utc_clock) {
+                        req.utc_clock = { now: moment.tz('Universal') };
+                    }
+        
+                    // Exist Discord Session
+                    const existDiscordSession = (typeof req.session[sessionVars.token_expires_in] === "string" && typeof req.session[sessionVars.access_token] === "string" && typeof req.session[sessionVars.refresh_token] === "string");
+        
+                    // Exist Session
+                    if (existDiscordSession &&
+                        !req.url.startsWith(tinyURLPath.firebaseLogin + '?') && req.url !== tinyURLPath.firebaseLogin &&
+                        !req.url.startsWith(tinyURLPath.firebaseLogout + '?') && req.url !== tinyURLPath.firebaseLogout
+                    ) {
+        
+                        // Exist Firebase
+                        if (cfg.firebase) {
+        
+                            discordSession.firebase.get(req, res).then(() => {
+        
+                                // Complete
+                                checkDiscordSession(req, res, next);
+                                return;
+        
+                            }).catch(err => {
+        
+                                // Firebase Auth
+                                const firebase_auth = req.session[sessionVars.firebase_token];
+        
+                                // Logout
+                                auto_logout(req, err).then(result => {
+                                    logout_firebase(res, req, result.redirect, firebase_auth);
+                                    return;
+                                }).catch(err => {
+                                    tinyCfg.errorCallback(err, req, res);
+                                    return;
+                                });
+        
+                                // Complete
+                                return;
+        
+                            });
+        
+                        }
+        
+                        // Nope
+                        else {
+                            checkDiscordSession(req, res, next);
+                        }
+        
+                    } else { next(); }
+        
+                    // Complete
+                    return;
+        
+                },
+
                 // Get User Module
                 getUser: function (req, res, next) {
 
@@ -710,8 +775,13 @@ module.exports = function (app, cfg) {
 
             } else {
 
+                console.log('mio 1');
+                console.log(req.discord_session.user, req.firebase_session);
+
                 // Exist Discord Session Data and Firebase
-                if (req.discord_session.user && objType(req.firebase_session, 'object') && cfg.firebase) {
+                if (cfg.firebase && req.discord_session.user && objType(req.firebase_session, 'object')) {
+
+                    console.log('mio 2');
 
                     // Set New Firebase Session Data
                     const access_token = req.session[sessionVars.access_token];
@@ -754,6 +824,7 @@ module.exports = function (app, cfg) {
                     // Update User Data
                     const make_the_update = function () {
 
+                        console.log('mio 5');
                         discordSession.firebase.updateUser(access_token, user, oldUser).then(function () {
                             next();
                             return;
@@ -769,11 +840,13 @@ module.exports = function (app, cfg) {
 
                     // MFA Verified
                     if (req.firebase_session.mfa_enabled === req.discord_session.user.mfa_enabled) {
+                        console.log('mio 3');
                         make_the_update();
                     }
 
                     // Nope
                     else {
+                        console.log('mio 4');
                         cfg.firebase.auth.setCustomUserClaims(discordSession.uidGenerator(req.discord_session.user.id), prepare_fire_auth_discord(req, req.discord_session.user))
                             .then(() => {
                                 make_the_update();
@@ -792,71 +865,6 @@ module.exports = function (app, cfg) {
             return;
 
         };
-
-        // Refresh Validator
-        app.use(function (req, res, next) {
-
-            // Add Discord Session
-            if (!req.discord_session) { req.discord_session = {}; }
-
-            // Empty CSRF Token
-            if (!req.csrfToken) { req.csrfToken = { new: {}, now: {} }; }
-
-            // Preparing Clocks
-            if (!req.utc_clock) {
-                req.utc_clock = { now: moment.tz('Universal') };
-            }
-
-            // Exist Discord Session
-            const existDiscordSession = (typeof req.session[sessionVars.token_expires_in] === "string" && typeof req.session[sessionVars.access_token] === "string" && typeof req.session[sessionVars.refresh_token] === "string");
-
-            // Exist Session
-            if (existDiscordSession &&
-                !req.url.startsWith(tinyURLPath.firebaseLogin + '?') && req.url !== tinyURLPath.firebaseLogin &&
-                !req.url.startsWith(tinyURLPath.firebaseLogout + '?') && req.url !== tinyURLPath.firebaseLogout
-            ) {
-
-                // Exist Firebase
-                if (cfg.firebase) {
-
-                    discordSession.firebase.get(req, res).then(() => {
-
-                        // Complete
-                        checkDiscordSession(req, res, next);
-                        return;
-
-                    }).catch(err => {
-
-                        // Firebase Auth
-                        const firebase_auth = req.session[sessionVars.firebase_token];
-
-                        // Logout
-                        auto_logout(req, err).then(result => {
-                            logout_firebase(res, req, result.redirect, firebase_auth);
-                            return;
-                        }).catch(err => {
-                            tinyCfg.errorCallback(err, req, res);
-                            return;
-                        });
-
-                        // Complete
-                        return;
-
-                    });
-
-                }
-
-                // Nope
-                else {
-                    checkDiscordSession(req, res, next);
-                }
-
-            } else { next(); }
-
-            // Complete
-            return;
-
-        });
 
         // Prepare Body Parser
         let bodyParser = {};
