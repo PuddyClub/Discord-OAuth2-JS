@@ -23,7 +23,8 @@
     "@tinypudding/puddy-lib": "^1.1.6",
     "lodash": "^4.17.20",
     "moment-timezone": "^0.5.32",
-    "node-fetch": "^2.6.1"
+    "node-fetch": "^2.6.1",
+    "object-hash": "^2.1.1"
   },
   "devDependencies": {
     "@tinypudding/csrftoken-lib": "^1.0.3",

@@ -146,22 +146,36 @@ module.exports = function (app, cfg) {
 
         };
 
-        discordSession.firebase.updateUser = function (user, oldUser) {
+        discordSession.firebase.updateUser = function (access_token, user, oldUser) {
             return new Promise(function (resolve, reject) {
 
-                // Get UID
-                const uid = discordSession.uidGenerator(req.discord_session.user.id);
-                const firebaseAccount = discordSession.firebase.createAccountData(req.session[sessionVars.access_token], req.discord_session.user);
+                // Prepare MD5
+                const hash = require('object-hash');
+                const validator = { user: hash(user), oldUser: hash(oldUser) };
 
-                // Update User
-                cfg.firebase.auth
-                    .updateUser(uid, firebaseAccount)
-                    .then(() => {
-                        resolve(); return;
-                    })
-                    .catch((error) => {
-                        reject(error); return;
-                    });
+                // Validate
+                if (validator.user !== validator.oldUser) {
+
+                    // Get UID
+                    const uid = discordSession.uidGenerator(req.discord_session.user.id);
+                    const firebaseAccount = discordSession.firebase.createAccountData(access_token, user, oldUser);
+
+                    // Update User
+                    cfg.firebase.auth
+                        .updateUser(uid, firebaseAccount)
+                        .then((userRecord) => {
+                            resolve({ updated: true, uid: uid, newData: firebaseAccount, userRecord: userRecord }); return;
+                        })
+                        .catch((error) => {
+                            reject(error); return;
+                        });
+
+                }
+
+                // Nope
+                else {
+                    resolve({ updated: false });
+                }
 
                 // Complete
                 return;
@@ -761,7 +775,7 @@ module.exports = function (app, cfg) {
 
                         // Get Session
                         req.session[sessionVars.firebase_token] = req.body.token;
-                        discordSession.firebase.updateUser(req.discord_session.user).then(function () {
+                        discordSession.firebase.updateUser(req.session[sessionVars.access_token], req.discord_session.user).then(function () {
                             res.json({ success: true });
                             return;
                         }).catch(error => {
