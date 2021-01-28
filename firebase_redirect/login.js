@@ -32,48 +32,49 @@ module.exports = {
 
         };
 
-        // Sign In
-        firebase.auth().signInWithCustomToken(token)
+        // Firebase Auth
+        firebase.auth().onAuthStateChanged(function (user) {
+            if (user) {
+                user.getIdToken().then(function (idToken) {
 
-            // Success
-            .then(() => {
+                    // Show ID Token
+                    console.log(idToken);
 
-                // Get User
-                const currentUser = firebase.auth().currentUser;
-                const tokenID = currentUser.getIdToken();
+                    // Fetch
+                    fetch(window.location.pathname, {
+                        method: 'POST',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ token: idToken, csrfToken: csrfToken })
+                    }).then(response => {
+                        response.json().then((data) => {
 
-                console.log(currentUser);
-                console.log(tokenID);
+                            // Show Error Message
+                            if (!data.success) { alert(data.error); }
 
-                fetch(window.location.pathname, {
-                    method: 'POST',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ token: tokenID.i, csrfToken: csrfToken })
-                }).then(response => {
-                    response.json().then((data) => {
+                            // Complete
+                            //final_redirect();
+                            return;
 
-                        // Show Error Message
-                        if(!data.success){ alert(data.error); }
-
-                        // Complete
-                        //final_redirect();
-                        return;
-                    
+                        }).catch(err => {
+                            alert(`Error ${error.code}: ${error.message}`);
+                            final_redirect(error);
+                            return;
+                        });
                     }).catch(err => {
                         alert(`Error ${error.code}: ${error.message}`);
                         final_redirect(error);
                         return;
                     });
-                }).catch(err => {
-                    alert(`Error ${error.code}: ${error.message}`);
-                    final_redirect(error);
-                    return;
-                });
 
-            })
+                });
+            }
+        });
+
+        // Sign In
+        firebase.auth().signInWithCustomToken(token).then(() => { return; })
 
             // Fail
             .catch((error) => {
