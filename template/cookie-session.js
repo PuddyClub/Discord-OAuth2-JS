@@ -260,36 +260,14 @@ module.exports = function (app, cfg) {
             // Redirect
             redirect: {
 
-                /* 
-                
-                    data.functions
-                    data.token
-                    data.redirect
-                
-                */
-
                 /* Login */
                 login: function (data, req, res) {
-                    return res.send(
-                        require('fs').readFileSync(require('path').join(__dirname, '../test/template/cookie-session/firebase/login.html'), "utf8")
-                            .replace('{{firebase_cfg}}', JSON.stringify(tinyCfg.firebaseCfg))
-                            .replace('{{start_login}}', data.functions.run)
-                            .replace('{{token}}', data.token)
-                            .replace('{{key}}', data.key)
-                            .replace('{{redirect_url}}', data.redirect)
-                    );
+                    return res.json(data);
                 },
 
                 /* Logout */
                 logout: function (data, req, res) {
-                    return res.send(
-                        require('fs').readFileSync(require('path').join(__dirname, '../test/template/cookie-session/firebase/logout.html'), "utf8")
-                            .replace('{{firebase_cfg}}', JSON.stringify(tinyCfg.firebaseCfg))
-                            .replace('{{start_logout}}', data.functions.run)
-                            .replace('{{token}}', data.token)
-                            .replace('{{key}}', data.key)
-                            .replace('{{redirect_url}}', data.redirect)
-                    );
+                    return res.json(data);
                 }
 
             }
