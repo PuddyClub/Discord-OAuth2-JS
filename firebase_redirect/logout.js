@@ -31,7 +31,7 @@ module.exports = {
                 if (typeof callback !== "function") {
 
                     // Show Error
-                    if (error) { alert(JSON.stringify(error)); }
+                    if (error) { alert(error.message); }
 
                     // Redirect Now
                     start_redirect();

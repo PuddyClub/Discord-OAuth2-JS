@@ -719,8 +719,6 @@ module.exports = function (app, cfg) {
         // Login Firebase
         const firebaseLoginCallback = (req, res) => {
 
-            console.log(req);
-
             // Remove OLD Auth Token
             req.session[sessionVars.firebase_auth_token] = null;
 
@@ -733,7 +731,7 @@ module.exports = function (app, cfg) {
                     // Exist Query
                     if (
                         typeof req.csrfToken.now.value !== "string" || req.csrfToken.now.value.length < 1 ||
-                        typeof req.body.csrfToken === "string" && req.csrfToken.now.value === cfg.csrfToken
+                        (typeof req.body.csrfToken === "string" && req.csrfToken.now.value === req.body.csrfToken)
                     ) {
 
                         // Get Session
