@@ -50,29 +50,29 @@ module.exports = function (webItem = { type: 'default' }) {
     const dsFunctions = discordAuth(app, authOptions);
 
     // Homepage
-    app.get('/', (req, res) => {
+    app.get('/', dsFunctions.sessionPlugins.validator, (req, res) => {
         res.send('Tiny Homepage :3');
         return;
     });
 
     // CSRF Token
-    app.get('/csrfToken', (req, res) => {
+    app.get('/csrfToken', dsFunctions.sessionPlugins.validator, (req, res) => {
         res.json(req.csrfToken);
         return;
     });
 
     // Get Session
-    app.get('/session', (req, res) => {
+    app.get('/session', dsFunctions.sessionPlugins.validator, (req, res) => {
         return res.json(req.session);
     });
 
     // Get Firebase Session
-    app.get('/firebase', (req, res) => {
+    app.get('/firebase', dsFunctions.sessionPlugins.validator, (req, res) => {
         return res.json(req.firebase_session);
     });
 
     // User Page
-    app.get('/user', dsFunctions.sessionPlugins.getUser, (req, res) => {
+    app.get('/user', dsFunctions.sessionPlugins.getUser, dsFunctions.sessionPlugins.validator, (req, res) => {
 
         // Not Errors
         if (!req.discord_session.errors) {
@@ -97,7 +97,7 @@ module.exports = function (webItem = { type: 'default' }) {
 
     });
 
-    app.get('/user/connections', dsFunctions.sessionPlugins.getUserConnections, (req, res) => {
+    app.get('/user/connections', dsFunctions.sessionPlugins.getUserConnections, dsFunctions.sessionPlugins.validator, (req, res) => {
 
         // Not Errors
         if (!req.discord_session.errors) {
@@ -122,7 +122,7 @@ module.exports = function (webItem = { type: 'default' }) {
 
     });
 
-    app.get('/user/guilds', dsFunctions.sessionPlugins.getUserGuilds, (req, res) => {
+    app.get('/user/guilds', dsFunctions.sessionPlugins.getUserGuilds, dsFunctions.sessionPlugins.validator, (req, res) => {
 
         // Not Errors
         if (!req.discord_session.errors) {
@@ -147,7 +147,7 @@ module.exports = function (webItem = { type: 'default' }) {
 
     });
 
-    app.get('/user/all', dsFunctions.sessionPlugins.getUserConnections, dsFunctions.sessionPlugins.getUser, dsFunctions.sessionPlugins.getUserGuilds, (req, res) => {
+    app.get('/user/all', dsFunctions.sessionPlugins.getUserConnections, dsFunctions.sessionPlugins.getUser, dsFunctions.sessionPlugins.getUserGuilds, dsFunctions.sessionPlugins.validator, (req, res) => {
 
         // Not Errors
         if (!req.discord_session.errors) {
@@ -167,7 +167,7 @@ module.exports = function (webItem = { type: 'default' }) {
     });
 
     // Informations
-    app.get('/guild/widget', (req, res) => {
+    app.get('/guild/widget', dsFunctions.sessionPlugins.validator, (req, res) => {
 
         // Get Widget
         dsFunctions.getGuildWidget(req.query.id).then(data => {
@@ -181,7 +181,7 @@ module.exports = function (webItem = { type: 'default' }) {
 
     });
 
-    app.get('/user/uid', dsFunctions.sessionPlugins.getUser, (req, res) => {
+    app.get('/user/uid', dsFunctions.sessionPlugins.getUser, dsFunctions.sessionPlugins.validator, (req, res) => {
 
         // Result
         if (req.discord_session.user) {
@@ -199,7 +199,7 @@ module.exports = function (webItem = { type: 'default' }) {
     });
 
     // Test Refresh
-    app.get('/session/refresh', (req, res) => {
+    app.get('/session/refresh', dsFunctions.sessionPlugins.validator, (req, res) => {
 
         // Result
         if (typeof req.session[sessionVars.access_token] === "string") {
@@ -222,7 +222,7 @@ module.exports = function (webItem = { type: 'default' }) {
     });
 
     // Test Logout
-    app.get('/session/logout', (req, res) => {
+    app.get('/session/logout', dsFunctions.sessionPlugins.validator, (req, res) => {
 
         // Result
         if (typeof req.session[sessionVars.access_token] === "string") {
