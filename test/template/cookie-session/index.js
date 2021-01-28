@@ -260,6 +260,7 @@ module.exports = function (webItem = { type: 'default' }) {
             console.log(`User Page: http://localhost:${port}/user/uid`);
             console.log(`User Page: http://localhost:${port}/user/all`);
             console.log(`Session Page: http://localhost:${port}/session`);
+            console.log(`Session Page: http://localhost:${port}/csrfToken`);
             console.log(`Session Logout Page: http://localhost:${port}/session/logout`);
             console.log(`Session Refresh Page: http://localhost:${port}/session/refresh`);
             console.log(`Login: http://localhost:${port}/login`);
