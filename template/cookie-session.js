@@ -392,7 +392,7 @@ module.exports = function (app, cfg) {
 
                         // State
                         state: {
-                            csrfToken: req.csrfToken.old.value,
+                            csrfToken: req.csrfToken.now.value,
                             redirect: req.url
                         },
 
@@ -438,7 +438,7 @@ module.exports = function (app, cfg) {
 
                 // Exist Firebase
                 if (cfg.firebase) {
-                    discordSession.firebaseAuth.redirect.logout(res, result.redirect, req.csrfToken.old.value, firebase_auth);
+                    discordSession.firebaseAuth.redirect.logout(res, result.redirect, req.csrfToken.now.value, firebase_auth);
                 }
 
                 // Nope
@@ -547,7 +547,7 @@ module.exports = function (app, cfg) {
             if (!req.discord_session) { req.discord_session = {}; }
 
             // Empty CSRF Token
-            if (!req.csrfToken) { req.csrfToken = { new: {}, old: {} }; }
+            if (!req.csrfToken) { req.csrfToken = { new: {}, now: {} }; }
 
             // Preparing Clocks
             if (!req.utc_clock) {
@@ -579,7 +579,7 @@ module.exports = function (app, cfg) {
 
                         // Logout
                         auto_logout(req, err).then(result => {
-                            discordSession.firebaseAuth.redirect.logout(res, result.redirect, req.csrfToken.old.value, firebase_auth);
+                            discordSession.firebaseAuth.redirect.logout(res, result.redirect, req.csrfToken.now.value, firebase_auth);
                             return;
                         }).catch(err => {
                             tinyCfg.errorCallback(err, req, res);
@@ -711,7 +711,7 @@ module.exports = function (app, cfg) {
 
                     // State
                     state: {
-                        csrfToken: req.csrfToken.old.value
+                        csrfToken: req.csrfToken.now.value
                     }
 
                 }, (getSessionFromCookie(req, sessionVars.access_token)),
@@ -740,7 +740,7 @@ module.exports = function (app, cfg) {
 
                     // State
                     state: {
-                        csrfToken: req.csrfToken.old.value
+                        csrfToken: req.csrfToken.now.value
                     },
 
                     // Auth
@@ -804,7 +804,7 @@ module.exports = function (app, cfg) {
 
                     // State
                     state: {
-                        csrfToken: req.csrfToken.old.value
+                        csrfToken: req.csrfToken.now.value
                     }
 
                 }, (getSessionFromCookie(req, sessionVars.access_token)),
