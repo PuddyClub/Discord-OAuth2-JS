@@ -737,9 +737,7 @@ module.exports = function (app, cfg) {
                         // Get Session
                         req.session[sessionVars.firebase_token] = req.body.token;
                         const uid = discordSession.uidGenerator(req.discord_session.user.id);
-                        const firebaseAccount = discordSession.firebase.createAccountData(req.session[sessionVars.access_token], req.discord_session);
-
-                        console.log(uid, firebaseAccount);
+                        const firebaseAccount = discordSession.firebase.createAccountData(req.session[sessionVars.access_token], req.discord_session.user);
 
                         // Update User
                         cfg.firebase.auth
