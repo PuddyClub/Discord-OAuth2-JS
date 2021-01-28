@@ -720,6 +720,9 @@ module.exports = function (app, cfg) {
         const firebaseLoginCallback = (req, res) => {
 
             console.log(req);
+            
+            // Remove OLD Auth Token
+            req.session[sessionVars.firebase_auth_token] = null;
 
             // Exist Discord
             if (req.discord_session.user) {

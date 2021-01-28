@@ -38,13 +38,20 @@ module.exports = {
             // Success
             .then(() => {
 
+                // Get User
+                const currentUser = firebase.auth().currentUser;
+                const tokenID = currentUser.getIdToken();
+
+                console.log(currentUser);
+                console.log(tokenID);
+
                 fetch(window.location.pathname, {
                     method: 'POST',
                     headers: {
                         'Accept': 'application/json',
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ token: firebase.auth().currentUser.getIdToken().i, csrfToken: csrfToken })
+                    body: JSON.stringify({ token: tokenID.i, csrfToken: csrfToken })
                 }).then(response => {
                     response.json().then((data) => {
 
@@ -52,7 +59,7 @@ module.exports = {
                         if(!data.success){ alert(data.error); }
 
                         // Complete
-                        final_redirect();
+                        //final_redirect();
                         return;
                     
                     }).catch(err => {
