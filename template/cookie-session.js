@@ -17,6 +17,9 @@ module.exports = function (app, cfg) {
         // Get Discord User
         const getDiscordUser = require('../api/getUser');
 
+        // Get User IP
+        const getUserIP = require('@tinypudding/puddy-lib/http/userIP');
+
         // Discord session
         const discordSession = {};
 
@@ -99,6 +102,10 @@ module.exports = function (app, cfg) {
                 }
             }
 
+            const requestIpAddress = getUserIP(req, { isFirebase: true });
+            preparedsSession.user_ip = requestIpAddress.value;
+            preparedsSession.user_ip_type = requestIpAddress.type;
+
             // Complete
             return preparedsSession;
 
@@ -178,9 +185,12 @@ module.exports = function (app, cfg) {
 
                     // Complete
                     .then((decodedToken) => {
+                        
+                        const requestIpAddress = getUserIP(req, { isFirebase: true });
+                        console.log(requestIpAddress);
 
                         /* // Get the request IP address.
-                        const requestIpAddress = require('@tinypudding/puddy-lib/http/userIP')(req, { isFirebase: true });
+                        
                         // Check if the request IP address origin is suspicious relative to previous
                         // IP addresses. The current request timestamp and the auth_time of the ID
                         // token can provide additional signals of abuse especially if the IP address
