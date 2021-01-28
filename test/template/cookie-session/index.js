@@ -10,7 +10,7 @@ module.exports = function (webItem = { type: 'default' }) {
     app.use(helmet({
         contentSecurityPolicy: {
             directives: {
-                defaultSrc: ["'self'", "'unsafe-inline'", 'https://www.googleapis.com/', "https://www.gstatic.com/firebasejs/", "https://cdnjs.cloudflare.com/ajax/libs/jquery/", "https://cdnjs.cloudflare.com/ajax/libs/jquery-loading-overlay/"]
+                defaultSrc: ["'self'", "'unsafe-inline'", 'https://securetoken.googleapis.com/', 'https://www.googleapis.com/', "https://www.gstatic.com/firebasejs/", "https://cdnjs.cloudflare.com/ajax/libs/jquery/", "https://cdnjs.cloudflare.com/ajax/libs/jquery-loading-overlay/"]
             }
         }
     }));

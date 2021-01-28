@@ -165,7 +165,14 @@ module.exports = function (app, cfg) {
 
                 // Prepare MD5
                 const hash = require('object-hash');
-                const validator = { user: hash(user), oldUser: hash(oldUser) };
+                const validator = {};
+
+                validator.user = hash(user);
+                if (objType(oldUser, 'object')) { validator.oldUser = hash(oldUser) } else {
+                    validator.oldUser = '';
+                }
+
+                console.log(validator);
 
                 // Validate
                 if (validator.user !== validator.oldUser) {
