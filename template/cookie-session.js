@@ -703,23 +703,24 @@ module.exports = function (app, cfg) {
 
             } else {
 
-                // Exist Discord Session Data
-                if (req.discord_session.user) {
+                // Exist Discord Session Data and Firebase
+                if (req.discord_session.user && objType(userFiredata, 'object') && cfg.firebase) {
 
-                    // userFiredata
+                    // Set New Firebase Session Data
+                    const access_token = req.session[sessionVars.access_token];
 
                     // Prepare OLD User
-                    const oldUser = {};;
-                    
+                    const oldUser = {};
+
                     // Get ID
                     oldUser.id = userFiredata.uid.substring(discordSession.varsTemplate.uid.length + tinyAuth.client_id.length + 1);
-                    
+
                     // Convert Username
                     oldUser.username = userFiredata.name.split('#');
-                    
+
                     // Get Discriminator
                     oldUser.discriminator = oldUser.username[oldUser.username.length - 1];
-                    
+
                     // Remove Discriminator
                     oldUser.username.pop();
 
@@ -728,7 +729,7 @@ module.exports = function (app, cfg) {
 
                     // Get Avatar
                     oldUser.avatar = userFiredata.picture.substring(discordSession.varsTemplate.avatarURL.length + oldUser.id.length + 1);
-                    
+
                     // Get Email
                     oldUser.email = userFiredata.email;
                     oldUser.verified = userFiredata.email_verified;
