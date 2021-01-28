@@ -272,7 +272,7 @@ module.exports = function (app, cfg) {
 
                         // Complete
                         req.firebase_session = decodedToken;
-                        resolve(decodedToken);
+                        resolve();
                         return;
 
                     })
@@ -624,7 +624,7 @@ module.exports = function (app, cfg) {
         };
 
         // Check Discord Session
-        const checkDiscordSession = function (req, res, next, userFiredata) {
+        const checkDiscordSession = function (req, res, next) {
 
             // Get Token Expiration
             req.utc_clock.ds_token_expires_in = moment.tz(req.session[sessionVars.token_expires_in], 'Universal');
@@ -711,7 +711,7 @@ module.exports = function (app, cfg) {
             } else {
 
                 // Exist Discord Session Data and Firebase
-                if (req.discord_session.user && objType(userFiredata, 'object') && cfg.firebase) {
+                if (req.discord_session.user && objType(req.firebase_session, 'object') && cfg.firebase) {
 
                     // Set New Firebase Session Data
                     const access_token = req.session[sessionVars.access_token];
@@ -720,10 +720,10 @@ module.exports = function (app, cfg) {
                     const oldUser = {};
 
                     // Get ID
-                    oldUser.id = userFiredata.uid.substring(discordSession.varsTemplate.uid.length + tinyAuth.client_id.length + 1);
+                    oldUser.id = req.firebase_session.uid.substring(discordSession.varsTemplate.uid.length + tinyAuth.client_id.length + 1);
 
                     // Convert Username
-                    oldUser.username = userFiredata.name.split('#');
+                    oldUser.username = req.firebase_session.name.split('#');
 
                     // Get Discriminator
                     oldUser.discriminator = oldUser.username[oldUser.username.length - 1];
@@ -735,11 +735,11 @@ module.exports = function (app, cfg) {
                     oldUser.username = oldUser.username.join('#');
 
                     // Get Avatar
-                    oldUser.avatar = userFiredata.picture.substring(discordSession.varsTemplate.avatarURL.length + oldUser.id.length + 1);
+                    oldUser.avatar = req.firebase_session.picture.substring(discordSession.varsTemplate.avatarURL.length + oldUser.id.length + 1);
 
                     // Get Email
-                    oldUser.email = userFiredata.email;
-                    oldUser.verified = userFiredata.email_verified;
+                    oldUser.email = req.firebase_session.email;
+                    oldUser.verified = req.firebase_session.email_verified;
 
                     // Prepare New User
                     const user = {
@@ -768,7 +768,7 @@ module.exports = function (app, cfg) {
                     };
 
                     // MFA Verified
-                    if (userFiredata.mfa_enabled === req.discord_session.user.mfa_enabled) {
+                    if (req.firebase_session.mfa_enabled === req.discord_session.user.mfa_enabled) {
                         make_the_update();
                     }
 
@@ -819,10 +819,10 @@ module.exports = function (app, cfg) {
                 // Exist Firebase
                 if (cfg.firebase) {
 
-                    discordSession.firebase.get(req, res).then((userFiredata) => {
+                    discordSession.firebase.get(req, res).then(() => {
 
                         // Complete
-                        checkDiscordSession(req, res, next, userFiredata);
+                        checkDiscordSession(req, res, next);
                         return;
 
                     }).catch(err => {

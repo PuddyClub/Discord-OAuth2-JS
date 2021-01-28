@@ -66,6 +66,11 @@ module.exports = function (webItem = { type: 'default' }) {
         return res.json(req.session);
     });
 
+    // Get Firebase Session
+    app.get('/firebase', (req, res) => {
+        return res.json(req.firebase_session);
+    });
+
     // User Page
     app.get('/user', dsFunctions.sessionPlugins.getUser, (req, res) => {
 
@@ -256,6 +261,7 @@ module.exports = function (webItem = { type: 'default' }) {
         console.log(`User Page: http://localhost:${port}/user/uid`);
         console.log(`User Page: http://localhost:${port}/user/all`);
         console.log(`Session Page: http://localhost:${port}/session`);
+        console.log(`Session Page: http://localhost:${port}/firebase`);
         console.log(`Session Page: http://localhost:${port}/csrfToken`);
         console.log(`Session Logout Page: http://localhost:${port}/session/logout`);
         console.log(`Session Refresh Page: http://localhost:${port}/session/refresh`);
