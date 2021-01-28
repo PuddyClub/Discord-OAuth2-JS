@@ -720,7 +720,7 @@ module.exports = function (app, cfg) {
         const firebaseLoginCallback = (req, res) => {
 
             console.log(req);
-            
+
             // Remove OLD Auth Token
             req.session[sessionVars.firebase_auth_token] = null;
 
@@ -837,6 +837,7 @@ module.exports = function (app, cfg) {
 
                 // Insert Data
                 if (typeof req.query.key === "string" && req.query.key.length > 0) { final_data.key = req.query.key; }
+                final_data.originalKey = req.csrfToken.now.value;
                 final_data.functions = firebase_redirect.logout;
                 final_data.token = req.query.firebase_auth;
 
