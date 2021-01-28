@@ -37,7 +37,7 @@ require('../index')({
             /* Login */
             login: function (data, req, res) {
                 return res.send(
-                    require('fs').readFileSync(require('path').join(__dirname, '../test/template/cookie-session/firebase/login.html'), "utf8")
+                    require('fs').readFileSync(require('path').join(__dirname, './login.html'), "utf8")
                         .replace('{{firebase_cfg}}', JSON.stringify(tinyCfg.firebaseCfg))
                         .replace('{{start_login}}', data.functions.run)
                         .replace('{{token}}', data.token)
@@ -49,7 +49,7 @@ require('../index')({
             /* Logout */
             logout: function (data, req, res) {
                 return res.send(
-                    require('fs').readFileSync(require('path').join(__dirname, '../test/template/cookie-session/firebase/logout.html'), "utf8")
+                    require('fs').readFileSync(require('path').join(__dirname, './logout.html'), "utf8")
                         .replace('{{firebase_cfg}}', JSON.stringify(tinyCfg.firebaseCfg))
                         .replace('{{start_logout}}', data.functions.run)
                         .replace('{{token}}', data.token)
