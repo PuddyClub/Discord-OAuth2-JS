@@ -745,14 +745,34 @@ module.exports = function (app, cfg) {
                     };
 
                     // Update User Data
-                    discordSession.firebase.updateUser(access_token, user, oldUser).then(function () {
-                        next();
+                    const make_the_update = function () {
+
+                        discordSession.firebase.updateUser(access_token, user, oldUser).then(function () {
+                            next();
+                            return;
+                        }).catch(error => {
+                            logger.error(error);
+                            prepare_final_session(req, res, error);
+                            return;
+                        });
+
                         return;
-                    }).catch(error => {
-                        logger.error(error);
-                        prepare_final_session(req, res, error);
-                        return;
-                    });
+
+                    };
+
+                    // MFA Verified
+                    if (userFiredata.mfa_enabled === req.discord_session.user.mfa_enabled) {
+                        make_the_update();
+                    }
+
+                    // Nope
+                    else {
+                        cfg.firebase.auth.setCustomUserClaims(discordSession.uidGenerator(req.discord_session.user.id), prepare_fire_auth_discord(req, req.discord_session.user))
+                            .then(() => {
+                                make_the_update();
+                                return;
+                            }).catch((err) => { prepare_final_session(req, res, err); return; });
+                    }
 
                 }
 
