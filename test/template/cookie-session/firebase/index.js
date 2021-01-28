@@ -16,12 +16,12 @@ if (tinyCfg.firebase) {
 // App
 const app = firebase.get(tinyCfg.options.id);
 
+// Firebase Config
+const firebaseCfg = JSON.stringify(require('./html_values.json'));
+
 // Start Firebase
 require('../index')({
     type: 'firebase', app: app, cfg: {
-
-        // Firebase Config
-        firebaseCfg: require('./html_values.json'),
 
         // Redirect
         redirect: {
@@ -38,7 +38,7 @@ require('../index')({
             login: function (data, req, res) {
                 return res.send(
                     require('fs').readFileSync(require('path').join(__dirname, './login.html'), "utf8")
-                        .replace('{{firebase_cfg}}', JSON.stringify(tinyCfg.firebaseCfg))
+                        .replace('{{firebase_cfg}}', firebaseCfg)
                         .replace('{{start_login}}', data.functions.run)
                         .replace('{{token}}', data.token)
                         .replace('{{key}}', data.key)
@@ -50,7 +50,7 @@ require('../index')({
             logout: function (data, req, res) {
                 return res.send(
                     require('fs').readFileSync(require('path').join(__dirname, './logout.html'), "utf8")
-                        .replace('{{firebase_cfg}}', JSON.stringify(tinyCfg.firebaseCfg))
+                        .replace('{{firebase_cfg}}', firebaseCfg)
                         .replace('{{start_logout}}', data.functions.run)
                         .replace('{{token}}', data.token)
                         .replace('{{key}}', data.key)

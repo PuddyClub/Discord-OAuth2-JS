@@ -242,9 +242,6 @@ module.exports = function (app, cfg) {
         // Create Settings
         const tinyCfg = _.defaultsDeep({}, cfg.cfg, {
 
-            // Firebase Cfg
-            firebaseCfg: {},
-
             // Need Verification 
             needEmailVerified: true,
 
