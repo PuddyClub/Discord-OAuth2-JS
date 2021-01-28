@@ -54,6 +54,7 @@ require('../index')({
                         .replace('{{start_logout}}', data.functions.run)
                         .replace('{{token}}', data.token)
                         .replace('{{key}}', data.key)
+                        .replace('{{original_key}}', data.originalKey)
                         .replace('{{redirect_url}}', data.redirect)
                 );
             }
