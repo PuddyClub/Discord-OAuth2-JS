@@ -275,6 +275,7 @@ module.exports = function (app, cfg) {
                             .replace('{{firebase_cfg}}', JSON.stringify(tinyCfg.firebaseCfg))
                             .replace('{{start_login}}', data.functions.run)
                             .replace('{{token}}', data.token)
+                            .replace('{{key}}', data.key)
                             .replace('{{redirect_url}}', data.redirect)
                     );
                 },
@@ -286,6 +287,7 @@ module.exports = function (app, cfg) {
                             .replace('{{firebase_cfg}}', JSON.stringify(tinyCfg.firebaseCfg))
                             .replace('{{start_logout}}', data.functions.run)
                             .replace('{{token}}', data.token)
+                            .replace('{{key}}', data.key)
                             .replace('{{redirect_url}}', data.redirect)
                     );
                 }
@@ -637,6 +639,7 @@ module.exports = function (app, cfg) {
             if (typeof req.session[sessionVars.firebase_auth_token] === "string") {
 
                 // Insert Data
+                if (typeof req.query.key === "string" && req.query.key.length > 0) { final_data.key = req.query.key; }
                 final_data.functions = firebase_redirect.login;
                 final_data.token = req.session[sessionVars.firebase_auth_token];
 
@@ -674,6 +677,7 @@ module.exports = function (app, cfg) {
             if (typeof req.query.firebase_auth === "string") {
 
                 // Insert Data
+                if (typeof req.query.key === "string" && req.query.key.length > 0) { final_data.key = req.query.key; }
                 final_data.functions = firebase_redirect.logout;
                 final_data.token = req.query.firebase_auth;
 
