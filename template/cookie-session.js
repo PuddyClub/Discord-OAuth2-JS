@@ -6,6 +6,14 @@ module.exports = function (app, cfg) {
     // Config
     if (objType(cfg, 'object')) {
 
+        // Logger
+        let logger = null;
+        try {
+            logger = require('@tinypudding/firebase-lib/logger');
+        } catch (err) {
+            logger = console;
+        }
+
         // Get Discord User
         const getDiscordUser = require('../api/getUser');
 
@@ -101,38 +109,33 @@ module.exports = function (app, cfg) {
 
         discordSession.firebase.createAccountData = function (access_token, userData, oldData) {
 
+            // Prepare New User Data
+            const newUserData = {};
+            const existOLD = (objType(oldData, 'object'));
+
+            // Password
             if (typeof access_token === "string" && access_token.length > 0) {
-
-                // Prepare New User Data
-                const newUserData = {};
-                const existOLD = (objType(oldData, 'object'));
-
-                // Password
                 newUserData.password = access_token;
-
-                // Main Data
-                const newUsername = userData.username + '#' + userData.discriminator;
-                const newAvatar = `https://cdn.discordapp.com/avatars/${userData.id}/${userData.avatar}`;
-
-                // Basic Profile
-                if (!existOLD || newUsername !== oldData.displayNama) { newUserData.displayName = newUsername; }
-                if (!existOLD || newAvatar !== oldData.photoURL) { newUserData.photoURL = newAvatar; }
-
-                // Insert User Email
-                if (typeof userData.email === "string") {
-                    if (!existOLD || userData.email !== oldData.email) {
-                        newUserData.email = userData.email;
-                        newUserData.emailVerified = (userData.verified);
-                    }
-                }
-
-                // Complete
-                return newUserData;
-
             }
 
-            // Nope
-            else { return null; }
+            // Main Data
+            const newUsername = userData.username + '#' + userData.discriminator;
+            const newAvatar = `https://cdn.discordapp.com/avatars/${userData.id}/${userData.avatar}`;
+
+            // Basic Profile
+            if (!existOLD || newUsername !== oldData.displayNama) { newUserData.displayName = newUsername; }
+            if (!existOLD || newAvatar !== oldData.photoURL) { newUserData.photoURL = newAvatar; }
+
+            // Insert User Email
+            if (typeof userData.email === "string") {
+                if (!existOLD || userData.email !== oldData.email) {
+                    newUserData.email = userData.email;
+                    newUserData.emailVerified = (userData.verified);
+                }
+            }
+
+            // Complete
+            return newUserData;
 
         };
 
@@ -251,7 +254,7 @@ module.exports = function (app, cfg) {
                 if (res) {
                     return res.json(err);
                 } else {
-                    console.error(err);
+                    logger.error(error);
                 }
             },
 
@@ -596,12 +599,40 @@ module.exports = function (app, cfg) {
 
         // Login Firebase
         const firebaseLoginCallback = (req, res) => {
-            if (objType(req.body, 'object') && typeof req.body.token === "string") { req.session[sessionVars.firebase_token] = req.body.token; }
-            return res.json({ success: true });
+
+            // Exist Body
+            if (objType(req.body, 'object') && typeof req.body.token === "string") {
+
+                // Get Session
+                req.session[sessionVars.firebase_token] = req.body.token;
+                const uid = discordSession.uidGenerator(req.discord_session.id);
+                const firebaseAccount = discordSession.firebase.createAccountData(req.session[sessionVars.access_token], req.discord_session);
+
+                // Update User
+                cfg.firebase.auth
+                    .updateUser(uid, firebaseAccount)
+                    .then(() => {
+                        return res.json({ success: true });
+                    })
+                    .catch((error) => {
+                        logger.error(error);
+                        return res.json({ success: false, error: { message: 'Error updating user' } });
+                    });
+
+                // Complete
+
+
+            }
+
+            // Nope
+            else {
+                return res.json({ success: false, error: { message: 'Invalid Data!' } });
+            }
+
         };
 
-        if (cfg.bodyParser) { app.post(tinyURLPath.firebaseLogin, bodyParser.json, bodyParser.urlencoded, firebaseLoginCallback); }
-        else { app.post(tinyURLPath.firebaseLogin, firebaseLoginCallback); }
+        if (cfg.bodyParser) { app.post(tinyURLPath.firebaseLogin, bodyParser.json, bodyParser.urlencoded, final_functions.sessionPlugins.getUser, firebaseLoginCallback); }
+        else { app.post(tinyURLPath.firebaseLogin, final_functions.sessionPlugins.getUser, firebaseLoginCallback); }
         app.get(tinyURLPath.firebaseLogin, (req, res) => {
 
             // Final Data
