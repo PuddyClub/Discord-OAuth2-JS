@@ -784,13 +784,8 @@ module.exports = function (app, cfg) {
 
             } else {
 
-                console.log('mio 1');
-                console.log(req.discord_session.user, req.firebase_session);
-
                 // Exist Discord Session Data and Firebase
                 if (cfg.firebase && req.discord_session.user && objType(req.firebase_session, 'object')) {
-
-                    console.log('mio 2');
 
                     // Set New Firebase Session Data
                     const access_token = req.session[sessionVars.access_token];
@@ -833,7 +828,6 @@ module.exports = function (app, cfg) {
                     // Update User Data
                     const make_the_update = function () {
 
-                        console.log('mio 5');
                         discordSession.firebase.updateUser(access_token, user, oldUser).then(function () {
                             next();
                             return;
@@ -849,13 +843,11 @@ module.exports = function (app, cfg) {
 
                     // MFA Verified
                     if (req.firebase_session.mfa_enabled === req.discord_session.user.mfa_enabled) {
-                        console.log('mio 3');
                         make_the_update();
                     }
 
                     // Nope
                     else {
-                        console.log('mio 4');
                         cfg.firebase.auth.setCustomUserClaims(discordSession.uidGenerator(req.discord_session.user.id), prepare_fire_auth_discord(req, req.discord_session.user))
                             .then(() => {
                                 make_the_update();
