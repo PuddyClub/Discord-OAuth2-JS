@@ -1,7 +1,7 @@
 module.exports = {
 
     // Run Function
-    run: function (token, redirect_url, callback) {
+    run: function (token, redirect_url, csrfToken, callback) {
 
         // Fix Redirect
         if (typeof redirect_url === "string") {
@@ -46,7 +46,7 @@ module.exports = {
                         'Accept': 'application/json',
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ token: userCredential.getIdToken() })
+                    body: JSON.stringify({ token: userCredential.getIdToken(), csrfToken: csrfToken })
                 }).then(response => {
                     response.json().then(() => {
                         final_redirect();
