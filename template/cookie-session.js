@@ -269,6 +269,10 @@ module.exports = function (app, cfg) {
                 /* Logout */
                 logout: function (data, req, res) {
                     return res.json(data);
+                },
+
+                webhook: function (data, req, res) {
+                    return res.json(data);
                 }
 
             }
@@ -717,48 +721,58 @@ module.exports = function (app, cfg) {
 
             console.log(req);
 
-            // Exist Body
-            if (objType(req.body, 'object') && typeof req.body.token === "string") {
+            // Exist Discord
+            if (req.discord_session.user) {
 
-                // Exist Query
-                if (
-                    typeof req.csrfToken.now.value !== "string" || req.csrfToken.now.value.length < 1 ||
-                    typeof req.body.csrfToken === "string" && req.csrfToken.now.value === cfg.csrfToken
-                ) {
+                // Exist Body
+                if (objType(req.body, 'object') && typeof req.body.token === "string") {
 
-                    // Get Session
-                    req.session[sessionVars.firebase_token] = req.body.token;
-                    const uid = discordSession.uidGenerator(req.discord_session.id);
-                    const firebaseAccount = discordSession.firebase.createAccountData(req.session[sessionVars.access_token], req.discord_session);
+                    // Exist Query
+                    if (
+                        typeof req.csrfToken.now.value !== "string" || req.csrfToken.now.value.length < 1 ||
+                        typeof req.body.csrfToken === "string" && req.csrfToken.now.value === cfg.csrfToken
+                    ) {
 
-                    console.log(uid, firebaseAccount);
+                        // Get Session
+                        req.session[sessionVars.firebase_token] = req.body.token;
+                        const uid = discordSession.uidGenerator(req.discord_session.user.id);
+                        const firebaseAccount = discordSession.firebase.createAccountData(req.session[sessionVars.access_token], req.discord_session);
 
-                    // Update User
-                    cfg.firebase.auth
-                        .updateUser(uid, firebaseAccount)
-                        .then(() => {
-                            return res.json({ success: true });
-                        })
-                        .catch((error) => {
-                            logger.error(error);
-                            return res.json({ success: false, error: 'Error updating user' });
-                        });
+                        console.log(uid, firebaseAccount);
 
-                    // Complete
-                    return;
+                        // Update User
+                        cfg.firebase.auth
+                            .updateUser(uid, firebaseAccount)
+                            .then(() => {
+                                return res.json({ success: true });
+                            })
+                            .catch((error) => {
+                                logger.error(error);
+                                return res.json({ success: false, error: 'Error updating user' });
+                            });
+
+                        // Complete
+                        return;
+
+                    }
+
+                    // Nope
+                    else {
+                        return res.json({ success: false, error: 'Invalid csrfToken!' });
+                    }
 
                 }
 
                 // Nope
                 else {
-                    return res.json({ success: false, error: 'Invalid csrfToken!' });
+                    return res.json({ success: false, error: 'Invalid Data!' });
                 }
 
             }
 
             // Nope
             else {
-                return res.json({ success: false, error: 'Invalid Data!' });
+                return res.json({ success: false, error: 'Invalid Discord User!' });
             }
 
         };
@@ -995,7 +1009,18 @@ module.exports = function (app, cfg) {
                 }
 
                 // Normal Redirect
-                else { res.redirect(result.redirect) };
+                else {
+
+                    if (typeof tinyCfg.redirect[result.state.type] === "function") {
+                        tinyCfg.redirect[result.state.type](result, req, res);
+                    }
+
+                    // Nope
+                    else {
+                        res.redirect(result.redirect);
+                    }
+
+                };
 
                 // Complete
                 return;
