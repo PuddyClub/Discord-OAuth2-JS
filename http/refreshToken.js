@@ -18,7 +18,7 @@ module.exports = async function (req, cfg, existSession) {
             });
 
             // Check Session
-            if (typeof tinyCfg.csrfToken !== "string" || tinyCfg.csrfToken.length < 1 || (typeof req[type].csrfToken === "string" && req[type].csrfToken === tinyCfg.csrfToken)) {
+            if (typeof tinyCfg.csrfToken !== "string" || tinyCfg.csrfToken.length < 1 || (typeof req.csrfToken.now.value === "string" && req.csrfToken.now.value === tinyCfg.csrfToken)) {
 
                 // Prepare more settings
                 const tinyQuery = _.defaultsDeep({}, cfg.auth, {

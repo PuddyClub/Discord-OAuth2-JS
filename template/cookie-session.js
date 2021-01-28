@@ -330,6 +330,7 @@ module.exports = function (app, cfg) {
             access_token: 'access_token',
             refresh_token: 'refresh_token',
             token_type: 'token_type',
+            csrfToken: 'csrfToken',
             scope: 'scope',
             token_expires_in: 'token_expires_in',
             firebase_token: 'firebase_token',
@@ -385,6 +386,9 @@ module.exports = function (app, cfg) {
                 // Result
                 discordAuth.logout(req, req.session[sessionVars.access_token],
                     {
+
+                        // CSRF Token
+                        csrfToken: req.csrfToken.now.value,
 
                         // Query
                         query: {
@@ -735,6 +739,9 @@ module.exports = function (app, cfg) {
             // Result
             discordAuth.logout(req, req.session[sessionVars.access_token],
                 {
+
+                    // CSRF Token
+                    csrfToken: req.query[sessionVars.csrfToken],
 
                     // Query
                     query: {

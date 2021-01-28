@@ -27,11 +27,11 @@ module.exports = async function (req, access_token, cfg, existSession) {
                 // Exist Query
                 if (typeof tinyState.csrfToken !== "string" || tinyState.csrfToken.length < 1 || (
                     objType(req.query, 'object') &&
-                    typeof req.query[tinyQuery.csrfToken] === "string" && tinyState.csrfToken === req.query[tinyQuery.csrfToken]
+                    typeof cfg.csrfToken === "string" && tinyState.csrfToken === cfg.csrfToken
                 )) {
 
                     // Result
-                    const result = { data: null, existSession: (existSession), complete: false, state: { csrfToken: req.query[tinyQuery.csrfToken] } };
+                    const result = { data: null, existSession: (existSession), complete: false, state: { csrfToken: cfg.csrfToken } };
 
                     // Prepare Final Redirect
                     result.redirect = '/';
