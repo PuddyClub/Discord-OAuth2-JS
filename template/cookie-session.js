@@ -644,9 +644,22 @@ module.exports = function (app, cfg) {
                                 const access_token = req.session[sessionVars.access_token];
                                 getDiscordUser(access_token).then(user => {
 
+                                    // Set Custom Usre Claims
                                     cfg.firebase.auth.setCustomUserClaims(discordSession.uidGenerator(user.id), prepare_fire_auth_discord(req))
                                         .then(() => {
-                                            next(); return;
+
+                                            // Update User Data
+                                            discordSession.firebase.updateUser(access_token, user).then(function () {
+                                                next();
+                                                return;
+                                            }).catch(error => {
+                                                logger.error(error);
+                                                prepare_final_session(req, res, error);
+                                                return;
+                                            });
+
+                                            return;
+                                        
                                         }).catch((err) => { prepare_final_session(req, res, err); return; });
 
                                     // Complete
