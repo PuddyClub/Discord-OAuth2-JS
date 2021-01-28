@@ -184,8 +184,6 @@ module.exports = function (app, cfg) {
                     validator.oldUser = '';
                 }
 
-                console.log(validator);
-
                 // Validate
                 if (validator.user !== validator.oldUser) {
 
