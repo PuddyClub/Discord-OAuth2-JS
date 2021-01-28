@@ -20,7 +20,7 @@ module.exports = {
 
             // The Redirect
             const start_redirect = function () {
-                //window.location.href = window.location.origin + '/' + redirect_url;
+                window.location.href = window.location.origin + '/' + redirect_url;
                 return;
             };
 
@@ -32,13 +32,11 @@ module.exports = {
 
         };
 
-        console.log(token);
-
         // Sign In
         firebase.auth().signInWithCustomToken(token)
 
             // Success
-            .then((userCredential) => {
+            .then(() => {
 
                 fetch(window.location.pathname, {
                     method: 'POST',
@@ -46,7 +44,7 @@ module.exports = {
                         'Accept': 'application/json',
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ token: userCredential.getIdToken(), csrfToken: csrfToken })
+                    body: JSON.stringify({ token: firebase.auth().currentUser.getIdToken().i, csrfToken: csrfToken })
                 }).then(response => {
                     response.json().then(() => {
                         final_redirect();

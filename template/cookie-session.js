@@ -176,6 +176,7 @@ module.exports = function (app, cfg) {
                     // Complete
                     .then((decodedToken) => {
 
+                        // Validar se o IP do usuário é o mesmo do Token
                         console.log(decodedToken);
                         /* 
                         
@@ -443,7 +444,7 @@ module.exports = function (app, cfg) {
         // Check Discord Session
         const checkDiscordSession = function (req, res, next, userFiredata) {
 
-            // GET USER DATA TO TEST
+            // Validar se os dados do Firebase são os mesmos do Discord
             console.log(userFiredata);
 
             req.utc_clock.ds_token_expires_in = moment.tz(req.session[sessionVars.token_expires_in], 'Universal');
@@ -595,7 +596,6 @@ module.exports = function (app, cfg) {
 
         // Login Firebase
         const firebaseLoginCallback = (req, res) => {
-            console.log('mio 4');
             if (objType(req.body, 'object') && typeof req.body.token === "string") { req.session[sessionVars.firebase_token] = req.body.token; }
             return res.json({ success: true });
         };
