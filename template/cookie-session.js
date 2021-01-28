@@ -670,7 +670,7 @@ module.exports = function (app, cfg) {
                 // Exist Firebase
                 if (cfg.firebase) {
 
-                    discordSession.firebase.get().then((userFiredata) => {
+                    discordSession.firebase.get(req, res).then((userFiredata) => {
 
                         // Complete
                         checkDiscordSession(req, res, next, userFiredata);
