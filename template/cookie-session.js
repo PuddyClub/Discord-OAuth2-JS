@@ -179,40 +179,32 @@ module.exports = function (app, cfg) {
                     // Complete
                     .then((decodedToken) => {
 
-                        // Validar se o IP do usuário é o mesmo do Token
-                        console.log(decodedToken);
-                        /* 
-                        
-                        decodedToken.sub
-                        
-                        // Get the request IP address.
-                        const requestIpAddress = req.connection.remoteAddress;
-                            // Check if the request IP address origin is suspicious relative to previous
-                            // IP addresses. The current request timestamp and the auth_time of the ID
-                            // token can provide additional signals of abuse especially if the IP address
-                            // suddenly changed. If there was a sudden location change in a
-                            // short period of time, then it will give stronger signals of possible abuse.
-                            if (!isValidIpAddress(previousIpAddresses, requestIpAddress)) {
-                              // Invalid IP address, take action quickly and revoke all user's refresh tokens.
-                              revokeUserTokens(claims.uid).then(() => {
-                                res.status(401).send({error: 'Unauthorized access. Please login again!'});
-                              }, error => {
-                                res.status(401).send({error: 'Unauthorized access. Please login again!'});
-                              });
-                            } else {
-                              // Access is valid. Try to return data.
-                              getData(claims).then(data => {
-                                res.end(JSON.stringify(data);
-                              }, error => {
+                        /* // Get the request IP address.
+                        const requestIpAddress = require('@tinypudding/puddy-lib/http/userIP')(req, { isFirebase: true });
+                        // Check if the request IP address origin is suspicious relative to previous
+                        // IP addresses. The current request timestamp and the auth_time of the ID
+                        // token can provide additional signals of abuse especially if the IP address
+                        // suddenly changed. If there was a sudden location change in a
+                        // short period of time, then it will give stronger signals of possible abuse.
+                        if (!isValidIpAddress(previousIpAddresses, requestIpAddress)) {
+                            // Invalid IP address, take action quickly and revoke all user's refresh tokens.
+                            revokeUserTokens(claims.uid).then(() => {
+                                res.status(401).send({ error: 'Unauthorized access. Please login again!' });
+                            }, error => {
+                                res.status(401).send({ error: 'Unauthorized access. Please login again!' });
+                            });
+                        } else {
+                            // Access is valid. Try to return data.
+                            getData(claims).then(data => {
+                                res.end(JSON.stringify(data));
+                            }, error => {
                                 res.status(500).send({ error: 'Server error!' })
-                              });
-                            }
-                        
-                        */
+                            });
+                        } */
 
                         // Complete
                         req.firebase_session = decodedToken;
-                        resolve();
+                        resolve(decodedToken);
                         return;
 
                     })
