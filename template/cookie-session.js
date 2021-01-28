@@ -715,30 +715,43 @@ module.exports = function (app, cfg) {
             // Exist Body
             if (objType(req.body, 'object') && typeof req.body.token === "string") {
 
-                // Get Session
-                req.session[sessionVars.firebase_token] = req.body.token;
-                const uid = discordSession.uidGenerator(req.discord_session.id);
-                const firebaseAccount = discordSession.firebase.createAccountData(req.session[sessionVars.access_token], req.discord_session);
+                // Exist Query
+                if (
+                    typeof req.csrfToken.now.value !== "string" || req.csrfToken.now.value.length < 1 ||
+                    typeof req.body.csrfToken === "string" && req.csrfToken.now.value === cfg.csrfToken
+                ) {
 
-                // Update User
-                cfg.firebase.auth
-                    .updateUser(uid, firebaseAccount)
-                    .then(() => {
-                        return res.json({ success: true });
-                    })
-                    .catch((error) => {
-                        logger.error(error);
-                        return res.json({ success: false, error: { message: 'Error updating user' } });
-                    });
+                    // Get Session
+                    req.session[sessionVars.firebase_token] = req.body.token;
+                    const uid = discordSession.uidGenerator(req.discord_session.id);
+                    const firebaseAccount = discordSession.firebase.createAccountData(req.session[sessionVars.access_token], req.discord_session);
 
-                // Complete
+                    // Update User
+                    cfg.firebase.auth
+                        .updateUser(uid, firebaseAccount)
+                        .then(() => {
+                            return res.json({ success: true });
+                        })
+                        .catch((error) => {
+                            logger.error(error);
+                            return res.json({ success: false, error: 'Error updating user' });
+                        });
 
+                    // Complete
+                    return;
+
+                }
+
+                // Nope
+                else {
+                    return res.json({ success: false, error: 'Invalid csrfToken!' });
+                }
 
             }
 
             // Nope
             else {
-                return res.json({ success: false, error: { message: 'Invalid Data!' } });
+                return res.json({ success: false, error: 'Invalid Data!' });
             }
 
         };

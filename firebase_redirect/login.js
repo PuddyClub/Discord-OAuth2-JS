@@ -46,9 +46,15 @@ module.exports = {
                     },
                     body: JSON.stringify({ token: firebase.auth().currentUser.getIdToken().i, csrfToken: csrfToken })
                 }).then(response => {
-                    response.json().then(() => {
+                    response.json().then((data) => {
+
+                        // Show Error Message
+                        if(!data.success){ alert(data.error); }
+
+                        // Complete
                         final_redirect();
                         return;
+                    
                     }).catch(err => {
                         alert(`Error ${error.code}: ${error.message}`);
                         final_redirect(error);
