@@ -38,7 +38,7 @@ module.exports = function (webItem = { type: 'default' }) {
         app.use(csrfTokenSessionCookie());
 
         // Port
-        const port = 3000;
+        const port = 5000;
 
         // Auth
         const tinyAuth = require('../../auth.json');
