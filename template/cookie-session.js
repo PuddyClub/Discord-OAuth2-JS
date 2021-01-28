@@ -735,12 +735,12 @@ module.exports = function (app, cfg) {
 
                     // Prepare New User
                     const user = {
-                        id: '',
-                        username: '',
-                        avatar: '',
-                        discriminator: '',
-                        email: '',
-                        verified: false,
+                        id: req.discord_session.user.id,
+                        username: req.discord_session.user.username,
+                        avatar: req.discord_session.user.avatar,
+                        discriminator: req.discord_session.user.discriminator,
+                        email: req.discord_session.user.email,
+                        verified: req.discord_session.user.verified,
                     };
 
                     // Update User Data
@@ -756,9 +756,7 @@ module.exports = function (app, cfg) {
                 }
 
                 // Nope
-                else {
-                    next();
-                }
+                else { next(); }
 
             }
 
