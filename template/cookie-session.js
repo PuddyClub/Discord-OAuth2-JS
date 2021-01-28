@@ -57,9 +57,15 @@ module.exports = function (app, cfg) {
 
         };
 
+        // Variables
+        discordSession.varsTemplate = {
+            uid: 'discord_user_id_',
+            avatarURL: 'https://cdn.discordapp.com/avatars/'
+        };
+
         // Get Firebase UID
         discordSession.uidGenerator = function (userID) {
-            return `discord_user_id_${tinyAuth.client_id}_${encodeURIComponent(userID)}`;
+            return `${discordSession.varsTemplate.uid}${tinyAuth.client_id}_${encodeURIComponent(userID)}`;
         };
 
         // Session Set
@@ -90,7 +96,7 @@ module.exports = function (app, cfg) {
         };
 
         // Prepare Firebase Items
-        const prepare_fire_auth_discord = function (req) {
+        const prepare_fire_auth_discord = function (req, user) {
 
             // Discord Session
             const dsSession = discordSession.get(req);
@@ -102,9 +108,17 @@ module.exports = function (app, cfg) {
                 }
             }
 
+            // User IP
             const requestIpAddress = getUserIP(req, { isFirebase: true });
             preparedsSession.user_ip = requestIpAddress.value;
             preparedsSession.user_ip_type = requestIpAddress.type;
+
+            // MFA Enabled
+            if (user.mfa_enabled) {
+                preparedsSession.mfa_enabled = true;
+            } else {
+                preparedsSession.mfa_enabled = false;
+            }
 
             // Complete
             return preparedsSession;
@@ -127,7 +141,7 @@ module.exports = function (app, cfg) {
 
             // Main Data
             const newUsername = userData.username + '#' + userData.discriminator;
-            const newAvatar = `https://cdn.discordapp.com/avatars/${userData.id}/${userData.avatar}`;
+            const newAvatar = `${discordSession.varsTemplate.avatarURL}${userData.id}/${userData.avatar}`;
 
             // Basic Profile
             if (!existOLD || newUsername !== oldData.displayNama) { newUserData.displayName = newUsername; }
@@ -189,7 +203,7 @@ module.exports = function (app, cfg) {
 
                 // UID
                 const uid = discordSession.uidGenerator(user.id);
-                const claims = prepare_fire_auth_discord(req);
+                const claims = prepare_fire_auth_discord(req, user);
 
                 // Prepare Auth
                 cfg.firebase.auth.createCustomToken(uid, claims)
@@ -605,9 +619,7 @@ module.exports = function (app, cfg) {
         // Check Discord Session
         const checkDiscordSession = function (req, res, next, userFiredata) {
 
-            // Validar se os dados do Firebase são os mesmos do Discord
-            console.log(userFiredata);
-
+            // Get Token Expiration
             req.utc_clock.ds_token_expires_in = moment.tz(req.session[sessionVars.token_expires_in], 'Universal');
 
             // Time Left
@@ -645,7 +657,7 @@ module.exports = function (app, cfg) {
                                 getDiscordUser(access_token).then(user => {
 
                                     // Set Custom Usre Claims
-                                    cfg.firebase.auth.setCustomUserClaims(discordSession.uidGenerator(user.id), prepare_fire_auth_discord(req))
+                                    cfg.firebase.auth.setCustomUserClaims(discordSession.uidGenerator(user.id), prepare_fire_auth_discord(req, user))
                                         .then(() => {
 
                                             // Update User Data
@@ -659,7 +671,7 @@ module.exports = function (app, cfg) {
                                             });
 
                                             return;
-                                        
+
                                         }).catch((err) => { prepare_final_session(req, res, err); return; });
 
                                     // Complete
@@ -689,7 +701,66 @@ module.exports = function (app, cfg) {
                 // Finish the Session
                 else { prepare_final_session(req, res); }
 
-            } else { next(); }
+            } else {
+
+                // Exist Discord Session Data
+                if (req.discord_session.user) {
+
+                    // userFiredata
+
+                    // Prepare OLD User
+                    const oldUser = {};;
+                    
+                    // Get ID
+                    oldUser.id = userFiredata.uid.substring(discordSession.varsTemplate.uid.length + tinyAuth.client_id.length + 1);
+                    
+                    // Convert Username
+                    oldUser.username = userFiredata.name.split('#');
+                    
+                    // Get Discriminator
+                    oldUser.discriminator = oldUser.username[oldUser.username.length - 1];
+                    
+                    // Remove Discriminator
+                    oldUser.username.pop();
+
+                    // Insert Username
+                    oldUser.username = oldUser.username.join('#');
+
+                    // Get Avatar
+                    oldUser.avatar = userFiredata.picture.substring(discordSession.varsTemplate.avatarURL.length + oldUser.id.length + 1);
+                    
+                    // Get Email
+                    oldUser.email = userFiredata.email;
+                    oldUser.verified = userFiredata.email_verified;
+
+                    // Prepare New User
+                    const user = {
+                        id: '',
+                        username: '',
+                        avatar: '',
+                        discriminator: '',
+                        email: '',
+                        verified: false,
+                    };
+
+                    // Update User Data
+                    discordSession.firebase.updateUser(access_token, user, oldUser).then(function () {
+                        next();
+                        return;
+                    }).catch(error => {
+                        logger.error(error);
+                        prepare_final_session(req, res, error);
+                        return;
+                    });
+
+                }
+
+                // Nope
+                else {
+                    next();
+                }
+
+            }
 
             // Complete
             return;
