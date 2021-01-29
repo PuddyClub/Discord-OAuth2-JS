@@ -6,6 +6,11 @@ module.exports = function (app, cfg) {
     // Config
     if (objType(cfg, 'object')) {
 
+        // Validator Session Discord and Firebase
+        const sessionFirebaseDiscordValidator = function (req) {
+            return (req.firebase_session.uid === `${discordSession.varsTemplate.uid}${tinyAuth.client_id}_${req.discord_session.user.id}`);
+        };
+
         // Prepare Base
         app.use((req, res, next) => {
 
@@ -380,13 +385,8 @@ module.exports = function (app, cfg) {
                         // Exist Firebase
                         if (cfg.firebase) {
 
-                            discordSession.firebase.get(req, res).then(() => {
-
-                                // Complete
-                                checkDiscordSession(req, res, next);
-                                return;
-
-                            }).catch(err => {
+                            // Finish the Session
+                            const finishTinySession = function (err) {
 
                                 // Firebase Auth
                                 const firebase_auth = req.session[sessionVars.firebase_token];
@@ -400,9 +400,25 @@ module.exports = function (app, cfg) {
                                     return;
                                 });
 
-                                // Complete
+                            };
+
+                            discordSession.firebase.get(req, res).then(() => {
+
+                                // Discord and Firebase same session
+                                if (!req.discord_session.user || sessionFirebaseDiscordValidator(req)) {
+                                    checkDiscordSession(req, res, next);
+                                }
+
+                                // Nope
+                                else {
+                                    finishTinySession();
+                                }
+
                                 return;
 
+                            }).catch(err => {
+                                finishTinySession(err);
+                                return;
                             });
 
                         }
