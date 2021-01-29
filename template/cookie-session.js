@@ -309,7 +309,7 @@ module.exports = function (app, cfg) {
                 if (res) {
                     return res.json(err);
                 } else {
-                    logger.error(error);
+                    logger.error(err);
                 }
             },
 
@@ -912,9 +912,9 @@ module.exports = function (app, cfg) {
 
         };
 
-        if (cfg.bodyParser) { app.post(tinyURLPath.firebaseLogin, bodyParser.json, bodyParser.urlencoded, final_functions.sessionPlugins.getUser, firebaseLoginCallback); }
-        else { app.post(tinyURLPath.firebaseLogin, final_functions.sessionPlugins.getUser, firebaseLoginCallback); }
-        app.get(tinyURLPath.firebaseLogin, (req, res) => {
+        if (cfg.bodyParser) { app.post(tinyURLPath.firebaseLogin, bodyParser.json, bodyParser.urlencoded, final_functions.sessionPlugins.getUser, final_functions.sessionPlugins.validator, firebaseLoginCallback); }
+        else { app.post(tinyURLPath.firebaseLogin, final_functions.sessionPlugins.getUser, final_functions.sessionPlugins.validator, firebaseLoginCallback); }
+        app.get(tinyURLPath.firebaseLogin, final_functions.sessionPlugins.validator, (req, res) => {
 
             // Final Data
             const final_data = {};
@@ -950,9 +950,9 @@ module.exports = function (app, cfg) {
             return res.json({ success: true });
         };
 
-        if (cfg.bodyParser) { app.post(tinyURLPath.firebaseLogout, bodyParser.json, bodyParser.urlencoded, firebaseLogoutCallback); }
-        else { app.post(tinyURLPath.firebaseLogout, firebaseLogoutCallback); }
-        app.get(tinyURLPath.firebaseLogout, (req, res) => {
+        if (cfg.bodyParser) { app.post(tinyURLPath.firebaseLogout, bodyParser.json, bodyParser.urlencoded, final_functions.sessionPlugins.validator, firebaseLogoutCallback); }
+        else { app.post(tinyURLPath.firebaseLogout, final_functions.sessionPlugins.validator, firebaseLogoutCallback); }
+        app.get(tinyURLPath.firebaseLogout, final_functions.sessionPlugins.validator, (req, res) => {
 
             // Final Data
             const final_data = {};
@@ -984,7 +984,7 @@ module.exports = function (app, cfg) {
         });
 
         // Login
-        app.get(tinyURLPath.login, (req, res) => {
+        app.get(tinyURLPath.login, final_functions.sessionPlugins.validator, (req, res) => {
 
             // Result
             discordAuth.login(req, res,
@@ -1019,7 +1019,7 @@ module.exports = function (app, cfg) {
         });
 
         // Logout
-        app.get(tinyURLPath.logout, (req, res) => {
+        app.get(tinyURLPath.logout, final_functions.sessionPlugins.validator, (req, res) => {
 
             // Firebase Auth
             const firebase_auth = req.session[sessionVars.firebase_token];
@@ -1074,7 +1074,7 @@ module.exports = function (app, cfg) {
         });
 
         // Redirect
-        app.get(tinyURLPath.redirect, (req, res) => {
+        app.get(tinyURLPath.redirect, final_functions.sessionPlugins.validator, (req, res) => {
 
             // Result
             discordAuth.redirect(req,
