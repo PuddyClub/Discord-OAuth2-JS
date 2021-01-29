@@ -1,18 +1,1 @@
-A gente vai pegar esse valor e colocar a parte fundamental dele dentro do discordSession.firebase.setAccount(user) para validar quais são os dados novos
-console.log(userFiredata);
-
-discordSession.firebase.updateSession vai atualizar a sessão no req
-
-
-checar discordSession.firebase.get
-
-
-
-
-
 Fazer o leitor de interaction
-
-
-
-
-
