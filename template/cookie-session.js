@@ -260,8 +260,8 @@ module.exports = function (app, cfg) {
                         if (decodedToken.user_ip === requestIpAddress.value && decodedToken.user_ip_type === requestIpAddress.type) {
                             req.firebase_session = decodedToken;
                             resolve();
-                        } 
-                        
+                        }
+
                         // Nope
                         else {
                             reject({ code: 406, message: 'Invalid User IP Session!' });
@@ -664,7 +664,7 @@ module.exports = function (app, cfg) {
 
             // Firebase Auth
             const firebase_auth = req.session[sessionVars.firebase_token];
-            tinyCfg.errorCallback(err);
+            if (err) { tinyCfg.errorCallback(err); }
 
             // Logout
             auto_logout(req).then(result => {
