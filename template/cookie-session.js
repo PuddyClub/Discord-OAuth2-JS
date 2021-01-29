@@ -188,7 +188,7 @@ module.exports = function (app, cfg) {
                 if (validator.user !== validator.oldUser) {
 
                     // Get UID
-                    const uid = discordSession.uidGenerator(req.discord_session.user.id);
+                    const uid = discordSession.uidGenerator(user.id);
                     const firebaseAccount = discordSession.firebase.createAccountData(access_token, user, oldUser);
 
                     // Update User
