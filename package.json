@@ -1,7 +1,7 @@
 {
   "name": "@tinypudding/discord-oauth2",
   "version": "1.0.0",
-  "description": "Login authenticator with Discord account compatible with cookies or Firebase Auth.",
+  "description": "Login authenticator with Discord Account using cookies and Firebase Auth.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
