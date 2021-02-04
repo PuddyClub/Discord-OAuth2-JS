@@ -360,7 +360,7 @@ module.exports = function (app, cfg) {
             },
 
             // Session Validator
-            sessionValidator: function (data) {
+            sessionValidator: function (data = {}) {
                 return (req, res, next) => {
 
                     // Validator Progress
