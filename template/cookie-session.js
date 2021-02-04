@@ -359,6 +359,49 @@ module.exports = function (app, cfg) {
                 return discordSession.uidGenerator(userID);
             },
 
+            // Session Validator
+            sessionValidator: function (data) {
+                return (req, res, next) => {
+
+                    // Validator Progress
+                    const validatorItems = {
+                        values: ['getUserConnections', 'getUser', 'getUserGuilds'], count: 0,
+                        callback: function () {
+
+                            // The Item
+                            const item = validatorItems.values[validatorItems.count];
+                            if (typeof item === "string") {
+
+                                // Read Item
+                                if (data[item]) {
+                                    final_functions.sessionPlugins[item](req, res, () => {
+                                        validatorItems.count++;
+                                        return validatorItems.callback();
+                                    });
+                                } else {
+                                    validatorItems.count++;
+                                    validatorItems.callback();
+                                }
+
+                            }
+
+                            // Next
+                            else {
+                                final_functions.sessionPlugins.validator(req, res, () => { next(); return; });
+                            }
+
+                            // Complete
+                            return;
+
+                        }
+                    };
+
+                    // Complete
+                    return validatorItems.callback();
+
+                };
+            },
+
             // Session Plugins
             sessionPlugins: {
 
