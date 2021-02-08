@@ -122,10 +122,11 @@ module.exports = function (app, cfg) {
             const dsSession = discordSession.get(req);
             const preparedsSession = {};
 
-            for (const item in dsSession) {
-                if ((typeof dsSession[item] === "string" && dsSession[item].length > 0) || (typeof dsSession[item] === "number" && !isNaN(dsSession[item]))) {
-                    preparedsSession[item] = dsSession[item];
-                }
+            // Scope
+            if (typeof dsSession.scope === "string") {
+                preparedsSession.scope = dsSession.scope.split(' ');
+            } else {
+                preparedsSession.scope = dsSession.scope;
             }
 
             // User IP
@@ -266,8 +267,8 @@ module.exports = function (app, cfg) {
                         const requestIpAddress = getUserIP(req, { isFirebase: true });
 
                         // Convert
-                        if(typeof decodedToken.user_ip === "string") { decodedToken.user_ip = [decodedToken.user_ip];}
-                        if(typeof requestIpAddress.value === "string") { requestIpAddress.value = [requestIpAddress.value];}
+                        if (typeof decodedToken.user_ip === "string") { decodedToken.user_ip = [decodedToken.user_ip]; }
+                        if (typeof requestIpAddress.value === "string") { requestIpAddress.value = [requestIpAddress.value]; }
 
                         // Prepare Hash
                         const hash = require('object-hash');
