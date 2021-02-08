@@ -7,6 +7,8 @@ module.exports = {
         if (typeof redirect_url === "string") {
             if (redirect_url.startsWith('/')) {
                 redirect_url = redirect_url.substring(1);
+            } else if (redirect_url.startsWith(window.location.origin)) {
+                redirect_url = redirect_url.substring(window.location.origin.length + 1);
             }
         }
 
@@ -16,7 +18,7 @@ module.exports = {
         }
 
         // Prepare Redirect
-        const final_redirect = function (error, user) {
+        const final_redirect = function (err, user) {
 
             // The Redirect
             const start_redirect = function () {
@@ -28,7 +30,7 @@ module.exports = {
             if (typeof callback !== "function") {
 
                 // Show Error
-                if (error) { alert(error.message); }
+                if (err) { alert(err.message); }
 
                 // Redirect Now
                 start_redirect();
@@ -36,7 +38,7 @@ module.exports = {
             }
 
             // Custom Redirect
-            else { callback(error, start_redirect, user); }
+            else { callback(err, start_redirect, user); }
 
             // Complete
             return;
@@ -73,7 +75,7 @@ module.exports = {
                             return;
 
                         }).catch(err => {
-                            final_redirect(error);
+                            final_redirect(err);
                             return;
                         });
                     }).catch(err => {
@@ -81,6 +83,9 @@ module.exports = {
                         return;
                     });
 
+                }).catch(err => {
+                    final_redirect(err);
+                    return;
                 });
             }
         });
@@ -89,8 +94,8 @@ module.exports = {
         firebase.auth().signInWithCustomToken(token).then(() => { return; })
 
             // Fail
-            .catch((error) => {
-                final_redirect(error);
+            .catch((err) => {
+                final_redirect(err);
                 return;
             });
 
