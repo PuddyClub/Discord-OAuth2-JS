@@ -630,7 +630,7 @@ module.exports = function (app, cfg) {
 
             // Firebase Logout
             if (cfg.firebase) {
-                return discordSession.firebaseAuth.redirect.logout(res, req, redirect, req.csrfToken.now.value, firebase_auth);
+                return discordSession.firebaseAuth.redirect.logout(req, res, redirect, req.csrfToken.now.value, firebase_auth);
             }
 
             // Normal
@@ -1195,7 +1195,7 @@ module.exports = function (app, cfg) {
                         // Set Firebase Session
                         if (cfg.firebase) {
                             discordSession.firebase.set(req, result.user).then(() => {
-                                discordSession.firebaseAuth.redirect.login(res, req, result.redirect, result.state.csrfToken);
+                                discordSession.firebaseAuth.redirect.login(req, res, result.redirect, result.state.csrfToken);
                                 return;
                             }).catch(err => {
 
