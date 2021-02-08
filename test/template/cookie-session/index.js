@@ -59,6 +59,9 @@ module.exports = function (webItem = { type: 'default' }) {
                 var firebaseConfig = ${JSON.stringify(require('./firebase/html_values.json'))};
                 // Initialize Firebase
                 firebase.initializeApp(firebaseConfig);
+                firebase.auth().onAuthStateChanged(function (user) {
+                    console.log(user);
+                });
             </script>
             Tiny Homepage :3
         `);

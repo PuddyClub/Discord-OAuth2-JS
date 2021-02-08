@@ -31,7 +31,20 @@
 
             // Run the Script
             const start_login = {{start_login}};
-            start_login(`{{token}}`, `{{redirect_url}}`, `{{key}}`);
+            start_login(`{{token}}`, `{{redirect_url}}`, `{{key}}`, function (err, redirect, user) {
+
+                console.log(user);
+
+                if(!err){
+                    if(confirm('redirect?')) {
+                        redirect();
+                    }
+                } else {
+                    console.error(err);
+                    alert(err.message);
+                }
+
+            });
         </script>
 
     </body>

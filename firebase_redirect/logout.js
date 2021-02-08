@@ -39,7 +39,7 @@ module.exports = {
                 }
 
                 // Custom Redirect
-                else { callback(start_redirect, error); }
+                else { callback(error, start_redirect); }
 
                 // Complete
                 return;

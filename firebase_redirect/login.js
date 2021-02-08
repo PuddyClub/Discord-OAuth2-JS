@@ -16,7 +16,7 @@ module.exports = {
         }
 
         // Prepare Redirect
-        const final_redirect = function (error) {
+        const final_redirect = function (error, user) {
 
             // The Redirect
             const start_redirect = function () {
@@ -36,7 +36,7 @@ module.exports = {
             }
 
             // Custom Redirect
-            else { callback(start_redirect, error); }
+            else { callback(error, start_redirect, user); }
 
             // Complete
             return;
@@ -66,7 +66,7 @@ module.exports = {
 
                             // Complete
                             else {
-                                final_redirect();
+                                final_redirect(null, user);
                             }
 
                             // Return
