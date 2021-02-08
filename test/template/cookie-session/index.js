@@ -41,7 +41,7 @@ module.exports = function (webItem = { type: 'default' }) {
     tinyAuth.discordScope = ["identify", "email", "guilds", "guilds.join", "connections", "gdm.join"];
 
     // Result
-    const authOptions = { auth: tinyAuth, vars: sessionVars, bodyParser: require('body-parser') };
+    const authOptions = { auth: tinyAuth, vars: sessionVars, bodyParser: require('body-parser'), port: port };
 
     // Firebase
     if (webItem.type === "firebase") { authOptions.firebase = webItem.app; authOptions.cfg = webItem.cfg; }

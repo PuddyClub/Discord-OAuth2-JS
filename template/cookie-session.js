@@ -49,7 +49,7 @@ module.exports = function (app, cfg) {
             template: function (type, req, res, redirect_url, csrfToken, firebase_auth) {
 
                 // Get Domain
-                const tinyDomain = require('@tinypudding/puddy-lib/http/getDomainURL')(req);
+                const tinyDomain = require('@tinypudding/puddy-lib/http/getDomainURL')(req, cfg.port);
 
                 // Fix URL
                 if (redirect_url.startsWith('/')) { redirect_url = redirect_url.substring(1); }
@@ -637,7 +637,7 @@ module.exports = function (app, cfg) {
             else {
 
                 // Get Domain
-                const tinyDomain = require('@tinypudding/puddy-lib/http/getDomainURL')(req);
+                const tinyDomain = require('@tinypudding/puddy-lib/http/getDomainURL')(req, cfg.port);
                 return res.redirect(tinyDomain + redirect);
 
             }
@@ -1011,7 +1011,7 @@ module.exports = function (app, cfg) {
             else {
 
                 // Get Domain
-                const tinyDomain = require('@tinypudding/puddy-lib/http/getDomainURL')(req);
+                const tinyDomain = require('@tinypudding/puddy-lib/http/getDomainURL')(req, cfg.port);
                 return res.redirect(tinyDomain + final_data.redirect);
 
             }
@@ -1056,7 +1056,7 @@ module.exports = function (app, cfg) {
             else {
 
                 // Get Domain
-                const tinyDomain = require('@tinypudding/puddy-lib/http/getDomainURL')(req);
+                const tinyDomain = require('@tinypudding/puddy-lib/http/getDomainURL')(req, cfg.port);
                 return res.redirect(tinyDomain + final_data.redirect);
 
             }
@@ -1142,7 +1142,7 @@ module.exports = function (app, cfg) {
                 else {
 
                     // Get Domain
-                    const tinyDomain = require('@tinypudding/puddy-lib/http/getDomainURL')(req);
+                    const tinyDomain = require('@tinypudding/puddy-lib/http/getDomainURL')(req, cfg.port);
                     res.redirect(tinyDomain + result.redirect);
 
                 }
@@ -1218,7 +1218,7 @@ module.exports = function (app, cfg) {
                         else {
 
                             // Get Domain
-                            const tinyDomain = require('@tinypudding/puddy-lib/http/getDomainURL')(req);
+                            const tinyDomain = require('@tinypudding/puddy-lib/http/getDomainURL')(req, cfg.port);
                             res.redirect(tinyDomain + result.redirect);
 
                         }
@@ -1243,7 +1243,7 @@ module.exports = function (app, cfg) {
                     else {
 
                         // Get Domain
-                        const tinyDomain = require('@tinypudding/puddy-lib/http/getDomainURL')(req);
+                        const tinyDomain = require('@tinypudding/puddy-lib/http/getDomainURL')(req, cfg.port);
                         res.redirect(tinyDomain + result.redirect);
 
                     }

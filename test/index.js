@@ -205,7 +205,7 @@ app.get('/redirect', (req, res) => {
         else {
 
             // Get Domain
-            const tinyDomain = require('@tinypudding/puddy-lib/http/getDomainURL')(req);
+            const tinyDomain = require('@tinypudding/puddy-lib/http/getDomainURL')(req, 5000);
             res.redirect(tinyDomain + '/');
 
         }

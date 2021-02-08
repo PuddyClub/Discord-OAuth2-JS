@@ -47,7 +47,7 @@ module.exports = function (req, res, cfg, existSession) {
                     if (objType(tinyQuery, 'object')) {
 
                         // Get Domain
-                        const tinyDomain = require('@tinypudding/puddy-lib/http/getDomainURL')(req);
+                        const tinyDomain = require('@tinypudding/puddy-lib/http/getDomainURL')(req, cfg.port);
 
                         // Redirect
                         let returnRedirect = tinyDomain + '/';
