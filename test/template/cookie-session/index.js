@@ -51,7 +51,17 @@ module.exports = function (webItem = { type: 'default' }) {
 
     // Homepage
     app.get('/', dsFunctions.sessionPlugins.validator, (req, res) => {
-        res.send('Tiny Homepage :3');
+        res.send(`
+            <script src="https://www.gstatic.com/firebasejs/8.2.6/firebase-app.js"></script>
+            <script src="https://www.gstatic.com/firebasejs/8.2.6/firebase-auth.js"></script>
+            <script>
+                // Your web app's Firebase configuration
+                var firebaseConfig = ${JSON.stringify(require('./firebase/html_values.json'))};
+                // Initialize Firebase
+                firebase.initializeApp(firebaseConfig);
+            </script>
+            Tiny Homepage :3
+        `);
         return;
     });
 

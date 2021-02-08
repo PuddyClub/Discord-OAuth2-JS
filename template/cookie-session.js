@@ -262,10 +262,18 @@ module.exports = function (app, cfg) {
                     // Complete
                     .then((decodedToken) => {
 
+                        // Get Request IP
                         const requestIpAddress = getUserIP(req, { isFirebase: true });
 
+                        // Convert
+                        if(typeof decodedToken.user_ip === "string") { decodedToken.user_ip = [decodedToken.user_ip];}
+                        if(typeof requestIpAddress.value === "string") { requestIpAddress.value = [requestIpAddress.value];}
+
+                        // Prepare Hash
+                        const hash = require('object-hash');
+
                         // Verification
-                        if (decodedToken.user_ip === requestIpAddress.value && decodedToken.user_ip_type === requestIpAddress.type) {
+                        if (hash(decodedToken.user_ip) === hash(requestIpAddress.value) && decodedToken.user_ip_type === requestIpAddress.type) {
                             req.firebase_session = decodedToken;
                             resolve();
                         }
