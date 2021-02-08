@@ -19,7 +19,7 @@ module.exports = {
             }
 
             // Prepare Redirect
-            const final_redirect = function (error) {
+            const final_redirect = function (err) {
 
                 // The Redirect
                 const start_redirect = function () {
@@ -31,7 +31,7 @@ module.exports = {
                 if (typeof callback !== "function") {
 
                     // Show Error
-                    if (error) { alert(error.message); }
+                    if (err) { alert(err.message); }
 
                     // Redirect Now
                     start_redirect();
@@ -39,7 +39,7 @@ module.exports = {
                 }
 
                 // Custom Redirect
-                else { callback(error, start_redirect); }
+                else { callback(err, start_redirect); }
 
                 // Complete
                 return;
@@ -64,11 +64,11 @@ module.exports = {
                             final_redirect();
                             return;
                         }).catch(err => {
-                            final_redirect(error);
+                            final_redirect(err);
                             return;
                         });
                     }).catch(err => {
-                        final_redirect(error);
+                        final_redirect(err);
                         return;
                     });
 
@@ -78,8 +78,8 @@ module.exports = {
                 })
 
                 // Fail
-                .catch((error) => {
-                    final_redirect(error);
+                .catch((err) => {
+                    final_redirect(err);
                     return;
                 });
 

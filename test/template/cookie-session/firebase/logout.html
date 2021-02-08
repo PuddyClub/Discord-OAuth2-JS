@@ -31,7 +31,18 @@
 
             // Run the Script
             const start_logout = {{start_logout}};
-            start_logout(`{{token}}`, `{{redirect_url}}`, `{{key}}`, `{{original_key}}`);
+            start_logout(`{{token}}`, `{{redirect_url}}`, `{{key}}`, `{{original_key}}`, function (err, redirect) {
+
+                if (err) {
+                    console.error(err);
+                    alert(err.message);
+                }
+
+                if (confirm('Redirect?')) {
+                    redirect();
+                }
+
+            });
         </script>
 
     </body>
