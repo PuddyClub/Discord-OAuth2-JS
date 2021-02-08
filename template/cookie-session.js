@@ -1088,7 +1088,10 @@ module.exports = function (app, cfg) {
                     // State
                     state: {
                         csrfToken: req.csrfToken.now.value
-                    }
+                    },
+
+                    // Port
+                    port: cfg.port
 
                 }, (getSessionFromCookie(req, sessionVars.access_token)),
             );
