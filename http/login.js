@@ -46,8 +46,11 @@ module.exports = function (req, res, cfg, existSession) {
                     // Exist Cfg
                     if (objType(tinyQuery, 'object')) {
 
+                        // Get Domain
+                        const tinyDomain = require('@tinypudding/puddy-lib/http/getDomainURL')(req);
+
                         // Redirect
-                        let returnRedirect = '/';
+                        let returnRedirect = tinyDomain + '/';
                         if (objType(req.query, 'object')) {
                             if (typeof req.query[tinyQuery.redirect] === "string") {
                                 req.query[tinyQuery.redirect] = req.query[tinyQuery.redirect].trim();
@@ -63,7 +66,7 @@ module.exports = function (req, res, cfg, existSession) {
                                     returnRedirect = req.query[tinyQuery.redirect];
 
                                     // Fix Redirect
-                                    returnRedirect = '/' + returnRedirect;
+                                    returnRedirect = tinyDomain + '/' + returnRedirect;
 
                                 } else { tinyState.redirect = ''; }
                             } else {

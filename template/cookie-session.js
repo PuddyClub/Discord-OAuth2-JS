@@ -46,7 +46,10 @@ module.exports = function (app, cfg) {
         // Redirect
         discordSession.firebaseAuth.redirect = {
 
-            template: function (type, res, redirect_url, csrfToken, firebase_auth) {
+            template: function (type, req, res, redirect_url, csrfToken, firebase_auth) {
+
+                // Get Domain
+                const tinyDomain = require('@tinypudding/puddy-lib/http/getDomainURL')(req);
 
                 // Fix URL
                 if (redirect_url.startsWith('/')) { redirect_url = redirect_url.substring(1); }
@@ -57,19 +60,19 @@ module.exports = function (app, cfg) {
                 if (typeof firebase_auth === "string") { redirect_url += `&token=${firebase_auth}`; }
 
                 // Complete
-                res.redirect(redirect_url);
+                res.redirect(tinyDomain + redirect_url);
                 return;
 
             },
 
             // Login
-            login: function (res, redirect_url, csrfToken) {
-                return discordSession.firebaseAuth.redirect.template('firebaseLogin', res, redirect_url, csrfToken);
+            login: function (req, res, redirect_url, csrfToken) {
+                return discordSession.firebaseAuth.redirect.template('firebaseLogin', req, res, redirect_url, csrfToken);
             },
 
             // Logout
-            logout: function (res, redirect_url, csrfToken, firebase_auth) {
-                return discordSession.firebaseAuth.redirect.template('firebaseLogout', res, redirect_url, csrfToken, firebase_auth);
+            logout: function (req, res, redirect_url, csrfToken, firebase_auth) {
+                return discordSession.firebaseAuth.redirect.template('firebaseLogout', req, res, redirect_url, csrfToken, firebase_auth);
             }
 
         };
@@ -627,12 +630,16 @@ module.exports = function (app, cfg) {
 
             // Firebase Logout
             if (cfg.firebase) {
-                return discordSession.firebaseAuth.redirect.logout(res, redirect, req.csrfToken.now.value, firebase_auth);
+                return discordSession.firebaseAuth.redirect.logout(res, req, redirect, req.csrfToken.now.value, firebase_auth);
             }
 
             // Normal
             else {
-                return res.redirect(redirect);
+
+                // Get Domain
+                const tinyDomain = require('@tinypudding/puddy-lib/http/getDomainURL')(req);
+                return res.redirect(tinyDomain + redirect);
+
             }
 
         };
@@ -1001,7 +1008,13 @@ module.exports = function (app, cfg) {
             }
 
             // Nope
-            else { return res.redirect(final_data.redirect); }
+            else {
+
+                // Get Domain
+                const tinyDomain = require('@tinypudding/puddy-lib/http/getDomainURL')(req);
+                return res.redirect(tinyDomain + final_data.redirect);
+
+            }
 
         });
 
@@ -1040,7 +1053,13 @@ module.exports = function (app, cfg) {
             }
 
             // Nope
-            else { return res.redirect(final_data.redirect); }
+            else {
+
+                // Get Domain
+                const tinyDomain = require('@tinypudding/puddy-lib/http/getDomainURL')(req);
+                return res.redirect(tinyDomain + final_data.redirect);
+
+            }
 
         });
 
@@ -1121,7 +1140,11 @@ module.exports = function (app, cfg) {
 
                 // Nope
                 else {
-                    res.redirect(result.redirect);
+
+                    // Get Domain
+                    const tinyDomain = require('@tinypudding/puddy-lib/http/getDomainURL')(req);
+                    res.redirect(tinyDomain + result.redirect);
+
                 }
 
                 // Complete
@@ -1169,7 +1192,7 @@ module.exports = function (app, cfg) {
                         // Set Firebase Session
                         if (cfg.firebase) {
                             discordSession.firebase.set(req, result.user).then(() => {
-                                discordSession.firebaseAuth.redirect.login(res, result.redirect, result.state.csrfToken);
+                                discordSession.firebaseAuth.redirect.login(res, req, result.redirect, result.state.csrfToken);
                                 return;
                             }).catch(err => {
 
@@ -1193,7 +1216,11 @@ module.exports = function (app, cfg) {
 
                         // Normal
                         else {
-                            res.redirect(result.redirect);
+
+                            // Get Domain
+                            const tinyDomain = require('@tinypudding/puddy-lib/http/getDomainURL')(req);
+                            res.redirect(tinyDomain + result.redirect);
+
                         }
 
                     }
@@ -1214,7 +1241,11 @@ module.exports = function (app, cfg) {
 
                     // Nope
                     else {
-                        res.redirect(result.redirect);
+
+                        // Get Domain
+                        const tinyDomain = require('@tinypudding/puddy-lib/http/getDomainURL')(req);
+                        res.redirect(tinyDomain + result.redirect);
+
                     }
 
                 };
