@@ -35,9 +35,21 @@
 
                 console.log(user);
 
-                if(!err){
-                    if(confirm('Redirect?')) {
+                if (!err) {
+                    if (confirm('Redirect?')) {
                         redirect();
+                    } else {
+                        user
+                            .getIdTokenResult()
+                            .then((idTokenResult) => {
+                                console.log(idTokenResult);
+                                return;
+                            })
+                            .catch((err) => {
+                                console.error(err);
+                                alert(err.message);
+                                return;
+                            });
                     }
                 } else {
                     console.error(err);
