@@ -1,6 +1,6 @@
 {
   "name": "@tinypudding/discord-oauth2",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Login authenticator with Discord Account using cookies and Firebase Auth.",
   "main": "index.js",
   "scripts": {
