@@ -339,9 +339,21 @@ module.exports = function (app, cfg) {
 
         });
 
+        // Auth Config
+        const tinyAuth = _.defaultsDeep({}, cfg.auth, {
+            redirect: "",
+            client_id: "",
+            client_secret: "",
+            bot_token: "",
+            first_get_user: true,
+            discordScope: ["identify", "email"]
+        });
 
         // Final Result
         const final_functions = {
+
+            // Auth
+            auth: tinyAuth,
 
             // API
             addGuildMember: function (data) {
@@ -570,16 +582,6 @@ module.exports = function (app, cfg) {
         // Test Modules Prepare
         const discordAuth = require('../index');
         const getSessionFromCookie = require('../get/cookie-session');
-
-        // Auth Config
-        const tinyAuth = _.defaultsDeep({}, cfg.auth, {
-            redirect: "",
-            client_id: "",
-            client_secret: "",
-            bot_token: "",
-            first_get_user: true,
-            discordScope: ["identify", "email"]
-        });
 
         // Need Identify
         if (tinyAuth.discordScope.indexOf('identify') < 0) { tinyAuth.discordScope.push('identify'); }
