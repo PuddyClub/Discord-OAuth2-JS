@@ -83,7 +83,7 @@ module.exports = function (req, res, cfg, existSession) {
                         } else { tinyState.redirect = ''; }
 
                         // Don't exist session
-                        if (!existSession || cfg.type === "webhook") {
+                        if (!existSession || cfg.type === "login_command" || cfg.type === "webhook") {
 
                             // Redirect Result
                             const redirect_discord = require('../get/authURLGenerator')(tinyCfg, tinyState, tinyCrypto, cfg.type);
