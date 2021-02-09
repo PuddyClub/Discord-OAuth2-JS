@@ -692,19 +692,22 @@ module.exports = function (app, cfg) {
             });
         };
 
-        // Auto Logout
-        const auto_logout = function (req, err) {
+        // Logout Action
+        const logout_action = function (req, csrfToken, redirect) {
             return new Promise(function (resolve, reject) {
 
-                // Print Error
-                if (err) { tinyCfg.errorCallback(err); }
+                // State
+                const state = { csrfToken: req.csrfToken.now.value };
+
+                // Redirect
+                if (redirect) { state.redirect = redirect; }
 
                 // Result
                 discordAuth.logout(req, req.session[sessionVars.access_token],
                     {
 
                         // CSRF Token
-                        csrfToken: req.csrfToken.now.value,
+                        csrfToken: csrfToken,
 
                         // Query
                         query: {
@@ -713,16 +716,32 @@ module.exports = function (app, cfg) {
                         },
 
                         // State
-                        state: {
-                            csrfToken: req.csrfToken.now.value,
-                            redirect: req.url
-                        },
+                        state: state,
 
                         // Auth
                         auth: tinyAuth
 
                     }, (getSessionFromCookie(req, sessionVars.access_token), req.session[sessionVars.access_token]),
                 ).then(result => {
+                    resolve(result);
+                    return;
+                }).catch((err) => { reject(err); return; });
+
+                // Complete
+                return;
+
+            });
+        };
+
+        // Auto Logout
+        const auto_logout = function (req, err) {
+            return new Promise(function (resolve, reject) {
+
+                // Print Error
+                if (err) { tinyCfg.errorCallback(err); }
+
+                // Result
+                logout_action(req, req.csrfToken.now.value, req.url).then(result => {
 
                     // Discord Logout Complete
                     if (result.complete) {
@@ -776,18 +795,18 @@ module.exports = function (app, cfg) {
             const restChecker = function () {
 
                 // Add to Req
-                if(typeof req.session[sessionVars.access_token + '_command'] || typeof req.session[sessionVars.access_token + '_command'] === "number") { 
-                
+                if (typeof req.session[sessionVars.access_token + '_command'] || typeof req.session[sessionVars.access_token + '_command'] === "number") {
+
                     // Add Access Command
                     req.discord_session.commands = {};
                     req.discord_session.commands.access_token = req.session[sessionVars.access_token + '_command'];
 
                     // Other Values
-                    if(typeof req.session[sessionVars.token_type + '_command'] || typeof req.session[sessionVars.token_type + '_command'] === "number") {
+                    if (typeof req.session[sessionVars.token_type + '_command'] || typeof req.session[sessionVars.token_type + '_command'] === "number") {
                         req.discord_session.commands.token_type = req.session[sessionVars.token_type + '_command']
                     }
 
-                    if(typeof req.session[sessionVars.scope + '_command'] || typeof req.session[sessionVars.scope + '_command'] === "number") {
+                    if (typeof req.session[sessionVars.scope + '_command'] || typeof req.session[sessionVars.scope + '_command'] === "number") {
                         req.discord_session.commands.scope = req.session[sessionVars.scope + '_command']
                     }
 
@@ -1308,28 +1327,8 @@ module.exports = function (app, cfg) {
             const firebase_auth = req.session[sessionVars.firebase_token];
 
             // Result
-            discordAuth.logout(req, req.session[sessionVars.access_token],
-                {
-
-                    // CSRF Token
-                    csrfToken: req.query[sessionVars.csrfToken],
-
-                    // Query
-                    query: {
-                        csrfToken: 'csrfToken',
-                        redirect: 'redirect'
-                    },
-
-                    // State
-                    state: {
-                        csrfToken: req.csrfToken.now.value
-                    },
-
-                    // Auth
-                    auth: tinyAuth
-
-                }, (getSessionFromCookie(req, sessionVars.access_token), req.session[sessionVars.access_token]),
-            ).then(result => {
+            
+            logout_action(req, req.query[sessionVars.csrfToken]).then(result => {
 
                 // Discord Logout Complete
                 if (result.complete) {
