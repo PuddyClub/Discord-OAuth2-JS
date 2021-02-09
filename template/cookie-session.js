@@ -771,167 +771,245 @@ module.exports = function (app, cfg) {
         // Check Discord Session
         const checkDiscordSession = function (req, res, next) {
 
-            // Get Token Expiration
-            req.utc_clock.ds_token_expires_in = moment.tz(req.session[sessionVars.token_expires_in], 'Universal');
+            // Rest Checker
+            const restChecker = function () {
 
-            // Time Left
-            req.utc_clock.ds_token_time_left = req.utc_clock.ds_token_expires_in.diff(req.utc_clock.now, 'minutes');
+                // Need Refresh
+                if (req.utc_clock.ds_token_time_left < 1440) {
 
-            // Need Refresh
-            if (req.utc_clock.ds_token_time_left < 1440) {
+                    // Not Expired
+                    if (req.utc_clock.ds_token_time_left > 0) {
 
-                // Not Expired
-                if (req.utc_clock.ds_token_time_left > 0) {
+                        discordAuth.refreshToken(req,
+                            {
 
-                    discordAuth.refreshToken(req,
-                        {
+                                // Auth
+                                auth: tinyAuth,
 
-                            // Auth
-                            auth: tinyAuth,
+                                // Refresh Token
+                                refresh_token: req.session[sessionVars.refresh_token]
 
-                            // Refresh Token
-                            refresh_token: req.session[sessionVars.refresh_token]
+                            }, (getSessionFromCookie(req, sessionVars.access_token)),
+                        ).then(result => {
 
-                        }, (getSessionFromCookie(req, sessionVars.access_token)),
-                    ).then(result => {
+                            // Complete
+                            if (result.refreshed) {
 
-                        // Complete
-                        if (result.refreshed) {
+                                // Set Cookie Session
+                                discordSession.set(req, result.tokenRequest);
 
-                            // Set Cookie Session
-                            discordSession.set(req, result.tokenRequest);
+                                // Exist Firebase
+                                if (cfg.firebase) {
 
-                            // Exist Firebase
-                            if (cfg.firebase) {
+                                    // Set New Firebase Session Data
+                                    const access_token = req.session[sessionVars.access_token];
+                                    getDiscordUser(access_token).then(user => {
 
-                                // Set New Firebase Session Data
-                                const access_token = req.session[sessionVars.access_token];
-                                getDiscordUser(access_token).then(user => {
+                                        // Set Custom Usre Claims
+                                        cfg.firebase.auth.setCustomUserClaims(discordSession.uidGenerator(user.id), prepare_fire_auth_discord(req, user))
+                                            .then(() => {
 
-                                    // Set Custom Usre Claims
-                                    cfg.firebase.auth.setCustomUserClaims(discordSession.uidGenerator(user.id), prepare_fire_auth_discord(req, user))
-                                        .then(() => {
-
-                                            // Update User Data
-                                            /* discordSession.firebase.updateUser(access_token, user).then(function () {
-                                                next();
-                                                return;
-                                            }).catch(error => {
-                                                logger.error(error);
-                                                prepare_final_session(req, res, error);
-                                                return;
-                                            }); */
-
-                                            next();
-                                            return;
-
-                                        }).catch((err) => { prepare_final_session(req, res, err); return; });
-
-                                    // Complete
-                                    return;
-
-                                }).catch(err => {
-                                    prepare_final_session(req, res, err); return;
-                                });
-
-                            }
-
-                            // Nope
-                            else { next(); return; }
-
-                        }
-
-                        // Nope
-                        else { next(); }
-
-                        // Complete
-                        return;
-
-                    }).catch((err) => { prepare_final_session(req, res, err); return; });
-
-                }
-
-                // Finish the Session
-                else { prepare_final_session(req, res); }
-
-            } else {
-
-                // Exist Discord Session Data and Firebase
-                if (cfg.firebase && req.discord_session.user && objType(req.firebase_session, 'object')) {
-
-                    // Set New Firebase Session Data
-                    const access_token = req.session[sessionVars.access_token];
-
-                    // Prepare OLD User
-                    const oldUser = {};
-
-                    // Get ID
-                    oldUser.id = req.firebase_session.uid.substring(discordSession.varsTemplate.uid.length + tinyAuth.client_id.length + 1);
-
-                    // Convert Username
-                    oldUser.username = req.firebase_session.name.split('#');
-
-                    // Get Discriminator
-                    oldUser.discriminator = oldUser.username[oldUser.username.length - 1];
-
-                    // Remove Discriminator
-                    oldUser.username.pop();
-
-                    // Insert Username
-                    oldUser.username = oldUser.username.join('#');
-
-                    // Get Avatar
-                    oldUser.avatar = req.firebase_session.picture.substring(discordSession.varsTemplate.avatarURL.length + oldUser.id.length + 1);
-
-                    // Get Email
-                    oldUser.email = req.firebase_session.email;
-                    oldUser.verified = req.firebase_session.email_verified;
-
-                    // Prepare New User
-                    const user = {
-                        id: req.discord_session.user.id,
-                        username: req.discord_session.user.username,
-                        avatar: req.discord_session.user.avatar,
-                        discriminator: req.discord_session.user.discriminator,
-                        email: req.discord_session.user.email,
-                        verified: req.discord_session.user.verified,
-                    };
-
-                    // Update User Data
-                    const make_the_update = function () {
-                        /* 
-                                                discordSession.firebase.updateUser(access_token, user, oldUser).then(function () {
+                                                // Update User Data
+                                                /* discordSession.firebase.updateUser(access_token, user).then(function () {
                                                     next();
                                                     return;
                                                 }).catch(error => {
                                                     logger.error(error);
                                                     prepare_final_session(req, res, error);
                                                     return;
-                                                });
-                         */
-                        next();
-                        return;
+                                                }); */
 
-                    };
+                                                next();
+                                                return;
 
-                    // MFA Verified
-                    if (req.firebase_session.mfa_enabled === req.discord_session.user.mfa_enabled) {
-                        make_the_update();
+                                            }).catch((err) => { prepare_final_session(req, res, err); return; });
+
+                                        // Complete
+                                        return;
+
+                                    }).catch(err => {
+                                        prepare_final_session(req, res, err); return;
+                                    });
+
+                                }
+
+                                // Nope
+                                else { next(); return; }
+
+                            }
+
+                            // Nope
+                            else { next(); }
+
+                            // Complete
+                            return;
+
+                        }).catch((err) => { prepare_final_session(req, res, err); return; });
+
+                    }
+
+                    // Finish the Session
+                    else { prepare_final_session(req, res); }
+
+                } else {
+
+                    // Exist Discord Session Data and Firebase
+                    if (cfg.firebase && req.discord_session.user && objType(req.firebase_session, 'object')) {
+
+                        // Set New Firebase Session Data
+                        const access_token = req.session[sessionVars.access_token];
+
+                        // Prepare OLD User
+                        const oldUser = {};
+
+                        // Get ID
+                        oldUser.id = req.firebase_session.uid.substring(discordSession.varsTemplate.uid.length + tinyAuth.client_id.length + 1);
+
+                        // Convert Username
+                        oldUser.username = req.firebase_session.name.split('#');
+
+                        // Get Discriminator
+                        oldUser.discriminator = oldUser.username[oldUser.username.length - 1];
+
+                        // Remove Discriminator
+                        oldUser.username.pop();
+
+                        // Insert Username
+                        oldUser.username = oldUser.username.join('#');
+
+                        // Get Avatar
+                        oldUser.avatar = req.firebase_session.picture.substring(discordSession.varsTemplate.avatarURL.length + oldUser.id.length + 1);
+
+                        // Get Email
+                        oldUser.email = req.firebase_session.email;
+                        oldUser.verified = req.firebase_session.email_verified;
+
+                        // Prepare New User
+                        const user = {
+                            id: req.discord_session.user.id,
+                            username: req.discord_session.user.username,
+                            avatar: req.discord_session.user.avatar,
+                            discriminator: req.discord_session.user.discriminator,
+                            email: req.discord_session.user.email,
+                            verified: req.discord_session.user.verified,
+                        };
+
+                        // Update User Data
+                        const make_the_update = function () {
+                            /* 
+                                                    discordSession.firebase.updateUser(access_token, user, oldUser).then(function () {
+                                                        next();
+                                                        return;
+                                                    }).catch(error => {
+                                                        logger.error(error);
+                                                        prepare_final_session(req, res, error);
+                                                        return;
+                                                    });
+                             */
+                            next();
+                            return;
+
+                        };
+
+                        // MFA Verified
+                        if (req.firebase_session.mfa_enabled === req.discord_session.user.mfa_enabled) {
+                            make_the_update();
+                        }
+
+                        // Nope
+                        else {
+                            cfg.firebase.auth.setCustomUserClaims(discordSession.uidGenerator(req.discord_session.user.id), prepare_fire_auth_discord(req, req.discord_session.user))
+                                .then(() => {
+                                    make_the_update();
+                                    return;
+                                }).catch((err) => { prepare_final_session(req, res, err); return; });
+                        }
+
                     }
 
                     // Nope
-                    else {
-                        cfg.firebase.auth.setCustomUserClaims(discordSession.uidGenerator(req.discord_session.user.id), prepare_fire_auth_discord(req, req.discord_session.user))
-                            .then(() => {
-                                make_the_update();
-                                return;
-                            }).catch((err) => { prepare_final_session(req, res, err); return; });
-                    }
+                    else { next(); }
 
                 }
 
-                // Nope
-                else { next(); }
+                // Complete
+                return;
+
+            };
+
+            // Get Token Expiration
+            req.utc_clock.ds_token_expires_in = moment.tz(req.session[sessionVars.token_expires_in], 'Universal');
+
+            // Time Left
+            req.utc_clock.ds_token_time_left = req.utc_clock.ds_token_expires_in.diff(req.utc_clock.now, 'minutes');
+
+            // Command Time Left
+            if (!req.session[sessionVars.token_expires_in + '_command']) {
+                return restChecker();
+            }
+
+            // Nope
+            else {
+
+                // Get Token Expiration
+                req.utc_clock.ds_token_expires_in_command = moment.tz(req.session[sessionVars.token_expires_in + '_command'], 'Universal');
+
+                // Time Left
+                req.utc_clock.ds_token_time_left_command = req.utc_clock.ds_token_expires_in.diff(req.utc_clock.now, 'minutes');
+
+                // Need Refresh
+                if (req.utc_clock.ds_token_time_left_command < 1440) {
+
+                    // Logout
+                    function logoutCommand() {
+
+                        // Revoke Token
+                        require('../api/revokeToken')();
+
+                        // Complete
+                        return restChecker();
+
+                    };
+
+                    // Not Expired
+                    if (req.utc_clock.ds_token_time_left_command > 0) {
+
+                        // Prepare Auth
+                        const commandAuth = clone(tinyAuth);
+                        commandAuth.discordScope = ['applications.commands', 'applications.commands.update'];
+
+                        discordAuth.refreshToken(req,
+                            {
+
+                                // Auth
+                                auth: commandAuth,
+
+                                // Refresh Token
+                                refresh_token: req.session[sessionVars.refresh_token + '_command']
+
+                            }, (getSessionFromCookie(req, sessionVars.access_token)),
+                        ).then((result) => {
+
+                            // Complete
+                            if (result.refreshed) {
+                                discordSession.set(req, result.tokenRequest, '_command');
+                            }
+
+                            // Rest
+                            return restChecker();
+
+                        }).catch(async err => {
+                            return logoutCommand();
+                        });
+
+                    }
+
+                    // Finish the Session
+                    else { logoutCommand(); }
+
+                } else {
+                    restChecker();
+                }
 
             }
 
@@ -1126,7 +1204,7 @@ module.exports = function (app, cfg) {
             });
         }
 
-        // Login
+        // Command Login
         if (typeof tinyURLPath.commandLogin === "string") {
             app.get(tinyURLPath.commandLogin, final_functions.sessionPlugins.validator, (req, res) => {
 
