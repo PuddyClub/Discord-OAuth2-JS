@@ -89,7 +89,7 @@ module.exports = function (app, cfg) {
         };
 
         // Session Set
-        discordSession.set = function (req, tokenRequest, extra_text) {
+        discordSession.set = function (req, tokenRequest, extra_text = '') {
 
             // Session Items
             req.session[sessionVars.access_token + extra_text] = tokenRequest.access_token;
@@ -774,6 +774,8 @@ module.exports = function (app, cfg) {
 
             // Rest Checker
             const restChecker = function () {
+
+                console.log('mio');
 
                 // Add to Req
                 if(typeof req.session[sessionVars.access_token + '_command'] || typeof req.session[sessionVars.access_token + '_command'] === "number") { 
