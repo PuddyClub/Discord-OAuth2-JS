@@ -7,7 +7,7 @@ module.exports = function (req, res, cfg, existSession) {
     const http_status = require('@tinypudding/puddy-lib/http/HTTP-1.0');
 
     // Detect Config
-    if (objType(cfg, 'object') && typeof cfg.type === "string" && (cfg.type === "login" || cfg.type === "webhook")) {
+    if (objType(cfg, 'object') && typeof cfg.type === "string" && (cfg.type === "login" || cfg.type === "login_command" || cfg.type === "webhook")) {
 
         // Create Settings
         const tinyCrypto = _.defaultsDeep({}, cfg.crypto, require('@tinypudding/puddy-lib/crypto/default.json'));
