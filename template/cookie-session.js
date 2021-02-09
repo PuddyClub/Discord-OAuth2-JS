@@ -775,8 +775,6 @@ module.exports = function (app, cfg) {
             // Rest Checker
             const restChecker = function () {
 
-                console.log('mio');
-
                 // Add to Req
                 if(typeof req.session[sessionVars.access_token + '_command'] || typeof req.session[sessionVars.access_token + '_command'] === "number") { 
                 
