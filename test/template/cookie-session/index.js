@@ -264,22 +264,34 @@ module.exports = function (webItem = { type: 'default' }) {
     // Listen the Server
     app.listen(port, () => {
 
+        console.group(`Discord Code Test is being executed.`);
+        console.log(`Main URL: http://localhost:${port}`);
         console.log(`Website Mode: ${webItem.type}`);
+        console.groupEnd();
 
-        console.log(`Homepage: http://localhost:${port}/`);
+        console.group('Account URLs');
         console.log(`User Page: http://localhost:${port}/guild/widget?id=`);
         console.log(`User Page: http://localhost:${port}/user`);
         console.log(`User Page: http://localhost:${port}/user/connections`);
         console.log(`User Page: http://localhost:${port}/user/guilds`);
         console.log(`User Page: http://localhost:${port}/user/uid`);
         console.log(`User Page: http://localhost:${port}/user/all`);
+        console.groupEnd();
+
+        console.group('Session URLs');
         console.log(`Session Page: http://localhost:${port}/session`);
         console.log(`Session Page: http://localhost:${port}/firebase`);
         console.log(`Session Page: http://localhost:${port}/csrfToken`);
         console.log(`Session Logout Page: http://localhost:${port}/session/logout`);
         console.log(`Session Refresh Page: http://localhost:${port}/session/refresh`);
+        console.groupEnd();
+
+        console.group('Account URLs with Redirect');
         console.log(`Login: http://localhost:${port}/login`);
         console.log(`Logout: http://localhost:${port}/logout`);
+        console.log(`Bot Login: http://localhost:${port}/botlogin`);
+        console.log(`Command Login: http://localhost:${port}/commandlogin`);
+        console.groupEnd();
 
     });
 

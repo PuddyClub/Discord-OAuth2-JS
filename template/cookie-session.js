@@ -634,6 +634,7 @@ module.exports = function (app, cfg) {
 
         // Crypto Values
         const tinyURLPath = _.defaultsDeep({}, cfg.url, {
+            commandLogin: '/commandLogin',
             botLogin: '/botLogin',
             login: '/login',
             logout: '/logout',
