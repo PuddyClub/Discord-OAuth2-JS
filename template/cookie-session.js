@@ -692,6 +692,23 @@ module.exports = function (app, cfg) {
             });
         };
 
+        // Remove Values
+        const removeCommandSession = function (req, callback) {
+
+            // Session Items
+            delete req.session[sessionVars.access_token + '_command'];
+            delete req.session[sessionVars.refresh_token + '_command'];
+            delete req.session[sessionVars.token_type + '_command'];
+            delete req.session[sessionVars.scope + '_command'];
+
+            // Expire In
+            delete req.session[sessionVars.token_expires_in + '_command'];
+
+            // Complete
+            return callback();
+
+        };
+
         // Logout Action
         const logout_action = function (req, csrfToken, redirect) {
             return new Promise(function (resolve, reject) {
@@ -703,29 +720,74 @@ module.exports = function (app, cfg) {
                 if (redirect) { state.redirect = redirect; }
 
                 // Result
-                discordAuth.logout(req, req.session[sessionVars.access_token],
-                    {
+                const finalResult = function () {
 
-                        // CSRF Token
-                        csrfToken: csrfToken,
+                    discordAuth.logout(req, req.session[sessionVars.access_token],
+                        {
 
-                        // Query
-                        query: {
-                            csrfToken: 'csrfToken',
-                            redirect: 'redirect'
-                        },
+                            // CSRF Token
+                            csrfToken: csrfToken,
 
-                        // State
-                        state: state,
+                            // Query
+                            query: {
+                                csrfToken: 'csrfToken',
+                                redirect: 'redirect'
+                            },
 
-                        // Auth
-                        auth: tinyAuth
+                            // State
+                            state: state,
 
-                    }, (getSessionFromCookie(req, sessionVars.access_token), req.session[sessionVars.access_token]),
-                ).then(result => {
-                    resolve(result);
+                            // Auth
+                            auth: tinyAuth
+
+                        }, (getSessionFromCookie(req, sessionVars.access_token), req.session[sessionVars.access_token]),
+                    ).then(result => {
+                        resolve(result);
+                        return;
+                    }).catch((err) => { reject(err); return; });
+
+                    // Complete
                     return;
-                }).catch((err) => { reject(err); return; });
+
+                };
+
+                // Normal
+                if (typeof req.session[sessionVars.access_token + '_command'] !== "string") {
+                    finalResult();
+                }
+
+                // Remove Command Token
+                else {
+
+                    // Prepare Auth
+                    const commandAuth = clone(tinyAuth);
+                    commandAuth.discordScope = ['applications.commands', 'applications.commands.update'];
+
+                    discordAuth.logout(req, req.session[sessionVars.access_token],
+                        {
+
+                            // CSRF Token
+                            csrfToken: csrfToken,
+
+                            // Query
+                            query: {
+                                csrfToken: 'csrfToken',
+                                redirect: 'redirect'
+                            },
+
+                            // State
+                            state: state,
+
+                            // Auth
+                            auth: commandAuth
+
+                        }, (getSessionFromCookie(req, sessionVars.access_token), req.session[sessionVars.access_token]),
+                    ).then(result => {
+                        removeCommandSession(req, finalResult);
+                        return;
+                    }).catch((err) => { removeCommandSession(req, finalResult); return; });
+
+                }
 
                 // Complete
                 return;
@@ -795,18 +857,18 @@ module.exports = function (app, cfg) {
             const restChecker = function () {
 
                 // Add to Req
-                if (typeof req.session[sessionVars.access_token + '_command'] || typeof req.session[sessionVars.access_token + '_command'] === "number") {
+                if (typeof req.session[sessionVars.access_token + '_command'] === "string" || typeof req.session[sessionVars.access_token + '_command'] === "number") {
 
                     // Add Access Command
                     req.discord_session.commands = {};
                     req.discord_session.commands.access_token = req.session[sessionVars.access_token + '_command'];
 
                     // Other Values
-                    if (typeof req.session[sessionVars.token_type + '_command'] || typeof req.session[sessionVars.token_type + '_command'] === "number") {
+                    if (typeof req.session[sessionVars.token_type + '_command'] === "string" || typeof req.session[sessionVars.token_type + '_command'] === "number") {
                         req.discord_session.commands.token_type = req.session[sessionVars.token_type + '_command']
                     }
 
-                    if (typeof req.session[sessionVars.scope + '_command'] || typeof req.session[sessionVars.scope + '_command'] === "number") {
+                    if (typeof req.session[sessionVars.scope + '_command'] === "string" || typeof req.session[sessionVars.scope + '_command'] === "number") {
                         req.discord_session.commands.scope = req.session[sessionVars.scope + '_command']
                     }
 
@@ -1003,33 +1065,16 @@ module.exports = function (app, cfg) {
                     commandAuth.discordScope = ['applications.commands', 'applications.commands.update'];
 
                     // Logout
-                    function logoutCommand() {
-
-                        // Remove Values
-                        const removeCommandSession = function () {
-
-                            // Session Items
-                            delete req.session[sessionVars.access_token + '_command'];
-                            delete req.session[sessionVars.refresh_token + '_command'];
-                            delete req.session[sessionVars.token_type + '_command'];
-                            delete req.session[sessionVars.scope + '_command'];
-
-                            // Expire In
-                            delete req.session[sessionVars.token_expires_in + '_command'];
-
-                            // Complete
-                            return restChecker();
-
-                        };
+                    const logoutCommand = function () {
 
                         // Revoke Token
                         const revokeToken = require('../api/revokeToken');
                         revokeToken(req.session[sessionVars.access_token + '_command'], commandAuth).then((data) => {
-                            removeCommandSession();
+                            removeCommandSession(req, restChecker);
                             return;
 
                         }).catch(err => {
-                            removeCommandSession();
+                            removeCommandSession(req, restChecker);
                             return;
                         });
 
@@ -1327,7 +1372,7 @@ module.exports = function (app, cfg) {
             const firebase_auth = req.session[sessionVars.firebase_token];
 
             // Result
-            
+
             logout_action(req, req.query[sessionVars.csrfToken]).then(result => {
 
                 // Discord Logout Complete
