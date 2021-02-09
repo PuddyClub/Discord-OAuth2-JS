@@ -361,6 +361,12 @@ module.exports = function (app, cfg) {
             discordScope: ["identify", "email"]
         });
 
+        // Bot Auth
+        const botAuth = _.defaultsDeep({}, cfg.bot, {
+            discordScope: ['bot', 'applications.commands'],
+            permissions: 0
+        });
+
         // Final Result
         const final_functions = {
 
@@ -627,6 +633,7 @@ module.exports = function (app, cfg) {
 
         // Crypto Values
         const tinyURLPath = _.defaultsDeep({}, cfg.url, {
+            botLogin: '/botLogin',
             login: '/login',
             logout: '/logout',
             redirect: '/redirect',
@@ -1079,42 +1086,51 @@ module.exports = function (app, cfg) {
         });
 
         // Login
-        app.get(tinyURLPath.login, final_functions.sessionPlugins.validator, (req, res) => {
+        if (typeof tinyURLPath.login === "string") {
+            app.get(tinyURLPath.login, final_functions.sessionPlugins.validator, (req, res) => {
 
-            // Result
-            discordAuth.login(req, res,
-                {
+                // Result
+                discordAuth.login(req, res,
+                    {
 
-                    // Error
-                    errorCallback: tinyCfg.errorCallback,
+                        // Error
+                        errorCallback: tinyCfg.errorCallback,
 
-                    // Crypto
-                    crypto: tinyCrypto,
+                        // Crypto
+                        crypto: tinyCrypto,
 
-                    // Auth
-                    auth: tinyAuth,
+                        // Auth
+                        auth: tinyAuth,
 
-                    // Type
-                    type: 'login',
+                        // Type
+                        type: 'login',
 
-                    // Query
-                    query: { redirect: 'redirect' },
+                        // Query
+                        query: { redirect: 'redirect' },
 
-                    // State
-                    state: {
-                        csrfToken: req.csrfToken.now.value
-                    },
+                        // State
+                        state: {
+                            csrfToken: req.csrfToken.now.value
+                        },
 
-                    // Port
-                    port: cfg.port
+                        // Port
+                        port: cfg.port
 
-                }, (getSessionFromCookie(req, sessionVars.access_token)),
-            );
+                    }, (getSessionFromCookie(req, sessionVars.access_token)),
+                );
 
-            // Complete
-            return;
+                // Complete
+                return;
 
-        });
+            });
+        }
+
+        // Add Commands
+        if (typeof tinyURLPath.botLogin === "string") {
+            app.get(tinyURLPath.botLogin, (req, res) => {
+                return res.redirect(`${require('../config.json').oauth2}?client_id=${encodeURIComponent(tinyAuth.client_id)}&scope=${encodeURIComponent(botAuth.discordScope.join(' '))}&permissions=${botAuth.permissions}`);
+            });
+        }
 
         // Logout
         app.get(tinyURLPath.logout, final_functions.sessionPlugins.validator, (req, res) => {

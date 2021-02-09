@@ -1,3 +1,4 @@
 {
-    "url": "https://discord.com/api/"
+    "url": "https://discord.com/api/",
+    "oauth2": "https://discord.com/oauth2/authorize"
 }
