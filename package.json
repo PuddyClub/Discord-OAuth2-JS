@@ -21,6 +21,7 @@
   "homepage": "https://github.com/TinyPudding/Discord-OAuth2-JS#readme",
   "dependencies": {
     "@tinypudding/puddy-lib": "^1.1.16",
+    "clone": "^2.1.2",
     "lodash": "^4.17.20",
     "moment-timezone": "^0.5.32",
     "node-fetch": "^2.6.1",

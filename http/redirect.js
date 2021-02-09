@@ -24,6 +24,11 @@ module.exports = async function (req, cfg, existSession) {
                     first_get_user: true
                 });
 
+                // Check Type
+                if (req.query.state.type === "login_command") {
+                    tinyCfg.discordScope = ['applications.commands', 'applications.commands.update'];
+                }
+
                 // Detect Query
                 if (objType(req.query, 'object')) {
 

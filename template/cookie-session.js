@@ -89,16 +89,16 @@ module.exports = function (app, cfg) {
         };
 
         // Session Set
-        discordSession.set = function (req, tokenRequest) {
+        discordSession.set = function (req, tokenRequest, extra_text) {
 
             // Session Items
-            req.session[sessionVars.access_token] = tokenRequest.access_token;
-            req.session[sessionVars.refresh_token] = tokenRequest.refresh_token;
-            req.session[sessionVars.token_type] = tokenRequest.token_type;
-            req.session[sessionVars.scope] = tokenRequest.scope;
+            req.session[sessionVars.access_token + extra_text] = tokenRequest.access_token;
+            req.session[sessionVars.refresh_token + extra_text] = tokenRequest.refresh_token;
+            req.session[sessionVars.token_type + extra_text] = tokenRequest.token_type;
+            req.session[sessionVars.scope + extra_text] = tokenRequest.scope;
 
             // Expire In
-            req.session[sessionVars.token_expires_in] = moment.tz('Universal').add(tokenRequest.expires_in, 'second').format();
+            req.session[sessionVars.token_expires_in + extra_text] = moment.tz('Universal').add(tokenRequest.expires_in, 'second').format();
 
             // Complete
             return;
@@ -306,6 +306,7 @@ module.exports = function (app, cfg) {
 
         // Modules
         const _ = require('lodash');
+        const clone = require('clone');
 
         // Firebase Redirect
         const firebase_redirect = { login: require('../firebase_redirect/login'), logout: require('../firebase_redirect/logout') };
@@ -1125,6 +1126,50 @@ module.exports = function (app, cfg) {
             });
         }
 
+        // Login
+        if (typeof tinyURLPath.commandLogin === "string") {
+            app.get(tinyURLPath.commandLogin, final_functions.sessionPlugins.validator, (req, res) => {
+
+                // Prepare Auth
+                const commandAuth = clone(tinyAuth);
+                commandAuth.discordScope = ['applications.commands', 'applications.commands.update'];
+
+                // Result
+                discordAuth.login(req, res,
+                    {
+
+                        // Error
+                        errorCallback: tinyCfg.errorCallback,
+
+                        // Crypto
+                        crypto: tinyCrypto,
+
+                        // Auth
+                        auth: commandAuth,
+
+                        // Type
+                        type: 'login_command',
+
+                        // Query
+                        query: { redirect: 'redirect' },
+
+                        // State
+                        state: {
+                            csrfToken: req.csrfToken.now.value
+                        },
+
+                        // Port
+                        port: cfg.port
+
+                    }, (getSessionFromCookie(req, sessionVars.access_token)),
+                );
+
+                // Complete
+                return;
+
+            });
+        }
+
         // Add Commands
         if (typeof tinyURLPath.botLogin === "string") {
             app.get(tinyURLPath.botLogin, (req, res) => {
@@ -1218,6 +1263,7 @@ module.exports = function (app, cfg) {
                 // New Session Result
                 if (result.state.type === "login" && result.newSession) {
 
+                    // Verified
                     if (!tinyCfg.needEmailVerified || result.user.verified) {
 
                         // Set Cookie Session
@@ -1256,6 +1302,28 @@ module.exports = function (app, cfg) {
                             res.redirect(tinyDomain + result.redirect);
 
                         }
+
+                    }
+
+                    // Nope
+                    else {
+                        tinyCfg.errorCallback({ code: 401, message: 'This email is not a verified email!' }, req, res);
+                    }
+
+                }
+
+                // Command
+                else if (result.state.type === 'login_command') {
+
+                    // Verified
+                    if (!tinyCfg.needEmailVerified || result.user.verified) {
+
+                        // Set Cookie Session
+                        discordSession.set(req, result.tokenRequest, '_command');
+
+                        // Get Domain
+                        const tinyDomain = require('@tinypudding/puddy-lib/http/getDomainURL')(req, cfg.port);
+                        res.redirect(tinyDomain + result.redirect);
 
                     }
 
