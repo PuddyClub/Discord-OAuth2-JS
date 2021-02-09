@@ -8,7 +8,7 @@ module.exports = function (app, cfg) {
 
         // Validator Session Discord and Firebase
         const sessionFirebaseDiscordValidator = function (req) {
-            return (req.firebase_session.uid === `${discordSession.varsTemplate.uid}${tinyAuth.client_id}_${req.discord_session.user.id}`);
+            return (req.firebase_session.uid === `${discordSession.varsTemplate.uid}${req.discord_session.user.id}`);
         };
 
         // Prepare Base
@@ -85,7 +85,7 @@ module.exports = function (app, cfg) {
 
         // Get Firebase UID
         discordSession.uidGenerator = function (userID) {
-            return `${discordSession.varsTemplate.uid}${tinyAuth.client_id}_${encodeURIComponent(userID)}`;
+            return `${discordSession.varsTemplate.uid}${encodeURIComponent(userID)}`;
         };
 
         // Session Set
@@ -121,13 +121,6 @@ module.exports = function (app, cfg) {
             // Discord Session
             const dsSession = discordSession.get(req);
             const preparedsSession = {};
-
-            // Scope
-            if (typeof dsSession.scope === "string") {
-                preparedsSession.scope = dsSession.scope.split(' ');
-            } else {
-                preparedsSession.scope = dsSession.scope;
-            }
 
             // User IP
             const requestIpAddress = getUserIP(req, { isFirebase: true });
@@ -857,7 +850,7 @@ module.exports = function (app, cfg) {
                     const oldUser = {};
 
                     // Get ID
-                    oldUser.id = req.firebase_session.uid.substring(discordSession.varsTemplate.uid.length + tinyAuth.client_id.length + 1);
+                    oldUser.id = req.firebase_session.uid.substring(discordSession.varsTemplate.uid.length);
 
                     // Convert Username
                     oldUser.username = req.firebase_session.name.split('#');
