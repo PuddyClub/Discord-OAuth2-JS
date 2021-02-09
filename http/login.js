@@ -6,6 +6,13 @@ module.exports = function (req, res, cfg, existSession) {
     const objType = require('@tinypudding/puddy-lib/get/objType');
     const http_status = require('@tinypudding/puddy-lib/http/HTTP-1.0');
 
+    // Send Error
+    const sendError = function (data) {
+        if (typeof cfg.errorCallback !== "function") { return http_status.send(res, data.code); } else {
+            return cfg.errorCallback(data, req, res);
+        }
+    };
+
     // Detect Config
     if (objType(cfg, 'object') && typeof cfg.type === "string" && (cfg.type === "login" || cfg.type === "login_command" || cfg.type === "webhook")) {
 
@@ -91,46 +98,35 @@ module.exports = function (req, res, cfg, existSession) {
 
                     // Nope
                     else {
-                        if (typeof cfg.errorCallback !== "function") { return http_status.send(res, 400); } else {
-                            return cfg.errorCallback({ code: 400, message: 'Invalide Request!' }, req, res);
-                        }
-
+                        return sendError({ code: 400, message: 'Invalide Request!' });
                     }
 
                 }
 
                 // Error
                 else {
-                    if (typeof cfg.errorCallback !== "function") { return http_status.send(res, 400); } else {
-                        return cfg.errorCallback({ code: 400, message: 'Invalide State Config!' }, req, res);
-                    }
+                    return sendError({ code: 400, message: 'Invalide State Config!' });
                 }
 
             }
 
             // Error
             else {
-                if (typeof cfg.errorCallback !== "function") { return http_status.send(res, 500); } else {
-                    return cfg.errorCallback({ code: 500, message: 'Invalide System Config!' }, req, res);
-                }
+                return sendError({ code: 500, message: 'Invalide System Config!' });
             }
 
         }
 
         // Nope
         else {
-            if (typeof cfg.errorCallback !== "function") { return http_status.send(res, 500); } else {
-                return cfg.errorCallback({ code: 500, message: 'Invalid Crypto Values!' }, req, res);
-            }
+            return sendError({ code: 500, message: 'Invalid Crypto Values!' });
         }
 
     }
 
     // Nope
     else {
-        if (typeof cfg.errorCallback !== "function") { return http_status.send(res, 500); } else {
-            return cfg.errorCallback({ code: 500, message: 'Invalid Config Values!' }, req, res);
-        }
+        return sendError({ code: 500, message: 'Invalid Config Values!' });
     }
 
 }
