@@ -684,8 +684,11 @@ module.exports = function (app, cfg) {
         };
 
         // Auto Logout
-        const auto_logout = function (req) {
+        const auto_logout = function (req, err) {
             return new Promise(function (resolve, reject) {
+
+                // Print Error
+                if (err) { tinyCfg.errorCallback(err); }
 
                 // Result
                 discordAuth.logout(req, req.session[sessionVars.access_token],
