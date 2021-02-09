@@ -8,7 +8,7 @@ module.exports = function (app, cfg) {
 
         // Validator Session Discord and Firebase
         const sessionFirebaseDiscordValidator = function (req) {
-            return (req.firebase_session.uid === `${discordSession.varsTemplate.uid}${req.discord_session.user.id}`);
+            return (req.firebase_session.uid === `${discordSession.varsTemplate.uid}${tinyAuth.client_id}_${req.discord_session.user.id}`);
         };
 
         // Prepare Base
@@ -85,7 +85,7 @@ module.exports = function (app, cfg) {
 
         // Get Firebase UID
         discordSession.uidGenerator = function (userID) {
-            return `${discordSession.varsTemplate.uid}${encodeURIComponent(userID)}`;
+            return `${discordSession.varsTemplate.uid}${tinyAuth.client_id}_${encodeURIComponent(userID)}`;
         };
 
         // Session Set
@@ -121,6 +121,13 @@ module.exports = function (app, cfg) {
             // Discord Session
             const dsSession = discordSession.get(req);
             const preparedsSession = {};
+
+            // Scope
+            if (typeof dsSession.scope === "string") {
+                preparedsSession.scope = dsSession.scope.split(' ');
+            } else {
+                preparedsSession.scope = dsSession.scope;
+            }
 
             // User IP
             const requestIpAddress = getUserIP(req, { isFirebase: true });
@@ -798,15 +805,16 @@ module.exports = function (app, cfg) {
                                         .then(() => {
 
                                             // Update User Data
-                                            discordSession.firebase.updateUser(access_token, user).then(function () {
+                                            /* discordSession.firebase.updateUser(access_token, user).then(function () {
                                                 next();
                                                 return;
                                             }).catch(error => {
                                                 logger.error(error);
                                                 prepare_final_session(req, res, error);
                                                 return;
-                                            });
+                                            }); */
 
+                                            next();
                                             return;
 
                                         }).catch((err) => { prepare_final_session(req, res, err); return; });
@@ -850,7 +858,7 @@ module.exports = function (app, cfg) {
                     const oldUser = {};
 
                     // Get ID
-                    oldUser.id = req.firebase_session.uid.substring(discordSession.varsTemplate.uid.length);
+                    oldUser.id = req.firebase_session.uid.substring(discordSession.varsTemplate.uid.length + tinyAuth.client_id.length + 1);
 
                     // Convert Username
                     oldUser.username = req.firebase_session.name.split('#');
@@ -883,16 +891,17 @@ module.exports = function (app, cfg) {
 
                     // Update User Data
                     const make_the_update = function () {
-
-                        discordSession.firebase.updateUser(access_token, user, oldUser).then(function () {
-                            next();
-                            return;
-                        }).catch(error => {
-                            logger.error(error);
-                            prepare_final_session(req, res, error);
-                            return;
-                        });
-
+                        /* 
+                                                discordSession.firebase.updateUser(access_token, user, oldUser).then(function () {
+                                                    next();
+                                                    return;
+                                                }).catch(error => {
+                                                    logger.error(error);
+                                                    prepare_final_session(req, res, error);
+                                                    return;
+                                                });
+                         */
+                        next();
                         return;
 
                     };
@@ -950,14 +959,15 @@ module.exports = function (app, cfg) {
 
                         // Get Session
                         req.session[sessionVars.firebase_token] = req.body.token;
-                        discordSession.firebase.updateUser(req.session[sessionVars.access_token], req.discord_session.user).then(function () {
+                        /* discordSession.firebase.updateUser(req.session[sessionVars.access_token], req.discord_session.user).then(function () {
                             res.json({ success: true });
                             return;
                         }).catch(error => {
                             logger.error(error);
                             res.json({ success: false, error: 'Error updating user' });
                             return;
-                        });
+                        }); */
+                        res.json({ success: true });
 
                         // Complete
                         return;
