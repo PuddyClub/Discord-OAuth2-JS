@@ -774,6 +774,24 @@ module.exports = function (app, cfg) {
             // Rest Checker
             const restChecker = function () {
 
+                // Add to Req
+                if(typeof req.session[sessionVars.access_token + '_command'] || typeof req.session[sessionVars.access_token + '_command'] === "number") { 
+                
+                    // Add Access Command
+                    req.discord_session.commands = {};
+                    req.discord_session.commands.access_token = req.session[sessionVars.access_token + '_command'];
+
+                    // Other Values
+                    if(typeof req.session[sessionVars.token_type + '_command'] || typeof req.session[sessionVars.token_type + '_command'] === "number") {
+                        req.discord_session.commands.token_type = req.session[sessionVars.token_type + '_command']
+                    }
+
+                    if(typeof req.session[sessionVars.scope + '_command'] || typeof req.session[sessionVars.scope + '_command'] === "number") {
+                        req.discord_session.commands.scope = req.session[sessionVars.scope + '_command']
+                    }
+
+                }
+
                 // Need Refresh
                 if (req.utc_clock.ds_token_time_left < 1440) {
 
@@ -960,23 +978,48 @@ module.exports = function (app, cfg) {
                 // Need Refresh
                 if (req.utc_clock.ds_token_time_left_command < 1440) {
 
+                    // Prepare Auth
+                    const commandAuth = clone(tinyAuth);
+                    commandAuth.discordScope = ['applications.commands', 'applications.commands.update'];
+
                     // Logout
                     function logoutCommand() {
 
+                        // Remove Values
+                        const removeCommandSession = function () {
+
+                            // Session Items
+                            delete req.session[sessionVars.access_token + '_command'];
+                            delete req.session[sessionVars.refresh_token + '_command'];
+                            delete req.session[sessionVars.token_type + '_command'];
+                            delete req.session[sessionVars.scope + '_command'];
+
+                            // Expire In
+                            delete req.session[sessionVars.token_expires_in + '_command'];
+
+                            // Complete
+                            return restChecker();
+
+                        };
+
                         // Revoke Token
-                        require('../api/revokeToken')();
+                        const revokeToken = require('../api/revokeToken');
+                        revokeToken(req.session[sessionVars.access_token + '_command'], commandAuth).then((data) => {
+                            removeCommandSession();
+                            return;
+
+                        }).catch(err => {
+                            removeCommandSession();
+                            return;
+                        });
 
                         // Complete
-                        return restChecker();
+                        return;
 
                     };
 
                     // Not Expired
                     if (req.utc_clock.ds_token_time_left_command > 0) {
-
-                        // Prepare Auth
-                        const commandAuth = clone(tinyAuth);
-                        commandAuth.discordScope = ['applications.commands', 'applications.commands.update'];
 
                         discordAuth.refreshToken(req,
                             {
@@ -996,10 +1039,12 @@ module.exports = function (app, cfg) {
                             }
 
                             // Rest
-                            return restChecker();
+                            restChecker();
+                            return;
 
                         }).catch(async err => {
-                            return logoutCommand();
+                            logoutCommand();
+                            return;
                         });
 
                     }
