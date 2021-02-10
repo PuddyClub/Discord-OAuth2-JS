@@ -137,13 +137,6 @@ module.exports = function (app, cfg) {
             // Discord
             preparedsSession.discord = user;
 
-            // MFA Enabled
-            if (user.mfa_enabled) {
-                preparedsSession.mfa_enabled = true;
-            } else {
-                preparedsSession.mfa_enabled = false;
-            }
-
             // Complete
             return preparedsSession;
 
