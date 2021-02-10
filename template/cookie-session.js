@@ -134,6 +134,9 @@ module.exports = function (app, cfg) {
             preparedsSession.user_ip = requestIpAddress.value;
             preparedsSession.user_ip_type = requestIpAddress.type;
 
+            // Discord
+            preparedsSession.discord = user;
+
             // MFA Enabled
             if (user.mfa_enabled) {
                 preparedsSession.mfa_enabled = true;
