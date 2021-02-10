@@ -14,7 +14,7 @@ module.exports = function (tinyCfg, jsonState, tinyCrypto, type) {
     let tinyScopeURI = '';
 
     // Login
-    if (type === "login") {
+    if (type === "login" || type === "login_command") {
         if (Array.isArray(tinyCfg.discordScope)) {
             for (const item in tinyCfg.discordScope) {
                 if (tinyScopeURI) {
