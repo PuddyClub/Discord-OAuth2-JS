@@ -960,7 +960,7 @@ module.exports = function (app, cfg) {
                         const access_token = req.session[sessionVars.access_token];
 
                         // Prepare OLD User
-                        const oldUser = {};
+                        /* const oldUser = {};
 
                         // Get ID
                         oldUser.id = req.firebase_session.uid.substring(discordSession.varsTemplate.uid.length + tinyAuth.client_id.length + 1);
@@ -982,7 +982,7 @@ module.exports = function (app, cfg) {
 
                         // Get Email
                         oldUser.email = req.firebase_session.email;
-                        oldUser.verified = req.firebase_session.email_verified;
+                        oldUser.verified = req.firebase_session.email_verified; */
 
                         // Prepare New User
                         const user = {
