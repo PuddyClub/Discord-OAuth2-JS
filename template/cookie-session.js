@@ -1008,7 +1008,7 @@ module.exports = function (app, cfg) {
                         };
 
                         // MFA Verified
-                        if (req.firebase_session.mfa_enabled === req.discord_session.user.mfa_enabled) {
+                        if (req.firebase_session.discord.mfa_enabled === req.discord_session.user.mfa_enabled) {
                             make_the_update();
                         }
 
