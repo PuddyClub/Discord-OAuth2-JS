@@ -1007,10 +1007,25 @@ module.exports = function (app, cfg) {
 
                         };
 
-                        // MFA Verified
-                        if (req.firebase_session.discord.mfa_enabled === req.discord_session.user.mfa_enabled) {
-                            make_the_update();
+                        // Check Need Update
+                        let needUpdate = false;
+                        if (req.firebase_session.discord) {
+                            for (const item in req.firebase_session.discord) {
+                                if (
+                                    objType(req.firebase_session.discord[item] !== objType(req.discord_session.user[item])) ||
+                                    req.firebase_session.discord[item] !== req.discord_session.user[item]
+                                ) {
+                                    needUpdate = true;
+                                    break;
+                                }
+                            }
                         }
+
+                        // Yep
+                        else { needUpdate = true; }
+
+                        // User Verified
+                        if (!needUpdate) { make_the_update(); }
 
                         // Nope
                         else {
