@@ -1009,7 +1009,6 @@ module.exports = function (app, cfg) {
                         if (!objType(req.firebase_session.discord, 'object') || hash(req.firebase_session.discord) !== hash(req.discord_session.user)) {
                             needUpdate = true;
                         }
-                        console.log(needUpdate);
 
                         // User Verified
                         if (!needUpdate) { make_the_update(); }
