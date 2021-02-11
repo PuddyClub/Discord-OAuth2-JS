@@ -2,6 +2,7 @@ module.exports = function (app, cfg) {
 
     // OBJ Type
     const objType = require('@tinypudding/puddy-lib/get/objType');
+    const hash = require('object-hash');
 
     // Config
     if (objType(cfg, 'object')) {
@@ -181,7 +182,6 @@ module.exports = function (app, cfg) {
             return new Promise(function (resolve, reject) {
 
                 // Prepare MD5
-                const hash = require('object-hash');
                 const validator = {};
 
                 validator.user = hash(user);
@@ -265,9 +265,6 @@ module.exports = function (app, cfg) {
                         // Convert
                         if (typeof decodedToken.user_ip === "string") { decodedToken.user_ip = [decodedToken.user_ip]; }
                         if (typeof requestIpAddress.value === "string") { requestIpAddress.value = [requestIpAddress.value]; }
-
-                        // Prepare Hash
-                        const hash = require('object-hash');
 
                         // Verification
                         if (hash(decodedToken.user_ip) === hash(requestIpAddress.value) && decodedToken.user_ip_type === requestIpAddress.type) {
@@ -1009,20 +1006,10 @@ module.exports = function (app, cfg) {
 
                         // Check Need Update
                         let needUpdate = false;
-                        if (objType(req.firebase_session.discord, 'object')) {
-                            for (const item in req.firebase_session.discord) {
-                                if (
-                                    objType(req.firebase_session.discord[item] !== objType(req.discord_session.user[item])) ||
-                                    req.firebase_session.discord[item] !== req.discord_session.user[item]
-                                ) {
-                                    needUpdate = true;
-                                    break;
-                                }
-                            }
+                        if (!objType(req.firebase_session.discord, 'object') || hash(req.firebase_session.discord) !== hash(req.discord_session.user)) {
+                            needUpdate = true;
                         }
-
-                        // Yep
-                        else { needUpdate = true; }
+                        console.log(needUpdate);
 
                         // User Verified
                         if (!needUpdate) { make_the_update(); }
