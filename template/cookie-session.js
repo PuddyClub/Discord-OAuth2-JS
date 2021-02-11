@@ -1009,7 +1009,7 @@ module.exports = function (app, cfg) {
 
                         // Check Need Update
                         let needUpdate = false;
-                        if (req.firebase_session.discord) {
+                        if (objType(req.firebase_session.discord, 'object')) {
                             for (const item in req.firebase_session.discord) {
                                 if (
                                     objType(req.firebase_session.discord[item] !== objType(req.discord_session.user[item])) ||
