@@ -61,7 +61,16 @@ module.exports = function (webItem = { type: 'default' }) {
                 firebase.initializeApp(firebaseConfig);
                 firebase.auth().onAuthStateChanged(function (user) {
                     console.log(user);
+                    getTokenResult = function() {
+                        user
+                            .getIdTokenResult()
+                            .then((idTokenResult) => {
+                                console.log(idTokenResult);
+                                return;
+                            })
+                    };
                 });
+                let getTokenResult = null;
             </script>
             Tiny Homepage :3
         `);
