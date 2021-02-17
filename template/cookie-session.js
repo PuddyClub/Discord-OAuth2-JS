@@ -355,6 +355,16 @@ module.exports = function (app, cfg) {
             discordScope: ["identify", "email"]
         });
 
+        // Auth Commands Config
+        const tinyCommandAuth = _.defaultsDeep({}, cfg.auth, {
+            redirect: tinyAuth.redirect,
+            client_id: tinyAuth.client_id,
+            client_secret: tinyAuth.client_secret,
+            bot_token: tinyAuth.bot_token,
+            first_get_user: tinyAuth.first_get_user,
+            discordScope: ["applications.commands"]
+        });
+
         // Bot Auth
         const botAuth = _.defaultsDeep({}, cfg.bot, {
             discordScope: ['bot', 'applications.commands'],
@@ -1316,8 +1326,7 @@ module.exports = function (app, cfg) {
             app.get(tinyURLPath.commandLogin, final_functions.sessionPlugins.validator, (req, res) => {
 
                 // Prepare Auth
-                const commandAuth = clone(tinyAuth);
-                commandAuth.discordScope = ['applications.commands', 'applications.commands.update'];
+                const commandAuth = clone(tinyCommandAuth);
 
                 // Result
                 discordAuth.login(req, res,
