@@ -356,7 +356,7 @@ module.exports = function (app, cfg) {
         });
 
         // Auth Commands Config
-        const tinyCommandAuth = _.defaultsDeep({}, cfg.auth, {
+        const tinyCommandAuth = _.defaultsDeep({}, cfg.comamndAuth, {
             redirect: tinyAuth.redirect,
             client_id: tinyAuth.client_id,
             client_secret: tinyAuth.client_secret,
