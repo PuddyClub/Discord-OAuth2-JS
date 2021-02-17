@@ -1,11 +1,11 @@
-module.exports = function (access_token) {
+module.exports = function (access_token, user = '@me') {
     return new Promise(function (resolve, reject) {
 
         // API URL
         const apiURL = require('../config.json').url;
 
         // Response
-        require('@tinypudding/puddy-lib/http/fetch/json')(`${apiURL}users/@me`, {
+        require('@tinypudding/puddy-lib/http/fetch/json')(`${apiURL}users/${user}`, {
             method: 'GET',
             headers: {
                 Authorization: `Bearer ${access_token}`,
