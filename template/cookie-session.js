@@ -451,6 +451,13 @@ module.exports = function (app, cfg) {
                         req.utc_clock = { now: moment.tz('Universal') };
                     }
 
+                    // Add Auth
+                    req.discord_session.auth = {
+                        app: tinyAuth,
+                        command: tinyCommandAuth,
+                        bot: botAuth
+                    };
+
                     // Exist Discord Session
                     const existDiscordSession = (typeof req.session[sessionVars.token_expires_in] === "string" && typeof req.session[sessionVars.access_token] === "string" && typeof req.session[sessionVars.refresh_token] === "string");
 
