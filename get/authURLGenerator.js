@@ -2,8 +2,10 @@ module.exports = function (tinyCfg, jsonState, tinyCrypto, type) {
 
     // Redirect Fixed
     let tinyRedirect = '';
-    if (typeof tinyCfg.redirect === "string") {
-        tinyRedirect = encodeURIComponent(tinyCfg.redirect);
+    if (type !== "login_command") {
+        if (typeof tinyCfg.redirect === "string") {
+            tinyRedirect = '&redirect_uri=' + encodeURIComponent(tinyCfg.redirect);
+        }
     }
 
     // Crypto
@@ -26,7 +28,7 @@ module.exports = function (tinyCfg, jsonState, tinyCrypto, type) {
     }
 
     // Webhook
-    else if(type === "webhook") {
+    else if (type === "webhook") {
         tinyScopeURI += 'webhook.incoming';
     }
 
@@ -34,6 +36,6 @@ module.exports = function (tinyCfg, jsonState, tinyCrypto, type) {
     const apiURL = require('../config.json').url;
 
     // Redirect URL
-    return `${apiURL}oauth2/authorize?client_id=${encodeURIComponent(tinyCfg.client_id)}&scope=${tinyScopeURI}&response_type=code&redirect_uri=${tinyRedirect}&state=${tinyState}`;
+    return `${apiURL}oauth2/authorize?client_id=${encodeURIComponent(tinyCfg.client_id)}&scope=${tinyScopeURI}&response_type=code${tinyRedirect}&state=${tinyState}`;
 
 };
