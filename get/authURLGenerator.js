@@ -2,10 +2,8 @@ module.exports = function (tinyCfg, jsonState, tinyCrypto, type) {
 
     // Redirect Fixed
     let tinyRedirect = '';
-    if (type !== "login_command") {
-        if (typeof tinyCfg.redirect === "string") {
-            tinyRedirect = '&redirect_uri=' + encodeURIComponent(tinyCfg.redirect);
-        }
+    if (type !== "login_command" && typeof tinyCfg.redirect === "string") {
+        tinyRedirect = '&redirect_uri=' + encodeURIComponent(tinyCfg.redirect);
     }
 
     // Crypto
