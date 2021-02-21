@@ -680,18 +680,30 @@ module.exports = function (app, cfg) {
                 // Firebase Logout
                 if (cfg.firebase) {
 
-                    // Revoke Refresh
-                    cfg.firebase.auth
-                        .revokeRefreshTokens(discordSession.uidGenerator(user.id))
-                        .then(() => {
-                            req.session = null;
-                            resolve(user);
-                            return;
-                        }).catch(err => {
-                            req.session = null;
-                            resolve(user);
-                            return;
-                        });
+                    // Exist User
+                    if (user) {
+
+                        // Revoke Refresh
+                        cfg.firebase.auth
+                            .revokeRefreshTokens(discordSession.uidGenerator(user.id))
+                            .then(() => {
+                                req.session = null;
+                                resolve(user);
+                                return;
+                            }).catch(err => {
+                                req.session = null;
+                                resolve(user);
+                                return;
+                            });
+
+                    }
+
+                    // Nope
+                    else {
+                        req.session = null;
+                        resolve();
+                    }
+
                 }
 
                 // Nope
