@@ -722,7 +722,7 @@ module.exports = function (app, cfg) {
 
         // Logout Action
         const logout_action = function (req, csrfToken, redirect) {
-            return new Promise(function (resolve, reject) {
+            return new Promise(function (resolve) {
 
                 // State
                 const state = { csrfToken: req.csrfToken.now.value };
@@ -755,7 +755,7 @@ module.exports = function (app, cfg) {
                     ).then(result => {
                         resolve(result);
                         return;
-                    }).catch((err) => { reject(err); return; });
+                    }).catch((err) => { resolve(err); return; });
 
                     // Complete
                     return;
@@ -817,22 +817,15 @@ module.exports = function (app, cfg) {
                 logout_action(req, req.csrfToken.now.value, req.url).then(result => {
 
                     // Discord Logout Complete
-                    if (result.complete) {
-                        logout_result(req, result.user).then(() => {
-                            resolve(result); return;
-                        }).catch(err => {
-                            reject(err); return;
-                        });
-                    }
-
-                    // Nope
-                    else {
-                        resolve(result);
-                    }
+                    logout_result(req, result.user).then(() => {
+                        resolve(result); return;
+                    }).catch(err => {
+                        reject(err); return;
+                    });
 
                     return;
 
-                }).catch((err) => { reject(err); return; });
+                });
 
                 // Complete
                 return;
@@ -1390,28 +1383,17 @@ module.exports = function (app, cfg) {
             logout_action(req, req.query[sessionVars.csrfToken]).then(result => {
 
                 // Discord Logout Complete
-                if (result.complete) {
-                    logout_result(req, result.user).then(() => {
-                        logout_firebase(res, req, result.redirect, firebase_auth);
-                        return;
-                    }).catch(err => {
-                        tinyCfg.errorCallback(err, req, res); return;
-                    });
-                }
-
-                // Nope
-                else {
-
-                    // Get Domain
-                    const tinyDomain = require('@tinypudding/puddy-lib/http/getDomainURL')(req, cfg.port);
-                    res.redirect(tinyDomain + result.redirect);
-
-                }
+                logout_result(req, result.user).then(() => {
+                    logout_firebase(res, req, result.redirect, firebase_auth);
+                    return;
+                }).catch(err => {
+                    tinyCfg.errorCallback(err, req, res); return;
+                });
 
                 // Complete
                 return;
 
-            }).catch((err) => { tinyCfg.errorCallback(err, req, res); return; });
+            });
 
             // Complete
             return;

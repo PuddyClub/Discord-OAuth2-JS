@@ -92,12 +92,12 @@ module.exports = async function (req, access_token, cfg, existSession) {
                                         // Get API HTTP and Revoke the Token
                                         const revokeToken = require('../api/revokeToken');
                                         revokeToken(access_token, tinyAuth).then((data) => {
-                                            result.complete = true;
                                             result.data = data;
                                             resolve(result);
                                             return;
                                         }).catch(err => {
-                                            reject(err);
+                                            result.err = err;
+                                            reject(result);
                                             return;
                                         });
 
