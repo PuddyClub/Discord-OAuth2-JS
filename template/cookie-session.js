@@ -831,8 +831,6 @@ module.exports = function (app, cfg) {
                     // Discord Logout Complete
                     logout_result(req, result.user).then(() => {
                         resolve(result); return;
-                    }).catch(err => {
-                        reject(err); return;
                     });
 
                     return;
@@ -1398,8 +1396,6 @@ module.exports = function (app, cfg) {
                 logout_result(req, result.user).then(() => {
                     logout_firebase(res, req, result.redirect, firebase_auth);
                     return;
-                }).catch(err => {
-                    tinyCfg.errorCallback(err, req, res); return;
                 });
 
                 // Complete
