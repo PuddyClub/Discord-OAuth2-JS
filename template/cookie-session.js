@@ -131,9 +131,11 @@ module.exports = function (app, cfg) {
             }
 
             // User IP
-            const requestIpAddress = getUserIP(req, { isFirebase: true });
-            preparedsSession.user_ip = requestIpAddress.value;
-            preparedsSession.user_ip_type = requestIpAddress.type;
+            if (tinyCfg.ipVerification) {
+                const requestIpAddress = getUserIP(req, { isFirebase: true });
+                preparedsSession.user_ip = requestIpAddress.value;
+                preparedsSession.user_ip_type = requestIpAddress.type;
+            }
 
             // Discord
             preparedsSession.discord = user;
@@ -259,23 +261,31 @@ module.exports = function (app, cfg) {
                     // Complete
                     .then((decodedToken) => {
 
-                        // Get Request IP
-                        const requestIpAddress = getUserIP(req, { isFirebase: true });
+                        // Validator
+                        if (tinyCfg.ipVerification) {
 
-                        // Convert
-                        if (typeof decodedToken.user_ip === "string") { decodedToken.user_ip = [decodedToken.user_ip]; }
-                        if (typeof requestIpAddress.value === "string") { requestIpAddress.value = [requestIpAddress.value]; }
+                            // Get Request IP
+                            const requestIpAddress = getUserIP(req, { isFirebase: true });
 
-                        // Verification
-                        if (hash(decodedToken.user_ip) === hash(requestIpAddress.value) && decodedToken.user_ip_type === requestIpAddress.type) {
-                            req.firebase_session = decodedToken;
-                            resolve();
+                            // Convert
+                            if (typeof decodedToken.user_ip === "string") { decodedToken.user_ip = [decodedToken.user_ip]; }
+                            if (typeof requestIpAddress.value === "string") { requestIpAddress.value = [requestIpAddress.value]; }
+
+                            // Verification
+                            if (hash(decodedToken.user_ip) === hash(requestIpAddress.value) && decodedToken.user_ip_type === requestIpAddress.type) {
+                                req.firebase_session = decodedToken;
+                                resolve();
+                            }
+
+                            // Nope
+                            else {
+                                reject({ code: 406, message: 'Invalid User IP Session!' });
+                            }
+
                         }
 
                         // Nope
-                        else {
-                            reject({ code: 406, message: 'Invalid User IP Session!' });
-                        }
+                        else { resolve(); }
 
                         // Complete
                         return;
@@ -311,6 +321,9 @@ module.exports = function (app, cfg) {
 
         // Create Settings
         const tinyCfg = _.defaultsDeep({}, cfg.cfg, {
+
+            // IP Verification
+            ipVerification: false,
 
             // Need Verification 
             needEmailVerified: true,
