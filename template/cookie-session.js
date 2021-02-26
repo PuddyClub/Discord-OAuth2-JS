@@ -285,7 +285,7 @@ module.exports = function (app, cfg) {
                         }
 
                         // Nope
-                        else { resolve(); }
+                        else { req.firebase_session = decodedToken; resolve(); }
 
                         // Complete
                         return;
