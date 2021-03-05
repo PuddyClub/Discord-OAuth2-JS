@@ -53,7 +53,8 @@ module.exports = function (app, cfg) {
                 const tinyDomain = require('@tinypudding/puddy-lib/http/getDomainURL')(req, cfg.port);
 
                 // Fix URL
-                if (redirect_url.startsWith('/')) { redirect_url = redirect_url.substring(1); }
+                if (typeof redirect_url !== "string") { redirect_url = ''; }
+                else if (redirect_url.startsWith('/')) { redirect_url = redirect_url.substring(1); }
 
                 // New URL
                 redirect_url = `${tinyURLPath[type]}?redirect=${encodeURIComponent(redirect_url)}`;
