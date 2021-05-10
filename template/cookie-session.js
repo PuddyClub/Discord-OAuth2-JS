@@ -257,7 +257,7 @@ module.exports = function (app, cfg) {
             return new Promise(function (resolve, reject) {
 
                 // Prepare Auth
-                cfg.firebase.auth.verifyIdToken(req.session[sessionVars.firebase_token])
+                cfg.firebase.auth.verifySessionCookie(req.session[sessionVars.firebase_token])
 
                     // Complete
                     .then((decodedToken) => {
