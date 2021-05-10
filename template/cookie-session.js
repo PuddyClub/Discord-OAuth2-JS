@@ -1185,8 +1185,23 @@ module.exports = function (app, cfg) {
                         (typeof req.body.csrfToken === "string" && req.csrfToken.now.value === req.body.csrfToken)
                     ) {
 
-                        // Get Session
-                        req.session[sessionVars.firebase_token] = req.body.token;
+                        // Prepare Module
+                        const cookieSession = require('@tinypudding/firebase-lib/cookieSession');
+                        const newCookie = new cookieSession();
+
+                        // Set Settings
+                        newCookie.setCookieTimeGenerator(metaPageRedirect.cookieTimeGenerator);
+                        newCookie.setCheckAuthTime(metaPageRedirect.checkAuthTime);
+
+                        // Action
+                        newCookie.genCookieSession(cfg.firebase.auth, req.body.token).then(sessionCookie => {
+                            req.session[sessionVars.firebase_token] = sessionCookie;
+                            res.json({ success: true });
+                            return;
+                        }).catch(err => {
+                            res.json({ success: false, error: err.message }); return;
+                        });
+
                         /* discordSession.firebase.updateUser(req.session[sessionVars.access_token], req.discord_session.user).then(function () {
                             res.json({ success: true });
                             return;
@@ -1195,7 +1210,6 @@ module.exports = function (app, cfg) {
                             res.json({ success: false, error: 'Error updating user' });
                             return;
                         }); */
-                        res.json({ success: true });
 
                         // Complete
                         return;
