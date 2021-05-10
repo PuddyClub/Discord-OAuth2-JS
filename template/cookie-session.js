@@ -1190,8 +1190,8 @@ module.exports = function (app, cfg) {
                         const newCookie = new cookieSession();
 
                         // Set Settings
-                        newCookie.setCookieTimeGenerator(metaPageRedirect.cookieTimeGenerator);
-                        newCookie.setCheckAuthTime(metaPageRedirect.checkAuthTime);
+                        newCookie.setCookieTimeGenerator(cfg.cookieTimeGenerator);
+                        newCookie.setCheckAuthTime(cfg.checkAuthTime);
 
                         // Action
                         newCookie.genCookieSession(cfg.firebase.auth, req.body.token).then(sessionCookie => {
